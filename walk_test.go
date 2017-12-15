@@ -98,11 +98,16 @@ func TestWalkWithinWindow(t *testing.T) {
 		return true
 	},
 		r.read,
+		logcache.WithWalkStartTime(time.Unix(0, 1)),
 		logcache.WithWalkEndTime(time.Unix(0, 4)),
 	)
 
 	if len(r.sourceIDs) != 2 {
 		t.Fatalf("expected read to be invoked 2 times: %d", len(r.sourceIDs))
+	}
+
+	if !reflect.DeepEqual(r.starts, []int64{1, 3}) {
+		t.Fatalf("wrong starts: %v", r.starts)
 	}
 
 	if len(r.opts[0]) != 1 {

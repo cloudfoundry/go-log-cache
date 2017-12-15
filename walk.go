@@ -77,6 +77,13 @@ func WithWalkLogger(l *log.Logger) WalkOption {
 	})
 }
 
+// WithWalkStartTime sets the start time of the query.
+func WithWalkStartTime(t time.Time) WalkOption {
+	return walkOptionFunc(func(c *walkConfig) {
+		c.start = t.UnixNano()
+	})
+}
+
 // WithWalkEndTime sets the end time of the query. Once reached, Walk will
 // exit.
 func WithWalkEndTime(t time.Time) WalkOption {
