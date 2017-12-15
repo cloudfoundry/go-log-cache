@@ -12,21 +12,21 @@ import (
 	"github.com/golang/protobuf/jsonpb"
 )
 
-// IngressClient reads from LogCache via the RESTful API.
-type IngressClient struct {
+// Client reads from LogCache via the RESTful API.
+type Client struct {
 	addr string
 }
 
-// NewIngressClient creates a IngressClient.
-func NewIngressClient(addr string) *IngressClient {
-	return &IngressClient{
+// NewIngressClient creates a Client.
+func NewClient(addr string) *Client {
+	return &Client{
 		addr: addr,
 	}
 }
 
 // Read queries the LogCache and returns the given envelopes. To override any
 // query defaults (e.g., end time), use the according option.
-func (c *IngressClient) Read(sourceID string, start time.Time, opts ...ReadOption) ([]*loggregator_v2.Envelope, error) {
+func (c *Client) Read(sourceID string, start time.Time, opts ...ReadOption) ([]*loggregator_v2.Envelope, error) {
 	u, err := url.Parse(c.addr)
 	if err != nil {
 		return nil, err

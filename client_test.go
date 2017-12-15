@@ -10,10 +10,10 @@ import (
 	rpc "code.cloudfoundry.org/go-log-cache/rpc/logcache"
 )
 
-func TestIngressClientRead(t *testing.T) {
+func TestClientRead(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
-	client := logcache.NewIngressClient(logCache.addr())
+	client := logcache.NewClient(logCache.addr())
 
 	envelopes, err := client.Read("some-id", time.Unix(0, 99))
 
@@ -46,10 +46,10 @@ func TestIngressClientRead(t *testing.T) {
 	}
 }
 
-func TestIngressClientReadWithOptions(t *testing.T) {
+func TestClientReadWithOptions(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
-	client := logcache.NewIngressClient(logCache.addr())
+	client := logcache.NewClient(logCache.addr())
 
 	_, err := client.Read(
 		"some-id",
@@ -92,11 +92,11 @@ func TestIngressClientReadWithOptions(t *testing.T) {
 	}
 }
 
-func TestIngressClientReadNon200(t *testing.T) {
+func TestClientReadNon200(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 	logCache.statusCode = 500
-	client := logcache.NewIngressClient(logCache.addr())
+	client := logcache.NewClient(logCache.addr())
 
 	_, err := client.Read("some-id", time.Unix(0, 99))
 
@@ -105,11 +105,11 @@ func TestIngressClientReadNon200(t *testing.T) {
 	}
 }
 
-func TestIngressClientReadInvalidResponse(t *testing.T) {
+func TestClientReadInvalidResponse(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 	logCache.result = []byte("invalid")
-	client := logcache.NewIngressClient(logCache.addr())
+	client := logcache.NewClient(logCache.addr())
 
 	_, err := client.Read("some-id", time.Unix(0, 99))
 
@@ -118,9 +118,9 @@ func TestIngressClientReadInvalidResponse(t *testing.T) {
 	}
 }
 
-func TestIngressClientReadUnknownAddr(t *testing.T) {
+func TestClientReadUnknownAddr(t *testing.T) {
 	t.Parallel()
-	client := logcache.NewIngressClient("http://invalid.url")
+	client := logcache.NewClient("http://invalid.url")
 
 	_, err := client.Read("some-id", time.Unix(0, 99))
 
@@ -129,9 +129,9 @@ func TestIngressClientReadUnknownAddr(t *testing.T) {
 	}
 }
 
-func TestIngressClientReadInvalidAddr(t *testing.T) {
+func TestClientReadInvalidAddr(t *testing.T) {
 	t.Parallel()
-	client := logcache.NewIngressClient("-:-invalid")
+	client := logcache.NewClient("-:-invalid")
 
 	_, err := client.Read("some-id", time.Unix(0, 99))
 
