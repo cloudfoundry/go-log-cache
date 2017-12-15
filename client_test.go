@@ -3,6 +3,7 @@ package logcache_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 
@@ -37,9 +38,7 @@ func TestClientRead(t *testing.T) {
 		t.Fatalf("expected Path '/v1/read/some-id' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
-	if logCache.reqs[0].URL.Query().Get("start_time") != "99" {
-		t.Fatalf("expected query parameter 'start_time' to equal '99', but got '%s'", logCache.reqs[0].URL.Query().Get("start_time"))
-	}
+	assertQueryParam(t, logCache.reqs[0].URL, "start_time", "99")
 
 	if len(logCache.reqs[0].URL.Query()) != 1 {
 		t.Fatalf("expected only a single query parameter, but got %d", len(logCache.reqs[0].URL.Query()))
@@ -71,21 +70,10 @@ func TestClientReadWithOptions(t *testing.T) {
 		t.Fatalf("expected Path '/v1/read/some-id' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
-	if logCache.reqs[0].URL.Query().Get("start_time") != "99" {
-		t.Fatalf("expected query parameter 'start_time' to equal '99', but got '%s'", logCache.reqs[0].URL.Query().Get("start_time"))
-	}
-
-	if logCache.reqs[0].URL.Query().Get("end_time") != "101" {
-		t.Fatalf("expected query parameter 'end_time' to equal '101', but got '%s'", logCache.reqs[0].URL.Query().Get("end_time"))
-	}
-
-	if logCache.reqs[0].URL.Query().Get("limit") != "103" {
-		t.Fatalf("expected query parameter 'limit' to equal '103', but got '%s'", logCache.reqs[0].URL.Query().Get("limit"))
-	}
-
-	if logCache.reqs[0].URL.Query().Get("envelope_type") != "LOG" {
-		t.Fatalf("expected query parameter 'envelope_type' to equal 'LOG', but got '%s'", logCache.reqs[0].URL.Query().Get("envelope_type"))
-	}
+	assertQueryParam(t, logCache.reqs[0].URL, "start_time", "99")
+	assertQueryParam(t, logCache.reqs[0].URL, "end_time", "101")
+	assertQueryParam(t, logCache.reqs[0].URL, "limit", "103")
+	assertQueryParam(t, logCache.reqs[0].URL, "envelope_type", "LOG")
 
 	if len(logCache.reqs[0].URL.Query()) != 4 {
 		t.Fatalf("expected only 4 query parameters, but got %d", len(logCache.reqs[0].URL.Query()))
@@ -177,4 +165,13 @@ func (s *stubLogCache) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.reqs = append(s.reqs, r)
 	w.WriteHeader(s.statusCode)
 	w.Write(s.result)
+}
+
+func assertQueryParam(t *testing.T, u *url.URL, name, value string) {
+	t.Helper()
+	if u.Query().Get(name) == value {
+		return
+	}
+
+	t.Fatalf("expected query parameter '%s' to equal '%s', but got '%s'", name, value, u.Query().Get(name))
 }
