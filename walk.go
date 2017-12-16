@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"code.cloudfoundry.org/go-log-cache/rpc/logcache"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 )
 
@@ -35,6 +36,14 @@ func Walk(sourceID string, v Visitor, r Reader, opts ...WalkOption) {
 	var readOpts []ReadOption
 	if !c.end.IsZero() {
 		readOpts = append(readOpts, WithEndTime(c.end))
+	}
+
+	if c.limit != nil {
+		readOpts = append(readOpts, WithLimit(*c.limit))
+	}
+
+	if c.envelopeType != nil {
+		readOpts = append(readOpts, WithEnvelopeType(*c.envelopeType))
 	}
 
 	for {
@@ -92,6 +101,20 @@ func WithWalkEndTime(t time.Time) WalkOption {
 	})
 }
 
+// WithWalkLimit sets the limit of the query.
+func WithWalkLimit(limit int) WalkOption {
+	return walkOptionFunc(func(c *walkConfig) {
+		c.limit = &limit
+	})
+}
+
+// WithWalkEnvelopeType sets the envelope_type of the query.
+func WithWalkEnvelopeType(t logcache.EnvelopeTypes) WalkOption {
+	return walkOptionFunc(func(c *walkConfig) {
+		c.envelopeType = &t
+	})
+}
+
 // WithWalkBackoff sets the backoff strategy for an empty batch or error. It
 // defaults to stopping on an error or empty batch via AlwaysDoneBackoff.
 func WithWalkBackoff(b Backoff) WalkOption {
@@ -127,6 +150,34 @@ func (b AlwaysDoneBackoff) OnEmpty() bool {
 // Reset implements Backoff.
 func (b AlwaysDoneBackoff) Reset() {}
 
+// AlwaysRetryBackoff returns true for both OnErr and OnEmpty after sleeping
+// the given interval.
+type AlwaysRetryBackoff struct {
+	interval time.Duration
+}
+
+// NewAlwaysRetryBackoff returns a new AlwaysRetryBackoff.
+func NewAlwaysRetryBackoff(interval time.Duration) AlwaysRetryBackoff {
+	return AlwaysRetryBackoff{
+		interval: interval,
+	}
+}
+
+// OnErr implements Backoff.
+func (b AlwaysRetryBackoff) OnErr(error) bool {
+	time.Sleep(b.interval)
+	return true
+}
+
+// OnEmpty implements Backoff.
+func (b AlwaysRetryBackoff) OnEmpty() bool {
+	time.Sleep(b.interval)
+	return true
+}
+
+// Reset implements Backoff.
+func (b AlwaysRetryBackoff) Reset() {}
+
 type walkOptionFunc func(*walkConfig)
 
 func (f walkOptionFunc) configure(c *walkConfig) {
@@ -134,8 +185,10 @@ func (f walkOptionFunc) configure(c *walkConfig) {
 }
 
 type walkConfig struct {
-	log     *log.Logger
-	backoff Backoff
-	start   int64
-	end     time.Time
+	log          *log.Logger
+	backoff      Backoff
+	start        int64
+	end          time.Time
+	limit        *int
+	envelopeType *logcache.EnvelopeTypes
 }

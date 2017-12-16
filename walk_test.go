@@ -2,11 +2,13 @@ package logcache_test
 
 import (
 	"errors"
+	"net/url"
 	"reflect"
 	"testing"
 	"time"
 
 	"code.cloudfoundry.org/go-log-cache"
+	rpc "code.cloudfoundry.org/go-log-cache/rpc/logcache"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 )
 
@@ -157,6 +159,35 @@ func TestWalkRetriesOnError(t *testing.T) {
 
 	if len(b.errs) != 1 {
 		t.Fatalf("expected backoff to be invoked 1 time: %d", len(b.errs))
+	}
+}
+
+func TestWalkPassesOpts(t *testing.T) {
+	t.Parallel()
+
+	r := &stubReader{}
+	logcache.Walk(
+		"some-id",
+		func(b []*loggregator_v2.Envelope) bool {
+			return false
+		},
+		r.read,
+		logcache.WithWalkLimit(99),
+		logcache.WithWalkEnvelopeType(rpc.EnvelopeTypes_LOG),
+	)
+
+	u := &url.URL{}
+	q := u.Query()
+	for _, o := range r.opts[0] {
+		o(u, q)
+	}
+
+	if q.Get("limit") != "99" {
+		t.Fatal("expected 'limit' to be set")
+	}
+
+	if q.Get("envelope_type") != "LOG" {
+		t.Fatal("expected 'envelope_type' to be set")
 	}
 }
 
