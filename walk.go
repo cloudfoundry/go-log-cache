@@ -63,6 +63,8 @@ func Walk(sourceID string, v Visitor, r Reader, opts ...WalkOption) {
 			continue
 		}
 
+		c.backoff.Reset()
+
 		// If visitor is done or the next timestamp would be outside of our
 		// window (only when end is set), then be done.
 		if !v(es) || (!c.end.IsZero() && es[len(es)-1].Timestamp+1 >= c.end.UnixNano()) {

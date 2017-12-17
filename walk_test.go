@@ -160,6 +160,10 @@ func TestWalkRetriesOnError(t *testing.T) {
 	if len(b.errs) != 1 {
 		t.Fatalf("expected backoff to be invoked 1 time: %d", len(b.errs))
 	}
+
+	if b.resetCalled != 1 {
+		t.Fatalf("expected reset to be invoked 1 time: %d", b.resetCalled)
+	}
 }
 
 func TestWalkPassesOpts(t *testing.T) {
@@ -195,6 +199,7 @@ type stubBackoff struct {
 	errs          []error
 	onErrReturn   bool
 	onEmptyReturn bool
+	resetCalled   int
 }
 
 func (s *stubBackoff) OnErr(err error) bool {
@@ -207,6 +212,7 @@ func (s *stubBackoff) OnEmpty() bool {
 }
 
 func (s *stubBackoff) Reset() {
+	s.resetCalled++
 }
 
 type stubReader struct {
