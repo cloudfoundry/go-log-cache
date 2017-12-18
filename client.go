@@ -12,16 +12,31 @@ import (
 	"github.com/golang/protobuf/jsonpb"
 )
 
+// HTTPClient is an interface that represents a http.Client.
+type HTTPClient interface {
+	Get(string) (*http.Response, error)
+}
+
 // Client reads from LogCache via the RESTful API.
 type Client struct {
-	addr string
+	addr       string
+	httpClient HTTPClient
 }
 
 // NewIngressClient creates a Client.
-func NewClient(addr string) *Client {
-	return &Client{
+func NewClient(addr string, opts ...ClientOption) *Client {
+	c := &Client{
 		addr: addr,
+		httpClient: &http.Client{
+			Timeout: 5 * time.Second,
+		},
 	}
+
+	for _, o := range opts {
+		o(c)
+	}
+
+	return c
 }
 
 // Read queries the LogCache and returns the given envelopes. To override any
@@ -41,7 +56,7 @@ func (c *Client) Read(sourceID string, start time.Time, opts ...ReadOption) ([]*
 	}
 	u.RawQuery = q.Encode()
 
-	resp, err := http.Get(u.String())
+	resp, err := c.httpClient.Get(u.String())
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +71,15 @@ func (c *Client) Read(sourceID string, start time.Time, opts ...ReadOption) ([]*
 	}
 
 	return r.Envelopes.Batch, nil
+}
+
+// ClientOption configures the LogCache client.
+type ClientOption func(c *Client)
+
+func WithHTTPClient(h HTTPClient) ClientOption {
+	return func(c *Client) {
+		c.httpClient = h
+	}
 }
 
 // ReadOption configures the URL that is used to submit the query. The
