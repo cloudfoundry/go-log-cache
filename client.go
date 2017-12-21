@@ -39,6 +39,17 @@ func NewClient(addr string, opts ...ClientOption) *Client {
 	return c
 }
 
+// ClientOption configures the LogCache client.
+type ClientOption func(c *Client)
+
+// WithHTTPClient sets the HTTP client. It defaults to a client that timesout
+// after 5 seconds.
+func WithHTTPClient(h HTTPClient) ClientOption {
+	return func(c *Client) {
+		c.httpClient = h
+	}
+}
+
 // Read queries the LogCache and returns the given envelopes. To override any
 // query defaults (e.g., end time), use the according option.
 func (c *Client) Read(sourceID string, start time.Time, opts ...ReadOption) ([]*loggregator_v2.Envelope, error) {
@@ -71,15 +82,6 @@ func (c *Client) Read(sourceID string, start time.Time, opts ...ReadOption) ([]*
 	}
 
 	return r.Envelopes.Batch, nil
-}
-
-// ClientOption configures the LogCache client.
-type ClientOption func(c *Client)
-
-func WithHTTPClient(h HTTPClient) ClientOption {
-	return func(c *Client) {
-		c.httpClient = h
-	}
 }
 
 // ReadOption configures the URL that is used to submit the query. The
