@@ -180,6 +180,49 @@ func (b AlwaysRetryBackoff) OnEmpty() bool {
 // Reset implements Backoff.
 func (b AlwaysRetryBackoff) Reset() {}
 
+// RetryBackoff returns true for both OnErr and OnEmpty after sleeping
+// the given interval for a limited number of times.
+type RetryBackoff struct {
+	interval time.Duration
+	maxCount int
+	count    int
+}
+
+// NewRetryBackoff returns a new RetryBackoff.
+func NewRetryBackoff(interval time.Duration, maxCount int) *RetryBackoff {
+	return &RetryBackoff{
+		interval: interval,
+		maxCount: maxCount,
+	}
+}
+
+// OnErr implements Backoff.
+func (b *RetryBackoff) OnErr(error) bool {
+	b.count++
+	if b.count >= b.maxCount {
+		return false
+	}
+
+	time.Sleep(b.interval)
+	return true
+}
+
+// OnEmpty implements Backoff.
+func (b *RetryBackoff) OnEmpty() bool {
+	b.count++
+	if b.count >= b.maxCount {
+		return false
+	}
+
+	time.Sleep(b.interval)
+	return true
+}
+
+// Reset implements Backoff.
+func (b *RetryBackoff) Reset() {
+	b.count = 0
+}
+
 type walkOptionFunc func(*walkConfig)
 
 func (f walkOptionFunc) configure(c *walkConfig) {
