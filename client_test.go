@@ -1,14 +1,19 @@
 package logcache_test
 
 import (
+	"context"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"sync"
 	"testing"
 	"time"
 
 	logcache "code.cloudfoundry.org/go-log-cache"
 	rpc "code.cloudfoundry.org/go-log-cache/rpc/logcache"
+	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
+	"google.golang.org/grpc"
 )
 
 func TestClientRead(t *testing.T) {
@@ -23,7 +28,7 @@ func TestClientRead(t *testing.T) {
 	}
 
 	if len(envelopes) != 2 {
-		t.Fatalf("expected to receive 2 envlopes, got %d", len(envelopes))
+		t.Fatalf("expected to receive 2 envelopes, got %d", len(envelopes))
 	}
 
 	if envelopes[0].Timestamp != 99 || envelopes[1].Timestamp != 100 {
@@ -42,6 +47,56 @@ func TestClientRead(t *testing.T) {
 
 	if len(logCache.reqs[0].URL.Query()) != 1 {
 		t.Fatalf("expected only a single query parameter, but got %d", len(logCache.reqs[0].URL.Query()))
+	}
+}
+
+func TestGrpcClientRead(t *testing.T) {
+	t.Parallel()
+	logCache := newStubGrpcLogCache()
+	client := logcache.NewClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
+
+	endTime := time.Now()
+
+	envelopes, err := client.Read("some-id", time.Unix(0, 99),
+		logcache.WithLimit(10),
+		logcache.WithEndTime(endTime),
+		logcache.WithEnvelopeType(rpc.EnvelopeTypes_LOG),
+	)
+
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	if len(envelopes) != 2 {
+		t.Fatalf("expected to receive 2 envelopes, got %d", len(envelopes))
+	}
+
+	if envelopes[0].Timestamp != 99 || envelopes[1].Timestamp != 100 {
+		t.Fatal("wrong envelopes")
+	}
+
+	if len(logCache.reqs) != 1 {
+		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
+	}
+
+	if logCache.reqs[0].SourceId != "some-id" {
+		t.Fatalf("expected SourceId (%s) to equal %s", logCache.reqs[0].SourceId, "some-id")
+	}
+
+	if logCache.reqs[0].StartTime != 99 {
+		t.Fatalf("expected StartTime (%d) to equal %d", logCache.reqs[0].StartTime, 99)
+	}
+
+	if logCache.reqs[0].EndTime != endTime.UnixNano() {
+		t.Fatalf("expected EndTime (%d) to equal %d", logCache.reqs[0].EndTime, endTime.UnixNano())
+	}
+
+	if logCache.reqs[0].Limit != 10 {
+		t.Fatalf("expected Limit (%d) to equal %d", logCache.reqs[0].Limit, 10)
+	}
+
+	if logCache.reqs[0].EnvelopeType != rpc.EnvelopeTypes_LOG {
+		t.Fatalf("expected EnvelopeType (%v) to equal %v", logCache.reqs[0].EnvelopeType, rpc.EnvelopeTypes_LOG)
 	}
 }
 
@@ -174,4 +229,52 @@ func assertQueryParam(t *testing.T, u *url.URL, name, value string) {
 	}
 
 	t.Fatalf("expected query parameter '%s' to equal '%s', but got '%s'", name, value, u.Query().Get(name))
+}
+
+type stubGrpcLogCache struct {
+	mu   sync.Mutex
+	reqs []*rpc.ReadRequest
+	lis  net.Listener
+}
+
+func newStubGrpcLogCache() *stubGrpcLogCache {
+	s := &stubGrpcLogCache{}
+	lis, err := net.Listen("tcp", ":0")
+	if err != nil {
+		panic(err)
+	}
+	s.lis = lis
+	srv := grpc.NewServer()
+	rpc.RegisterEgressServer(srv, s)
+	go srv.Serve(lis)
+
+	return s
+}
+
+func (s *stubGrpcLogCache) addr() string {
+	return s.lis.Addr().String()
+}
+
+func (s *stubGrpcLogCache) Read(c context.Context, r *rpc.ReadRequest) (*rpc.ReadResponse, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.reqs = append(s.reqs, r)
+
+	return &rpc.ReadResponse{
+		Envelopes: &loggregator_v2.EnvelopeBatch{
+			Batch: []*loggregator_v2.Envelope{
+				{Timestamp: 99, SourceId: "some-id"},
+				{Timestamp: 100, SourceId: "some-id"},
+			},
+		},
+	}, nil
+}
+
+func (s *stubGrpcLogCache) requests() []*rpc.ReadRequest {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	r := make([]*rpc.ReadRequest, len(s.reqs))
+	copy(r, s.reqs)
+	return r
 }

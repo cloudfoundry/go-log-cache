@@ -1,6 +1,7 @@
 package logcache
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -10,6 +11,7 @@ import (
 	"code.cloudfoundry.org/go-log-cache/rpc/logcache"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 	"github.com/golang/protobuf/jsonpb"
+	"google.golang.org/grpc"
 )
 
 // HTTPClient is an interface that represents a http.Client.
@@ -19,8 +21,10 @@ type HTTPClient interface {
 
 // Client reads from LogCache via the RESTful API.
 type Client struct {
-	addr       string
+	addr string
+
 	httpClient HTTPClient
+	grpcClient logcache.EgressClient
 }
 
 // NewIngressClient creates a Client.
@@ -50,9 +54,25 @@ func WithHTTPClient(h HTTPClient) ClientOption {
 	}
 }
 
+// WithViaGRPC enables gRPC instead of HTTP/1 for reading from LogCache.
+func WithViaGRPC(opts ...grpc.DialOption) ClientOption {
+	return func(c *Client) {
+		conn, err := grpc.Dial(c.addr, opts...)
+		if err != nil {
+			panic(fmt.Sprintf("failed to dial via gRPC: %s", err))
+		}
+
+		c.grpcClient = logcache.NewEgressClient(conn)
+	}
+}
+
 // Read queries the LogCache and returns the given envelopes. To override any
 // query defaults (e.g., end time), use the according option.
 func (c *Client) Read(sourceID string, start time.Time, opts ...ReadOption) ([]*loggregator_v2.Envelope, error) {
+	if c.grpcClient != nil {
+		return c.grpcRead(sourceID, start, opts)
+	}
+
 	u, err := url.Parse(c.addr)
 	if err != nil {
 		return nil, err
@@ -82,6 +102,39 @@ func (c *Client) Read(sourceID string, start time.Time, opts ...ReadOption) ([]*
 	}
 
 	return r.Envelopes.Batch, nil
+}
+
+func (c *Client) grpcRead(sourceID string, start time.Time, opts []ReadOption) ([]*loggregator_v2.Envelope, error) {
+	u := &url.URL{}
+	q := u.Query()
+	// allow the given options to configure the URL.
+	for _, o := range opts {
+		o(u, q)
+	}
+
+	req := &logcache.ReadRequest{
+		SourceId:  sourceID,
+		StartTime: start.UnixNano(),
+	}
+
+	if v, ok := q["limit"]; ok {
+		req.Limit, _ = strconv.ParseInt(v[0], 10, 64)
+	}
+
+	if v, ok := q["end_time"]; ok {
+		req.EndTime, _ = strconv.ParseInt(v[0], 10, 64)
+	}
+
+	if v, ok := q["envelope_type"]; ok {
+		req.EnvelopeType = logcache.EnvelopeTypes(logcache.EnvelopeTypes_value[v[0]])
+	}
+
+	ctx, _ := context.WithTimeout(context.Background(), time.Minute)
+	resp, err := c.grpcClient.Read(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Envelopes.Batch, nil
 }
 
 // ReadOption configures the URL that is used to submit the query. The
