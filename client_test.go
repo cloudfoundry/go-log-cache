@@ -61,6 +61,7 @@ func TestGrpcClientRead(t *testing.T) {
 		logcache.WithLimit(10),
 		logcache.WithEndTime(endTime),
 		logcache.WithEnvelopeType(rpc.EnvelopeTypes_LOG),
+		logcache.WithFilterTemplate(`{{.}}`),
 	)
 
 	if err != nil {
@@ -98,6 +99,10 @@ func TestGrpcClientRead(t *testing.T) {
 	if logCache.reqs[0].EnvelopeType != rpc.EnvelopeTypes_LOG {
 		t.Fatalf("expected EnvelopeType (%v) to equal %v", logCache.reqs[0].EnvelopeType, rpc.EnvelopeTypes_LOG)
 	}
+
+	if logCache.reqs[0].FilterTemplate != `{{.}}` {
+		t.Fatalf("expected FilterTemplate (%v) to equal %v", logCache.reqs[0].FilterTemplate, `{{.}}`)
+	}
 }
 
 func TestClientReadWithOptions(t *testing.T) {
@@ -111,6 +116,7 @@ func TestClientReadWithOptions(t *testing.T) {
 		logcache.WithEndTime(time.Unix(0, 101)),
 		logcache.WithLimit(103),
 		logcache.WithEnvelopeType(rpc.EnvelopeTypes_LOG),
+		logcache.WithFilterTemplate(`{{.}}`),
 	)
 
 	if err != nil {
@@ -129,9 +135,10 @@ func TestClientReadWithOptions(t *testing.T) {
 	assertQueryParam(t, logCache.reqs[0].URL, "end_time", "101")
 	assertQueryParam(t, logCache.reqs[0].URL, "limit", "103")
 	assertQueryParam(t, logCache.reqs[0].URL, "envelope_type", "LOG")
+	assertQueryParam(t, logCache.reqs[0].URL, "filter_template", "{{.}}")
 
-	if len(logCache.reqs[0].URL.Query()) != 4 {
-		t.Fatalf("expected only 4 query parameters, but got %d", len(logCache.reqs[0].URL.Query()))
+	if len(logCache.reqs[0].URL.Query()) != 5 {
+		t.Fatalf("expected only 5 query parameters, but got %d", len(logCache.reqs[0].URL.Query()))
 	}
 }
 

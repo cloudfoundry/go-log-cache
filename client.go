@@ -129,6 +129,10 @@ func (c *Client) grpcRead(sourceID string, start time.Time, opts []ReadOption) (
 		req.EnvelopeType = logcache.EnvelopeTypes(logcache.EnvelopeTypes_value[v[0]])
 	}
 
+	if v, ok := q["filter_template"]; ok {
+		req.FilterTemplate = v[0]
+	}
+
 	ctx, _ := context.WithTimeout(context.Background(), time.Minute)
 	resp, err := c.grpcClient.Read(ctx, req)
 	if err != nil {
@@ -163,5 +167,13 @@ func WithLimit(limit int) ReadOption {
 func WithEnvelopeType(t logcache.EnvelopeTypes) ReadOption {
 	return func(u *url.URL, q url.Values) {
 		q.Set("envelope_type", t.String())
+	}
+}
+
+// WithFilterTemplate sets the 'template_filter' query parameter to the given
+// value. It defaults to empty.
+func WithFilterTemplate(t string) ReadOption {
+	return func(u *url.URL, q url.Values) {
+		q.Set("filter_template", t)
 	}
 }

@@ -178,6 +178,7 @@ func TestWalkPassesOpts(t *testing.T) {
 		r.read,
 		logcache.WithWalkLimit(99),
 		logcache.WithWalkEnvelopeType(rpc.EnvelopeTypes_LOG),
+		logcache.WithWalkFilterTemplate(`{{.}}`),
 	)
 
 	u := &url.URL{}
@@ -192,6 +193,10 @@ func TestWalkPassesOpts(t *testing.T) {
 
 	if q.Get("envelope_type") != "LOG" {
 		t.Fatal("expected 'envelope_type' to be set")
+	}
+
+	if q.Get("filter_template") != "{{.}}" {
+		t.Fatal("expected 'filter_template' to be set")
 	}
 }
 

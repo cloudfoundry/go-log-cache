@@ -42,6 +42,10 @@ func Walk(sourceID string, v Visitor, r Reader, opts ...WalkOption) {
 		readOpts = append(readOpts, WithLimit(*c.limit))
 	}
 
+	if c.filterTemplate != "" {
+		readOpts = append(readOpts, WithFilterTemplate(c.filterTemplate))
+	}
+
 	if c.envelopeType != nil {
 		readOpts = append(readOpts, WithEnvelopeType(*c.envelopeType))
 	}
@@ -107,6 +111,13 @@ func WithWalkEndTime(t time.Time) WalkOption {
 func WithWalkLimit(limit int) WalkOption {
 	return walkOptionFunc(func(c *walkConfig) {
 		c.limit = &limit
+	})
+}
+
+// WithWalkFilterTemplate sets the filter_template of the query.
+func WithWalkFilterTemplate(t string) WalkOption {
+	return walkOptionFunc(func(c *walkConfig) {
+		c.filterTemplate = t
 	})
 }
 
@@ -230,10 +241,11 @@ func (f walkOptionFunc) configure(c *walkConfig) {
 }
 
 type walkConfig struct {
-	log          *log.Logger
-	backoff      Backoff
-	start        int64
-	end          time.Time
-	limit        *int
-	envelopeType *logcache.EnvelopeTypes
+	log            *log.Logger
+	backoff        Backoff
+	start          int64
+	end            time.Time
+	limit          *int
+	envelopeType   *logcache.EnvelopeTypes
+	filterTemplate string
 }
