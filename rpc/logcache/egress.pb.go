@@ -6,11 +6,20 @@ Package logcache is a generated protocol buffer package.
 
 It is generated from these files:
 	egress.proto
+	group_reader.proto
 	ingress.proto
 
 It has these top-level messages:
 	ReadRequest
 	ReadResponse
+	AddToGroupRequest
+	AddToGroupResponse
+	RemoveFromGroupRequest
+	RemoveFromGroupResponse
+	GroupReadRequest
+	GroupReadResponse
+	GroupRequest
+	GroupResponse
 	SendRequest
 	SendResponse
 */
