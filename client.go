@@ -16,7 +16,7 @@ import (
 
 // HTTPClient is an interface that represents a http.Client.
 type HTTPClient interface {
-	Get(string) (*http.Response, error)
+	Do(req *http.Request) (*http.Response, error)
 }
 
 // Client reads from LogCache via the RESTful API.
@@ -68,9 +68,14 @@ func WithViaGRPC(opts ...grpc.DialOption) ClientOption {
 
 // Read queries the LogCache and returns the given envelopes. To override any
 // query defaults (e.g., end time), use the according option.
-func (c *Client) Read(sourceID string, start time.Time, opts ...ReadOption) ([]*loggregator_v2.Envelope, error) {
+func (c *Client) Read(
+	ctx context.Context,
+	sourceID string,
+	start time.Time,
+	opts ...ReadOption,
+) ([]*loggregator_v2.Envelope, error) {
 	if c.grpcClient != nil {
-		return c.grpcRead(sourceID, start, opts)
+		return c.grpcRead(ctx, sourceID, start, opts)
 	}
 
 	u, err := url.Parse(c.addr)
@@ -87,7 +92,13 @@ func (c *Client) Read(sourceID string, start time.Time, opts ...ReadOption) ([]*
 	}
 	u.RawQuery = q.Encode()
 
-	resp, err := c.httpClient.Get(u.String())
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +115,7 @@ func (c *Client) Read(sourceID string, start time.Time, opts ...ReadOption) ([]*
 	return r.Envelopes.Batch, nil
 }
 
-func (c *Client) grpcRead(sourceID string, start time.Time, opts []ReadOption) ([]*loggregator_v2.Envelope, error) {
+func (c *Client) grpcRead(ctx context.Context, sourceID string, start time.Time, opts []ReadOption) ([]*loggregator_v2.Envelope, error) {
 	u := &url.URL{}
 	q := u.Query()
 	// allow the given options to configure the URL.
@@ -129,7 +140,6 @@ func (c *Client) grpcRead(sourceID string, start time.Time, opts []ReadOption) (
 		req.EnvelopeType = logcache.EnvelopeTypes(logcache.EnvelopeTypes_value[v[0]])
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Minute)
 	resp, err := c.grpcClient.Read(ctx, req)
 	if err != nil {
 		return nil, err
