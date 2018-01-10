@@ -4,6 +4,11 @@
 
 This is a golang client library for [Log-Cache][log-cache].
 
+## Usage
+
+This repository should be imported as:
+
+`import logcache "code.cloudfoundry.org/go-log-cache"`
 
 [slack-badge]:              https://slack.cloudfoundry.org/badge.svg
 [loggregator-slack]:        https://cloudfoundry.slack.com/archives/loggregator
