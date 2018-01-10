@@ -21,7 +21,7 @@ func TestClientRead(t *testing.T) {
 	logCache := newStubLogCache()
 	client := logcache.NewClient(logCache.addr())
 
-	envelopes, err := client.Read("some-id", time.Unix(0, 99))
+	envelopes, err := client.Read(context.Background(), "some-id", time.Unix(0, 99))
 
 	if err != nil {
 		t.Fatal(err.Error())
@@ -57,7 +57,7 @@ func TestGrpcClientRead(t *testing.T) {
 
 	endTime := time.Now()
 
-	envelopes, err := client.Read("some-id", time.Unix(0, 99),
+	envelopes, err := client.Read(context.Background(), "some-id", time.Unix(0, 99),
 		logcache.WithLimit(10),
 		logcache.WithEndTime(endTime),
 		logcache.WithEnvelopeType(rpc.EnvelopeTypes_LOG),
@@ -106,6 +106,7 @@ func TestClientReadWithOptions(t *testing.T) {
 	client := logcache.NewClient(logCache.addr())
 
 	_, err := client.Read(
+		context.Background(),
 		"some-id",
 		time.Unix(0, 99),
 		logcache.WithEndTime(time.Unix(0, 101)),
@@ -141,7 +142,7 @@ func TestClientReadNon200(t *testing.T) {
 	logCache.statusCode = 500
 	client := logcache.NewClient(logCache.addr())
 
-	_, err := client.Read("some-id", time.Unix(0, 99))
+	_, err := client.Read(context.Background(), "some-id", time.Unix(0, 99))
 
 	if err == nil {
 		t.Fatal("expected an error")
@@ -154,7 +155,7 @@ func TestClientReadInvalidResponse(t *testing.T) {
 	logCache.result = []byte("invalid")
 	client := logcache.NewClient(logCache.addr())
 
-	_, err := client.Read("some-id", time.Unix(0, 99))
+	_, err := client.Read(context.Background(), "some-id", time.Unix(0, 99))
 
 	if err == nil {
 		t.Fatal("expected an error")
@@ -165,7 +166,7 @@ func TestClientReadUnknownAddr(t *testing.T) {
 	t.Parallel()
 	client := logcache.NewClient("http://invalid.url")
 
-	_, err := client.Read("some-id", time.Unix(0, 99))
+	_, err := client.Read(context.Background(), "some-id", time.Unix(0, 99))
 
 	if err == nil {
 		t.Fatal("expected an error")
@@ -176,7 +177,53 @@ func TestClientReadInvalidAddr(t *testing.T) {
 	t.Parallel()
 	client := logcache.NewClient("-:-invalid")
 
-	_, err := client.Read("some-id", time.Unix(0, 99))
+	_, err := client.Read(context.Background(), "some-id", time.Unix(0, 99))
+
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
+func TestClientReadCancelling(t *testing.T) {
+	t.Parallel()
+	logCache := newStubLogCache()
+	logCache.block = true
+	client := logcache.NewClient(logCache.addr())
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := client.Read(
+		ctx,
+		"some-id",
+		time.Unix(0, 99),
+		logcache.WithEndTime(time.Unix(0, 101)),
+		logcache.WithLimit(103),
+		logcache.WithEnvelopeType(rpc.EnvelopeTypes_LOG),
+	)
+
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
+func TestGrpcClientReadCancelling(t *testing.T) {
+	t.Parallel()
+	logCache := newStubGrpcLogCache()
+	logCache.block = true
+	client := logcache.NewClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := client.Read(
+		ctx,
+		"some-id",
+		time.Unix(0, 99),
+		logcache.WithEndTime(time.Unix(0, 101)),
+		logcache.WithLimit(103),
+		logcache.WithEnvelopeType(rpc.EnvelopeTypes_LOG),
+	)
 
 	if err == nil {
 		t.Fatal("expected an error")
@@ -188,6 +235,7 @@ type stubLogCache struct {
 	server     *httptest.Server
 	reqs       []*http.Request
 	result     []byte
+	block      bool
 }
 
 func newStubLogCache() *stubLogCache {
@@ -217,6 +265,11 @@ func (s *stubLogCache) addr() string {
 }
 
 func (s *stubLogCache) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if s.block {
+		var block chan struct{}
+		<-block
+	}
+
 	s.reqs = append(s.reqs, r)
 	w.WriteHeader(s.statusCode)
 	w.Write(s.result)
@@ -232,9 +285,10 @@ func assertQueryParam(t *testing.T, u *url.URL, name, value string) {
 }
 
 type stubGrpcLogCache struct {
-	mu   sync.Mutex
-	reqs []*rpc.ReadRequest
-	lis  net.Listener
+	mu    sync.Mutex
+	reqs  []*rpc.ReadRequest
+	lis   net.Listener
+	block bool
 }
 
 func newStubGrpcLogCache() *stubGrpcLogCache {
@@ -256,6 +310,11 @@ func (s *stubGrpcLogCache) addr() string {
 }
 
 func (s *stubGrpcLogCache) Read(c context.Context, r *rpc.ReadRequest) (*rpc.ReadResponse, error) {
+	if s.block {
+		var block chan struct{}
+		<-block
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.reqs = append(s.reqs, r)

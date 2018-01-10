@@ -1,6 +1,7 @@
 package logcache
 
 import (
+	"context"
 	"io/ioutil"
 	"log"
 	"time"
@@ -12,6 +13,7 @@ import (
 // Reader reads envelopes from LogCache. It will be invoked by Walker several
 // time to traverse the length of the cache.
 type Reader func(
+	ctx context.Context,
 	sourceID string,
 	start time.Time,
 	opts ...ReadOption,
@@ -23,7 +25,7 @@ type Reader func(
 type Visitor func([]*loggregator_v2.Envelope) bool
 
 // Walk reads from the LogCache until the Visitor returns false.
-func Walk(sourceID string, v Visitor, r Reader, opts ...WalkOption) {
+func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...WalkOption) {
 	c := &walkConfig{
 		log:     log.New(ioutil.Discard, "", 0),
 		backoff: AlwaysDoneBackoff{},
@@ -47,7 +49,12 @@ func Walk(sourceID string, v Visitor, r Reader, opts ...WalkOption) {
 	}
 
 	for {
-		es, err := r(sourceID, time.Unix(0, c.start), readOpts...)
+		es, err := r(ctx, sourceID, time.Unix(0, c.start), readOpts...)
+		if err != nil && ctx.Err() != nil {
+			// Context cancelled
+			return
+		}
+
 		if err != nil {
 			c.log.Print(err)
 			if !c.backoff.OnErr(err) {

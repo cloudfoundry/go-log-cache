@@ -1,6 +1,7 @@
 package logcache_test
 
 import (
+	"context"
 	"errors"
 	"net/url"
 	"reflect"
@@ -12,11 +13,14 @@ import (
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 )
 
+// Ensure logcache.Reader is fulfilled by Client.Read
+var _ logcache.Reader = logcache.NewClient("").Read
+
 func TestWalk(t *testing.T) {
 	t.Parallel()
 
 	r := &stubReader{}
-	logcache.Walk("some-id", func([]*loggregator_v2.Envelope) bool { return false }, r.read)
+	logcache.Walk(context.Background(), "some-id", func([]*loggregator_v2.Envelope) bool { return false }, r.read)
 
 	if len(r.sourceIDs) != 1 {
 		t.Fatal("expected read to be invoked once")
@@ -52,7 +56,7 @@ func TestWalkUsesEndTime(t *testing.T) {
 	copy(expected, r.envelopes)
 
 	var es [][]*loggregator_v2.Envelope
-	logcache.Walk("some-id", func(b []*loggregator_v2.Envelope) bool {
+	logcache.Walk(context.Background(), "some-id", func(b []*loggregator_v2.Envelope) bool {
 		es = append(es, b)
 		return true
 	},
@@ -95,7 +99,7 @@ func TestWalkWithinWindow(t *testing.T) {
 	}
 
 	var es []*loggregator_v2.Envelope
-	logcache.Walk("some-id", func(b []*loggregator_v2.Envelope) bool {
+	logcache.Walk(context.Background(), "some-id", func(b []*loggregator_v2.Envelope) bool {
 		es = append(es, b...)
 		return true
 	},
@@ -140,6 +144,7 @@ func TestWalkRetriesOnError(t *testing.T) {
 
 	var called int
 	logcache.Walk(
+		context.Background(),
 		"some-id",
 		func(b []*loggregator_v2.Envelope) bool {
 			called++
@@ -166,11 +171,45 @@ func TestWalkRetriesOnError(t *testing.T) {
 	}
 }
 
+func TestWalkCancels(t *testing.T) {
+	t.Parallel()
+
+	r := &stubReader{
+		envelopes: [][]*loggregator_v2.Envelope{nil, {{Timestamp: 1}}},
+
+		// Emulate the context being cancelled and the client returning errors
+		// because of it.
+		errs: []error{errors.New("some-error"), nil},
+	}
+	b := &stubBackoff{}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	var called int
+	logcache.Walk(
+		ctx,
+		"some-id",
+		func(b []*loggregator_v2.Envelope) bool {
+			called++
+			return false
+		},
+		r.read,
+		logcache.WithWalkBackoff(b),
+	)
+
+	// No need to backoff because context is cancelled
+	if len(b.errs) != 0 {
+		t.Fatalf("expected backoff to be invoked 0 times: %d", len(b.errs))
+	}
+}
+
 func TestWalkPassesOpts(t *testing.T) {
 	t.Parallel()
 
 	r := &stubReader{}
 	logcache.Walk(
+		context.Background(),
 		"some-id",
 		func(b []*loggregator_v2.Envelope) bool {
 			return false
@@ -224,7 +263,7 @@ type stubReader struct {
 	errs      []error
 }
 
-func (s *stubReader) read(sourceID string, start time.Time, opts ...logcache.ReadOption) ([]*loggregator_v2.Envelope, error) {
+func (s *stubReader) read(ctx context.Context, sourceID string, start time.Time, opts ...logcache.ReadOption) ([]*loggregator_v2.Envelope, error) {
 	s.sourceIDs = append(s.sourceIDs, sourceID)
 	s.starts = append(s.starts, start.UnixNano())
 	s.opts = append(s.opts, opts)
