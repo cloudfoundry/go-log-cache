@@ -14,12 +14,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-// HTTPClient is an interface that represents a http.Client.
-type HTTPClient interface {
-	Do(req *http.Request) (*http.Response, error)
-}
-
-// Client reads from LogCache via the RESTful API.
+// Client reads from LogCache via the RESTful or gRPC API.
 type Client struct {
 	addr string
 
@@ -37,33 +32,67 @@ func NewClient(addr string, opts ...ClientOption) *Client {
 	}
 
 	for _, o := range opts {
-		o(c)
+		o.configure(c)
 	}
 
 	return c
 }
 
 // ClientOption configures the LogCache client.
-type ClientOption func(c *Client)
+type ClientOption interface {
+	configure(client interface{})
+}
+
+// clientOptionFunc enables regular functions to be a ClientOption.
+type clientOptionFunc func(client interface{})
+
+// configure Implements clientOptionFunc.
+func (f clientOptionFunc) configure(client interface{}) {
+	f(client)
+}
+
+// HTTPClient is an interface that represents a http.Client.
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
 
 // WithHTTPClient sets the HTTP client. It defaults to a client that timesout
 // after 5 seconds.
 func WithHTTPClient(h HTTPClient) ClientOption {
-	return func(c *Client) {
-		c.httpClient = h
-	}
+	return clientOptionFunc(func(c interface{}) {
+		switch c := c.(type) {
+		case *Client:
+			c.httpClient = h
+		case *GroupReaderClient:
+			c.httpClient = h
+		default:
+			panic("unknown type")
+		}
+	})
 }
 
 // WithViaGRPC enables gRPC instead of HTTP/1 for reading from LogCache.
 func WithViaGRPC(opts ...grpc.DialOption) ClientOption {
-	return func(c *Client) {
-		conn, err := grpc.Dial(c.addr, opts...)
-		if err != nil {
-			panic(fmt.Sprintf("failed to dial via gRPC: %s", err))
-		}
+	return clientOptionFunc(func(c interface{}) {
+		switch c := c.(type) {
+		case *Client:
+			conn, err := grpc.Dial(c.addr, opts...)
+			if err != nil {
+				panic(fmt.Sprintf("failed to dial via gRPC: %s", err))
+			}
 
-		c.grpcClient = logcache.NewEgressClient(conn)
-	}
+			c.grpcClient = logcache.NewEgressClient(conn)
+		case *GroupReaderClient:
+			conn, err := grpc.Dial(c.addr, opts...)
+			if err != nil {
+				panic(fmt.Sprintf("failed to dial via gRPC: %s", err))
+			}
+
+			c.grpcClient = logcache.NewGroupReaderClient(conn)
+		default:
+			panic("unknown type")
+		}
+	})
 }
 
 // Read queries the LogCache and returns the given envelopes. To override any

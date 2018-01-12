@@ -16,6 +16,9 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Assert that logcache.Reader is fulfilled by Client.Read
+var _ logcache.Reader = logcache.Reader(logcache.NewClient("").Read)
+
 func TestClientRead(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
@@ -152,7 +155,7 @@ func TestClientReadNon200(t *testing.T) {
 func TestClientReadInvalidResponse(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
-	logCache.result = []byte("invalid")
+	logCache.result["GET/v1/read/some-id"] = []byte("invalid")
 	client := logcache.NewClient(logCache.addr())
 
 	_, err := client.Read(context.Background(), "some-id", time.Unix(0, 99))
@@ -234,14 +237,15 @@ type stubLogCache struct {
 	statusCode int
 	server     *httptest.Server
 	reqs       []*http.Request
-	result     []byte
+	result     map[string][]byte
 	block      bool
 }
 
 func newStubLogCache() *stubLogCache {
 	s := &stubLogCache{
 		statusCode: http.StatusOK,
-		result: []byte(`{
+		result: map[string][]byte{
+			"GET/v1/read/some-id": []byte(`{
 		"envelopes": {
 			"batch": [
 			    {
@@ -255,6 +259,7 @@ func newStubLogCache() *stubLogCache {
 			]
 		}
 	}`),
+		},
 	}
 	s.server = httptest.NewServer(s)
 	return s
@@ -272,7 +277,7 @@ func (s *stubLogCache) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	s.reqs = append(s.reqs, r)
 	w.WriteHeader(s.statusCode)
-	w.Write(s.result)
+	w.Write(s.result[r.Method+r.URL.Path])
 }
 
 func assertQueryParam(t *testing.T, u *url.URL, name, value string) {
