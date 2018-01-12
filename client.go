@@ -115,6 +115,35 @@ func (c *Client) Read(
 	return r.Envelopes.Batch, nil
 }
 
+// ReadOption configures the URL that is used to submit the query. The
+// RawQuery is set to the decoded query parameters after each option is
+// invoked.
+type ReadOption func(u *url.URL, q url.Values)
+
+// WithEndTime sets the 'end_time' query parameter to the given time. It
+// defaults to empty, and therefore the end of the cache.
+func WithEndTime(t time.Time) ReadOption {
+	return func(u *url.URL, q url.Values) {
+		q.Set("end_time", strconv.FormatInt(t.UnixNano(), 10))
+	}
+}
+
+// WithLimit sets the 'limit' query parameter to the given value. It
+// defaults to empty, and therefore 100 envelopes.
+func WithLimit(limit int) ReadOption {
+	return func(u *url.URL, q url.Values) {
+		q.Set("limit", strconv.Itoa(limit))
+	}
+}
+
+// WithEnvelopeType sets the 'envelope_type' query parameter to the given value. It
+// defaults to empty, and therefore any envelope type.
+func WithEnvelopeType(t logcache.EnvelopeTypes) ReadOption {
+	return func(u *url.URL, q url.Values) {
+		q.Set("envelope_type", t.String())
+	}
+}
+
 func (c *Client) grpcRead(ctx context.Context, sourceID string, start time.Time, opts []ReadOption) ([]*loggregator_v2.Envelope, error) {
 	u := &url.URL{}
 	q := u.Query()
@@ -145,33 +174,4 @@ func (c *Client) grpcRead(ctx context.Context, sourceID string, start time.Time,
 		return nil, err
 	}
 	return resp.Envelopes.Batch, nil
-}
-
-// ReadOption configures the URL that is used to submit the query. The
-// RawQuery is set to the decoded query parameters after each option is
-// invoked.
-type ReadOption func(u *url.URL, q url.Values)
-
-// WithEndTime sets the 'end_time' query parameter to the given time. It
-// defaults to empty, and therefore the end of the cache.
-func WithEndTime(t time.Time) ReadOption {
-	return func(u *url.URL, q url.Values) {
-		q.Set("end_time", strconv.FormatInt(t.UnixNano(), 10))
-	}
-}
-
-// WithLimit sets the 'limit' query parameter to the given value. It
-// defaults to empty, and therefore 100 envelopes.
-func WithLimit(limit int) ReadOption {
-	return func(u *url.URL, q url.Values) {
-		q.Set("limit", strconv.Itoa(limit))
-	}
-}
-
-// WithEnvelopeType sets the 'envelope_type' query parameter to the given value. It
-// defaults to empty, and therefore any envelope type.
-func WithEnvelopeType(t logcache.EnvelopeTypes) ReadOption {
-	return func(u *url.URL, q url.Values) {
-		q.Set("envelope_type", t.String())
-	}
 }
