@@ -263,6 +263,10 @@ type stubReader struct {
 	errs      []error
 }
 
+func newStubReader() *stubReader {
+	return &stubReader{}
+}
+
 func (s *stubReader) read(ctx context.Context, sourceID string, start time.Time, opts ...logcache.ReadOption) ([]*loggregator_v2.Envelope, error) {
 	s.sourceIDs = append(s.sourceIDs, sourceID)
 	s.starts = append(s.starts, start.UnixNano())
