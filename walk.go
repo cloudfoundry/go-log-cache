@@ -193,6 +193,7 @@ type RetryBackoff struct {
 	interval time.Duration
 	maxCount int
 	count    int
+	onlyErr  bool
 }
 
 // NewRetryBackoff returns a new RetryBackoff.
@@ -200,6 +201,16 @@ func NewRetryBackoff(interval time.Duration, maxCount int) *RetryBackoff {
 	return &RetryBackoff{
 		interval: interval,
 		maxCount: maxCount,
+	}
+}
+
+// NewRetryBackoffOnErr returns a new RetryBackoff that only backs off no
+// errors.
+func NewRetryBackoffOnErr(interval time.Duration, maxCount int) *RetryBackoff {
+	return &RetryBackoff{
+		interval: interval,
+		maxCount: maxCount,
+		onlyErr:  true,
 	}
 }
 
@@ -216,6 +227,10 @@ func (b *RetryBackoff) OnErr(error) bool {
 
 // OnEmpty implements Backoff.
 func (b *RetryBackoff) OnEmpty() bool {
+	if b.onlyErr {
+		return false
+	}
+
 	b.count++
 	if b.count >= b.maxCount {
 		return false
