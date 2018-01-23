@@ -173,6 +173,14 @@ func WithEnvelopeType(t logcache.EnvelopeTypes) ReadOption {
 	}
 }
 
+// WithDescending set the 'descending' query parameter to true. It defaults to
+// false, yielding ascending order.
+func WithDescending() ReadOption {
+	return func(u *url.URL, q url.Values) {
+		q.Set("descending", "true")
+	}
+}
+
 func (c *Client) grpcRead(ctx context.Context, sourceID string, start time.Time, opts []ReadOption) ([]*loggregator_v2.Envelope, error) {
 	u := &url.URL{}
 	q := u.Query()
@@ -196,6 +204,10 @@ func (c *Client) grpcRead(ctx context.Context, sourceID string, start time.Time,
 
 	if v, ok := q["envelope_type"]; ok {
 		req.EnvelopeType = logcache.EnvelopeTypes(logcache.EnvelopeTypes_value[v[0]])
+	}
+
+	if _, ok := q["descending"]; ok {
+		req.Descending = true
 	}
 
 	resp, err := c.grpcClient.Read(ctx, req)
