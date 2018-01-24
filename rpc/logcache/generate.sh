@@ -13,6 +13,7 @@ TARGET=`dir_resolve $TARGET`
 cd $TARGET
 
 go get github.com/golang/protobuf/{proto,protoc-gen-go}
+go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 
 
 tmp_dir=$(mktemp -d)
