@@ -341,6 +341,10 @@ func (s *stubGrpcLogCache) Read(c context.Context, r *rpc.ReadRequest) (*rpc.Rea
 	}, nil
 }
 
+func (s *stubGrpcLogCache) Meta(context.Context, *rpc.MetaRequest) (*rpc.MetaResponse, error) {
+	panic("not implemented")
+}
+
 func (s *stubGrpcLogCache) requests() []*rpc.ReadRequest {
 	s.mu.Lock()
 	defer s.mu.Unlock()
