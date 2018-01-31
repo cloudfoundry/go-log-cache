@@ -216,3 +216,48 @@ func (c *Client) grpcRead(ctx context.Context, sourceID string, start time.Time,
 	}
 	return resp.Envelopes.Batch, nil
 }
+
+// Meta returns meta information from the entire LogCache.
+func (c *Client) Meta(ctx context.Context) (map[string]*logcache.MetaInfo, error) {
+	if c.grpcClient != nil {
+		return c.grpcMeta(ctx)
+	}
+
+	u, err := url.Parse(c.addr)
+	if err != nil {
+		return nil, err
+	}
+
+	u.Path = "/v1/meta"
+
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
+	}
+
+	var metaResponse logcache.MetaResponse
+	if err := jsonpb.Unmarshal(resp.Body, &metaResponse); err != nil {
+		return nil, err
+	}
+
+	return metaResponse.Meta, nil
+}
+
+func (c *Client) grpcMeta(ctx context.Context) (map[string]*logcache.MetaInfo, error) {
+	resp, err := c.grpcClient.Meta(ctx, &logcache.MetaRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Meta, nil
+}

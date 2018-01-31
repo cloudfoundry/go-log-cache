@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	logcache "code.cloudfoundry.org/go-log-cache"
+	"code.cloudfoundry.org/go-log-cache"
 	rpc "code.cloudfoundry.org/go-log-cache/rpc/logcache"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 	"google.golang.org/grpc"
@@ -240,6 +240,121 @@ func TestGrpcClientReadCancelling(t *testing.T) {
 	}
 }
 
+func TestClientMeta(t *testing.T) {
+	t.Parallel()
+	logCache := newStubLogCache()
+	client := logcache.NewClient(logCache.addr())
+
+	logCache.result["GET/v1/meta"] = []byte(`{
+		"meta": {
+			"source-0": {},
+			"source-1": {}
+		}
+	}`)
+
+	meta, err := client.Meta(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(meta) != 2 {
+		t.Fatalf("expected 2 sourceIDs: %d", len(meta))
+	}
+
+	if _, ok := meta["source-0"]; !ok {
+		t.Fatal("did not find source-0")
+	}
+
+	if _, ok := meta["source-1"]; !ok {
+		t.Fatal("did not find source-1")
+	}
+}
+
+func TestClientMetaReturnsErrorWhenRequestFails(t *testing.T) {
+	t.Parallel()
+
+	client := logcache.NewClient("https://some-bad-addr")
+	if _, err := client.Meta(context.Background()); err == nil {
+		t.Fatal("did not error out on bad address")
+	}
+}
+
+func TestClientMetaFailsOnNon200(t *testing.T) {
+	t.Parallel()
+	logCache := newStubLogCache()
+	logCache.statusCode = http.StatusNotFound
+	client := logcache.NewClient(logCache.addr())
+
+	_, err := client.Meta(context.Background())
+	if err == nil {
+		t.Fatal("did not error out on bad status code")
+	}
+}
+
+func TestClientMetaFailsOnInvalidResponseBody(t *testing.T) {
+	t.Parallel()
+	logCache := newStubLogCache()
+	logCache.result["GET/v1/meta"] = []byte("not-real-result")
+	client := logcache.NewClient(logCache.addr())
+
+	_, err := client.Meta(context.Background())
+	if err == nil {
+		t.Fatal("did not error out on bad response body")
+	}
+}
+
+func TestClientMetaCancelling(t *testing.T) {
+	t.Parallel()
+	logCache := newStubLogCache()
+	logCache.block = true
+	client := logcache.NewClient(logCache.addr())
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := client.Meta(ctx)
+
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
+func TestGrpcClientMeta(t *testing.T) {
+	t.Parallel()
+	logCache := newStubGrpcLogCache()
+	client := logcache.NewClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
+
+	meta, err := client.Meta(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(meta) != 2 {
+		t.Fatalf("expected 2 sourceIDs: %d", len(meta))
+	}
+
+	if _, ok := meta["source-0"]; !ok {
+		t.Fatal("did not find source-0")
+	}
+
+	if _, ok := meta["source-1"]; !ok {
+		t.Fatal("did not find source-1")
+	}
+}
+
+func TestGrpcClientMetaCancelling(t *testing.T) {
+	t.Parallel()
+	logCache := newStubGrpcLogCache()
+	client := logcache.NewClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	if _, err := client.Meta(ctx); err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
 type stubLogCache struct {
 	statusCode int
 	server     *httptest.Server
@@ -342,7 +457,12 @@ func (s *stubGrpcLogCache) Read(c context.Context, r *rpc.ReadRequest) (*rpc.Rea
 }
 
 func (s *stubGrpcLogCache) Meta(context.Context, *rpc.MetaRequest) (*rpc.MetaResponse, error) {
-	panic("not implemented")
+	return &rpc.MetaResponse{
+		Meta: map[string]*rpc.MetaInfo{
+			"source-0": {},
+			"source-1": {},
+		},
+	}, nil
 }
 
 func (s *stubGrpcLogCache) requests() []*rpc.ReadRequest {
