@@ -63,6 +63,25 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 			continue
 		}
 
+		// Prune envelopes for any that are too new or from the future.
+		secondAgo := time.Now().Add(-time.Second).UnixNano()
+		for i := len(es) - 1; i >= 0; i-- {
+			if es[i].GetTimestamp() <= secondAgo {
+				// The rest of the envelopes aren't too new.
+				break
+			}
+
+			// Envelope is too new. Throw it away.
+			es = es[:i]
+		}
+
+		for i, e := range es {
+			if e.GetTimestamp() < secondAgo {
+				continue
+			}
+			es = append(es[:i], es[i+1:]...)
+		}
+
 		if len(es) == 0 {
 			if !c.backoff.OnEmpty() {
 				return

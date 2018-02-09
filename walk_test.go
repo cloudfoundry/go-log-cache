@@ -35,6 +35,43 @@ func TestWalk(t *testing.T) {
 	}
 }
 
+// If data comes in with a timestamp that is too new and other data is coming
+// in with slightly older timestamps, we don't want to skip the data that came
+// in a little later just because newer data arrived.
+func TestWalkRejectsTooNewData(t *testing.T) {
+	t.Parallel()
+
+	r := &stubReader{
+		envelopes: [][]*loggregator_v2.Envelope{
+			{
+				{Timestamp: 1},
+				// Give future value. It should not take this value
+				{Timestamp: time.Now().Add(time.Minute).UnixNano()},
+			},
+		},
+		errs: []error{nil},
+	}
+
+	var called, es int
+	logcache.Walk(context.Background(), "some-id", func(e []*loggregator_v2.Envelope) bool {
+		defer func() { called++ }()
+		es += len(e)
+		return called == 0
+	}, r.read)
+
+	if len(r.starts) != 2 {
+		t.Fatalf("expected starts to have 2 entries: %d", len(r.starts))
+	}
+
+	if r.starts[1] != 2 {
+		t.Fatalf("expected to reject future/too new envelopes: %d", r.starts[1])
+	}
+
+	if es != 1 {
+		t.Fatal("expected future/too new envelopes to be rejected")
+	}
+}
+
 func TestWalkUsesEndTime(t *testing.T) {
 	t.Parallel()
 
