@@ -131,26 +131,40 @@ func TestWindowUsesGivenWidthWithoutStartSet(t *testing.T) {
 	}
 }
 
-func TestWindowUsesGivenContext(t *testing.T) {
+func TestWindowCreatesWalkContextWithTimeoutAsInterval(t *testing.T) {
 	w := windowSetup(t)
 
-	logcache.Window(w.ctx, w.v.visit, w.w.walk, logcache.WithWindowInterval(time.Nanosecond))
+	now := time.Now()
+	interval := 100 * time.Millisecond
+
+	logcache.Window(
+		w.ctx,
+		w.v.visit,
+		w.w.walk,
+		logcache.WithWindowInterval(interval),
+	)
 
 	if len(w.w.ctxs) != 1 {
 		t.Fatalf("expected walk to have 1 context: %d", len(w.w.ctxs))
 	}
 
-	if !reflect.DeepEqual(w.w.ctxs[0], w.ctx) {
-		t.Fatal("expected ctx to be the given one")
+	for _, c := range w.w.ctxs {
+		timeout, ok := c.Deadline()
+
+		if !ok {
+			t.Fatalf("Your deadline isn't set")
+		}
+
+		// context deadline gets set one interval into the ticker
+		if !almostEquals(timeout, now.Add(2*interval), time.Millisecond) {
+			t.Fatalf("Deadline on walk context is too long")
+		}
 	}
+
 }
 
 func TestBuildWalker(t *testing.T) {
 	w := windowSetup(t)
-
-	w.r.envelopes = append(w.r.envelopes, []*loggregator_v2.Envelope{
-	// Correlates with error
-	})
 
 	w.r.envelopes = append(w.r.envelopes, []*loggregator_v2.Envelope{
 		{Timestamp: 100},
@@ -162,9 +176,9 @@ func TestBuildWalker(t *testing.T) {
 		{Timestamp: 190},
 	})
 
-	w.r.errs = append(w.r.errs, errors.New("some-error"), nil, nil)
+	w.r.errs = append(w.r.errs, nil, nil)
 
-	ww := logcache.BuildWalker("some-id", w.r.read, time.Millisecond, 10)
+	ww := logcache.BuildWalker("some-id", w.r.read)
 
 	es := ww(w.ctx, time.Unix(0, 100), time.Unix(0, 200))
 
@@ -177,6 +191,49 @@ func TestBuildWalker(t *testing.T) {
 		{Timestamp: 110},
 		{Timestamp: 120},
 		{Timestamp: 190},
+	}) {
+		t.Fatalf("expected to have certain envelope")
+	}
+
+	if w.r.sourceIDs[0] != "some-id" {
+		t.Fatalf("expected sourceID to equal some-id: %s", w.r.sourceIDs[0])
+	}
+
+	if w.r.starts[0] != 100 {
+		t.Fatalf("expected start to equal 100: %d", w.r.starts[0])
+	}
+}
+
+func TestWalkerStopsReadingAfterError(t *testing.T) {
+	w := windowSetup(t)
+
+	w.r.envelopes = append(w.r.envelopes, []*loggregator_v2.Envelope{
+		{Timestamp: 100},
+		{Timestamp: 110},
+	})
+
+	w.r.envelopes = append(w.r.envelopes, []*loggregator_v2.Envelope{
+	// Correlates with error
+	})
+
+	w.r.envelopes = append(w.r.envelopes, []*loggregator_v2.Envelope{
+		{Timestamp: 120},
+		{Timestamp: 190},
+	})
+
+	w.r.errs = append(w.r.errs, nil, errors.New("some-error"), nil)
+
+	ww := logcache.BuildWalker("some-id", w.r.read)
+
+	es := ww(w.ctx, time.Unix(0, 100), time.Unix(0, 200))
+
+	if len(es) != 2 {
+		t.Fatalf("expected 2 envelopes: %d", len(es))
+	}
+
+	if !reflect.DeepEqual(es, []*loggregator_v2.Envelope{
+		{Timestamp: 100},
+		{Timestamp: 110},
 	}) {
 		t.Fatalf("expected to have certain envelope")
 	}
@@ -255,4 +312,8 @@ func (s *stubVisitor) visit(e []*loggregator_v2.Envelope) bool {
 	s.result = s.result[1:]
 
 	return r
+}
+
+func almostEquals(value, expected time.Time, epsilon time.Duration) bool {
+	return value.Before(expected.Add(epsilon)) && value.After(expected.Add(-epsilon))
 }

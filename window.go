@@ -31,7 +31,10 @@ func Window(ctx context.Context, v Visitor, w Walker, opts ...WindowOption) {
 	ticker := time.NewTicker(c.interval)
 	defer ticker.Stop()
 	for range ticker.C {
-		es := w(ctx, c.start, c.start.Add(c.width))
+		walkCtx, cancel := context.WithTimeout(ctx, c.interval)
+		defer cancel()
+
+		es := w(walkCtx, c.start, c.start.Add(c.width))
 		if !v(es) {
 			return
 		}
@@ -48,14 +51,13 @@ type Walker func(
 ) []*loggregator_v2.Envelope
 
 // BuildWalker captures the sourceID and reader to be used with a Walker.
-func BuildWalker(sourceID string, r Reader, backoff time.Duration, backoffCount int) Walker {
+func BuildWalker(sourceID string, r Reader) Walker {
 	return func(ctx context.Context, start, end time.Time) []*loggregator_v2.Envelope {
 		var results []*loggregator_v2.Envelope
 		Walk(ctx, sourceID, func(e []*loggregator_v2.Envelope) bool {
 			results = append(results, e...)
 			return true
 		}, r,
-			WithWalkBackoff(NewRetryBackoffOnErr(backoff, backoffCount)),
 			WithWalkStartTime(start),
 			WithWalkEndTime(end),
 		)

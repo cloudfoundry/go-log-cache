@@ -33,7 +33,7 @@ func main() {
 		return true
 	}
 
-	walker := logcache.BuildWalker(cfg.SourceID, client.Read, time.Second, 10)
+	walker := logcache.BuildWalker(cfg.SourceID, client.Read)
 	logcache.Window(
 		context.Background(),
 		visitor,
