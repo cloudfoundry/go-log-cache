@@ -2,11 +2,11 @@
 // source: egress.proto
 
 /*
-Package logcache is a reverse proxy.
+Package logcache_v1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package logcache
+package logcache_v1
 
 import (
 	"io"

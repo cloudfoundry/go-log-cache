@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	"code.cloudfoundry.org/go-log-cache/rpc/logcache"
+	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 	"github.com/golang/protobuf/jsonpb"
 )
@@ -21,7 +21,7 @@ type GroupReaderClient struct {
 	addr string
 
 	httpClient HTTPClient
-	grpcClient logcache.GroupReaderClient
+	grpcClient logcache_v1.GroupReaderClient
 }
 
 // NewGroupReaderClient creates a GroupReaderClient.
@@ -96,7 +96,7 @@ func (c *GroupReaderClient) Read(
 		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
 	}
 
-	var r logcache.ReadResponse
+	var r logcache_v1.ReadResponse
 	if err := jsonpb.Unmarshal(resp.Body, &r); err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (c *GroupReaderClient) grpcRead(
 		o(u, q)
 	}
 
-	req := &logcache.GroupReadRequest{
+	req := &logcache_v1.GroupReadRequest{
 		Name:        name,
 		RequesterId: requesterID,
 		StartTime:   start.UnixNano(),
@@ -133,7 +133,7 @@ func (c *GroupReaderClient) grpcRead(
 	}
 
 	if v, ok := q["envelope_type"]; ok {
-		req.EnvelopeType = logcache.EnvelopeTypes(logcache.EnvelopeTypes_value[v[0]])
+		req.EnvelopeType = logcache_v1.EnvelopeTypes(logcache_v1.EnvelopeTypes_value[v[0]])
 	}
 
 	resp, err := c.grpcClient.Read(ctx, req)
@@ -176,7 +176,7 @@ func (c *GroupReaderClient) AddToGroup(ctx context.Context, name, sourceID strin
 }
 
 func (c *GroupReaderClient) grpcAddToGroup(ctx context.Context, name, sourceID string) error {
-	_, err := c.grpcClient.AddToGroup(ctx, &logcache.AddToGroupRequest{
+	_, err := c.grpcClient.AddToGroup(ctx, &logcache_v1.AddToGroupRequest{
 		Name:     name,
 		SourceId: sourceID,
 	})
@@ -216,7 +216,7 @@ func (c *GroupReaderClient) RemoveFromGroup(ctx context.Context, name, sourceID 
 }
 
 func (c *GroupReaderClient) grpcRemoveFromGroup(ctx context.Context, name, sourceID string) error {
-	_, err := c.grpcClient.RemoveFromGroup(ctx, &logcache.RemoveFromGroupRequest{
+	_, err := c.grpcClient.RemoveFromGroup(ctx, &logcache_v1.RemoveFromGroupRequest{
 		Name:     name,
 		SourceId: sourceID,
 	})
@@ -262,7 +262,7 @@ func (c *GroupReaderClient) Group(ctx context.Context, name string) (GroupMeta, 
 		return GroupMeta{}, err
 	}
 
-	gresp := logcache.GroupResponse{}
+	gresp := logcache_v1.GroupResponse{}
 	if err := json.Unmarshal(data, &gresp); err != nil {
 		return GroupMeta{}, err
 	}
@@ -274,7 +274,7 @@ func (c *GroupReaderClient) Group(ctx context.Context, name string) (GroupMeta, 
 }
 
 func (c *GroupReaderClient) grpcGroup(ctx context.Context, name string) (GroupMeta, error) {
-	resp, err := c.grpcClient.Group(ctx, &logcache.GroupRequest{
+	resp, err := c.grpcClient.Group(ctx, &logcache_v1.GroupRequest{
 		Name: name,
 	})
 

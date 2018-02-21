@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"code.cloudfoundry.org/go-log-cache/rpc/logcache"
+	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 	"github.com/golang/protobuf/jsonpb"
 	"google.golang.org/grpc"
@@ -19,7 +19,7 @@ type Client struct {
 	addr string
 
 	httpClient HTTPClient
-	grpcClient logcache.EgressClient
+	grpcClient logcache_v1.EgressClient
 }
 
 // NewIngressClient creates a Client.
@@ -81,14 +81,14 @@ func WithViaGRPC(opts ...grpc.DialOption) ClientOption {
 				panic(fmt.Sprintf("failed to dial via gRPC: %s", err))
 			}
 
-			c.grpcClient = logcache.NewEgressClient(conn)
+			c.grpcClient = logcache_v1.NewEgressClient(conn)
 		case *GroupReaderClient:
 			conn, err := grpc.Dial(c.addr, opts...)
 			if err != nil {
 				panic(fmt.Sprintf("failed to dial via gRPC: %s", err))
 			}
 
-			c.grpcClient = logcache.NewGroupReaderClient(conn)
+			c.grpcClient = logcache_v1.NewGroupReaderClient(conn)
 		default:
 			panic("unknown type")
 		}
@@ -136,7 +136,7 @@ func (c *Client) Read(
 		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
 	}
 
-	var r logcache.ReadResponse
+	var r logcache_v1.ReadResponse
 	if err := jsonpb.Unmarshal(resp.Body, &r); err != nil {
 		return nil, err
 	}
@@ -167,7 +167,7 @@ func WithLimit(limit int) ReadOption {
 
 // WithEnvelopeType sets the 'envelope_type' query parameter to the given value. It
 // defaults to empty, and therefore any envelope type.
-func WithEnvelopeType(t logcache.EnvelopeTypes) ReadOption {
+func WithEnvelopeType(t logcache_v1.EnvelopeTypes) ReadOption {
 	return func(u *url.URL, q url.Values) {
 		q.Set("envelope_type", t.String())
 	}
@@ -189,7 +189,7 @@ func (c *Client) grpcRead(ctx context.Context, sourceID string, start time.Time,
 		o(u, q)
 	}
 
-	req := &logcache.ReadRequest{
+	req := &logcache_v1.ReadRequest{
 		SourceId:  sourceID,
 		StartTime: start.UnixNano(),
 	}
@@ -203,7 +203,7 @@ func (c *Client) grpcRead(ctx context.Context, sourceID string, start time.Time,
 	}
 
 	if v, ok := q["envelope_type"]; ok {
-		req.EnvelopeType = logcache.EnvelopeTypes(logcache.EnvelopeTypes_value[v[0]])
+		req.EnvelopeType = logcache_v1.EnvelopeTypes(logcache_v1.EnvelopeTypes_value[v[0]])
 	}
 
 	if _, ok := q["descending"]; ok {
@@ -218,7 +218,7 @@ func (c *Client) grpcRead(ctx context.Context, sourceID string, start time.Time,
 }
 
 // Meta returns meta information from the entire LogCache.
-func (c *Client) Meta(ctx context.Context) (map[string]*logcache.MetaInfo, error) {
+func (c *Client) Meta(ctx context.Context) (map[string]*logcache_v1.MetaInfo, error) {
 	if c.grpcClient != nil {
 		return c.grpcMeta(ctx)
 	}
@@ -245,7 +245,7 @@ func (c *Client) Meta(ctx context.Context) (map[string]*logcache.MetaInfo, error
 		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
 	}
 
-	var metaResponse logcache.MetaResponse
+	var metaResponse logcache_v1.MetaResponse
 	if err := jsonpb.Unmarshal(resp.Body, &metaResponse); err != nil {
 		return nil, err
 	}
@@ -253,8 +253,8 @@ func (c *Client) Meta(ctx context.Context) (map[string]*logcache.MetaInfo, error
 	return metaResponse.Meta, nil
 }
 
-func (c *Client) grpcMeta(ctx context.Context) (map[string]*logcache.MetaInfo, error) {
-	resp, err := c.grpcClient.Meta(ctx, &logcache.MetaRequest{})
+func (c *Client) grpcMeta(ctx context.Context) (map[string]*logcache_v1.MetaInfo, error) {
+	resp, err := c.grpcClient.Meta(ctx, &logcache_v1.MetaRequest{})
 	if err != nil {
 		return nil, err
 	}

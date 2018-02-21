@@ -19,7 +19,7 @@ go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 tmp_dir=$(mktemp -d)
 mkdir -p $tmp_dir/log-cache
 
-cp $GOPATH/src/code.cloudfoundry.org/log-cache/api/*proto $tmp_dir/log-cache
+cp $GOPATH/src/code.cloudfoundry.org/log-cache/api/v1/*proto $tmp_dir/log-cache
 
 protoc \
     $tmp_dir/log-cache/*.proto \
