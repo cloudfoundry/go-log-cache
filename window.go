@@ -32,9 +32,9 @@ func Window(ctx context.Context, v Visitor, w Walker, opts ...WindowOption) {
 	defer ticker.Stop()
 	for range ticker.C {
 		walkCtx, cancel := context.WithTimeout(ctx, c.interval)
-		defer cancel()
 
 		es := w(walkCtx, c.start, c.start.Add(c.width))
+		cancel()
 		if !v(es) {
 			return
 		}
