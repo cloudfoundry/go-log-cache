@@ -8,6 +8,7 @@ It is generated from these files:
 	egress.proto
 	group_reader.proto
 	ingress.proto
+	orchestration.proto
 
 It has these top-level messages:
 	ReadRequest
@@ -25,6 +26,14 @@ It has these top-level messages:
 	GroupResponse
 	SendRequest
 	SendResponse
+	Range
+	Ranges
+	AddRangeRequest
+	AddRangeResponse
+	ListRangesRequest
+	ListRangesResponse
+	SetRangesRequest
+	SetRangesResponse
 */
 package logcache_v1
 
