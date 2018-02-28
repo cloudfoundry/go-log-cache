@@ -63,7 +63,7 @@ func TestGrpcClientRead(t *testing.T) {
 	envelopes, err := client.Read(context.Background(), "some-id", time.Unix(0, 99),
 		logcache.WithLimit(10),
 		logcache.WithEndTime(endTime),
-		logcache.WithEnvelopeType(rpc.EnvelopeTypes_LOG),
+		logcache.WithEnvelopeType(rpc.EnvelopeType_LOG),
 		logcache.WithDescending(),
 	)
 
@@ -99,8 +99,8 @@ func TestGrpcClientRead(t *testing.T) {
 		t.Fatalf("expected Limit (%d) to equal %d", logCache.reqs[0].Limit, 10)
 	}
 
-	if logCache.reqs[0].EnvelopeType != rpc.EnvelopeTypes_LOG {
-		t.Fatalf("expected EnvelopeType (%v) to equal %v", logCache.reqs[0].EnvelopeType, rpc.EnvelopeTypes_LOG)
+	if logCache.reqs[0].EnvelopeTypes[0] != rpc.EnvelopeType_LOG {
+		t.Fatalf("expected EnvelopeType (%v) to equal %v", logCache.reqs[0].EnvelopeTypes[0], rpc.EnvelopeType_LOG)
 	}
 
 	if !logCache.reqs[0].Descending {
@@ -119,7 +119,7 @@ func TestClientReadWithOptions(t *testing.T) {
 		time.Unix(0, 99),
 		logcache.WithEndTime(time.Unix(0, 101)),
 		logcache.WithLimit(103),
-		logcache.WithEnvelopeType(rpc.EnvelopeTypes_LOG),
+		logcache.WithEnvelopeType(rpc.EnvelopeType_LOG),
 		logcache.WithDescending(),
 	)
 
@@ -209,7 +209,7 @@ func TestClientReadCancelling(t *testing.T) {
 		time.Unix(0, 99),
 		logcache.WithEndTime(time.Unix(0, 101)),
 		logcache.WithLimit(103),
-		logcache.WithEnvelopeType(rpc.EnvelopeTypes_LOG),
+		logcache.WithEnvelopeType(rpc.EnvelopeType_LOG),
 	)
 
 	if err == nil {
@@ -232,7 +232,7 @@ func TestGrpcClientReadCancelling(t *testing.T) {
 		time.Unix(0, 99),
 		logcache.WithEndTime(time.Unix(0, 101)),
 		logcache.WithLimit(103),
-		logcache.WithEnvelopeType(rpc.EnvelopeTypes_LOG),
+		logcache.WithEnvelopeType(rpc.EnvelopeType_LOG),
 	)
 
 	if err == nil {

@@ -167,7 +167,7 @@ func WithLimit(limit int) ReadOption {
 
 // WithEnvelopeType sets the 'envelope_type' query parameter to the given value. It
 // defaults to empty, and therefore any envelope type.
-func WithEnvelopeType(t logcache_v1.EnvelopeTypes) ReadOption {
+func WithEnvelopeType(t logcache_v1.EnvelopeType) ReadOption {
 	return func(u *url.URL, q url.Values) {
 		q.Set("envelope_type", t.String())
 	}
@@ -203,7 +203,9 @@ func (c *Client) grpcRead(ctx context.Context, sourceID string, start time.Time,
 	}
 
 	if v, ok := q["envelope_type"]; ok {
-		req.EnvelopeType = logcache_v1.EnvelopeTypes(logcache_v1.EnvelopeTypes_value[v[0]])
+		req.EnvelopeTypes = []logcache_v1.EnvelopeType{
+			logcache_v1.EnvelopeType(logcache_v1.EnvelopeType_value[v[0]]),
+		}
 	}
 
 	if _, ok := q["descending"]; ok {

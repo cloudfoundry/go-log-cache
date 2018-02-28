@@ -137,7 +137,7 @@ func WithWalkLimit(limit int) WalkOption {
 }
 
 // WithWalkEnvelopeType sets the envelope_type of the query.
-func WithWalkEnvelopeType(t logcache_v1.EnvelopeTypes) WalkOption {
+func WithWalkEnvelopeType(t logcache_v1.EnvelopeType) WalkOption {
 	return walkOptionFunc(func(c *walkConfig) {
 		c.envelopeType = &t
 	})
@@ -276,5 +276,5 @@ type walkConfig struct {
 	start        int64
 	end          time.Time
 	limit        *int
-	envelopeType *logcache_v1.EnvelopeTypes
+	envelopeType *logcache_v1.EnvelopeType
 }

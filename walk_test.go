@@ -253,7 +253,7 @@ func TestWalkPassesOpts(t *testing.T) {
 		},
 		r.read,
 		logcache.WithWalkLimit(99),
-		logcache.WithWalkEnvelopeType(rpc.EnvelopeTypes_LOG),
+		logcache.WithWalkEnvelopeType(rpc.EnvelopeType_LOG),
 	)
 
 	u := &url.URL{}

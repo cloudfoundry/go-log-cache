@@ -1,4 +1,4 @@
-package logcache_test
+package webhook_test
 
 import (
 	"fmt"
@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	gologcache "code.cloudfoundry.org/go-log-cache"
+	logcache "code.cloudfoundry.org/go-log-cache"
+	"code.cloudfoundry.org/go-log-cache/examples/webhook"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
-	"code.cloudfoundry.org/log-cache"
 	"golang.org/x/net/context"
 
 	. "github.com/onsi/ginkgo"
@@ -24,7 +24,7 @@ var _ = Describe("WebHook", func() {
 		reqs   chan *http.Request
 		bodies chan []byte
 		errs   chan error
-		h      *logcache.WebHook
+		h      *webhook.WebHook
 	)
 
 	BeforeEach(func() {
@@ -56,7 +56,7 @@ var _ = Describe("WebHook", func() {
 				{buildGauge(2*int64(time.Second), "some-name", 101)},
 			}
 
-			h = logcache.NewWebHook(
+			h = webhook.NewWebHook(
 				"some-id",
 				fmt.Sprintf(`
 			{{ if eq .GetCounter.GetName "some-name" }}
@@ -69,7 +69,7 @@ var _ = Describe("WebHook", func() {
 			{{end}}
 			`, server.URL),
 				r.read,
-				logcache.WithWebHookErrorHandler(func(e error) {
+				webhook.WithWebHookErrorHandler(func(e error) {
 					panic(e)
 				}),
 			)
@@ -125,7 +125,7 @@ var _ = Describe("WebHook", func() {
 				},
 			}
 
-			h = logcache.NewWebHook(
+			h = webhook.NewWebHook(
 				"some-id",
 				fmt.Sprintf(`
 			{{ if (eq (countEnvelopes .) 3) }}
@@ -135,12 +135,12 @@ var _ = Describe("WebHook", func() {
 			{{end}}
 			`, server.URL, server.URL),
 				r.read,
-				logcache.WithWebHookErrorHandler(func(e error) {
+				webhook.WithWebHookErrorHandler(func(e error) {
 					panic(e)
 				}),
-				logcache.WithWebHookWindowing(5*time.Nanosecond),
-				logcache.WithWebHookInterval(time.Millisecond),
-				logcache.WithWebHookStartTime(time.Unix(0, 99)),
+				webhook.WithWebHookWindowing(5*time.Nanosecond),
+				webhook.WithWebHookInterval(time.Millisecond),
+				webhook.WithWebHookStartTime(time.Unix(0, 99)),
 			)
 			go h.Start()
 		})
@@ -179,7 +179,7 @@ var _ = Describe("WebHook", func() {
 			}
 
 			shadowedErrs := errs
-			h = logcache.NewWebHook(
+			h = webhook.NewWebHook(
 				"some-id",
 				fmt.Sprintf(`
 			{{ if eq .GetCounter.GetName "some-name" }}
@@ -187,7 +187,7 @@ var _ = Describe("WebHook", func() {
 			{{end}}
 			`, "http://invalid.url"),
 				r.read,
-				logcache.WithWebHookErrorHandler(func(e error) {
+				webhook.WithWebHookErrorHandler(func(e error) {
 					shadowedErrs <- e
 				}),
 			)
@@ -213,7 +213,7 @@ var _ = Describe("WebHook", func() {
 			}))
 
 			shadowedErrs := errs
-			h = logcache.NewWebHook(
+			h = webhook.NewWebHook(
 				"some-id",
 				fmt.Sprintf(`
 			{{ if eq .GetCounter.GetName "some-name" }}
@@ -221,7 +221,7 @@ var _ = Describe("WebHook", func() {
 			{{end}}
 			`, server.URL),
 				r.read,
-				logcache.WithWebHookErrorHandler(func(e error) {
+				webhook.WithWebHookErrorHandler(func(e error) {
 					shadowedErrs <- e
 				}),
 			)
@@ -243,11 +243,11 @@ var _ = Describe("WebHook", func() {
 			}
 
 			shadowedErrs := errs
-			h = logcache.NewWebHook(
+			h = webhook.NewWebHook(
 				"some-id",
 				`{{.Invalid}}`,
 				r.read,
-				logcache.WithWebHookErrorHandler(func(e error) {
+				webhook.WithWebHookErrorHandler(func(e error) {
 					shadowedErrs <- e
 				}),
 			)
@@ -269,11 +269,11 @@ var _ = Describe("WebHook", func() {
 			}
 
 			shadowedErrs := errs
-			h = logcache.NewWebHook(
+			h = webhook.NewWebHook(
 				"some-id",
 				`{{.Invalid}}`,
 				r.read,
-				logcache.WithWebHookErrorHandler(func(e error) {
+				webhook.WithWebHookErrorHandler(func(e error) {
 					shadowedErrs <- e
 				}),
 			)
@@ -290,7 +290,7 @@ type spyReader struct {
 	mu        sync.Mutex
 	sourceIDs []string
 	starts    []time.Time
-	opts      [][]gologcache.ReadOption
+	opts      [][]logcache.ReadOption
 
 	results [][]*loggregator_v2.Envelope
 	errs    []error
@@ -300,7 +300,7 @@ func newSpyReader() *spyReader {
 	return &spyReader{}
 }
 
-func (s *spyReader) read(ctx context.Context, sourceID string, start time.Time, opts ...gologcache.ReadOption) ([]*loggregator_v2.Envelope, error) {
+func (s *spyReader) read(ctx context.Context, sourceID string, start time.Time, opts ...logcache.ReadOption) ([]*loggregator_v2.Envelope, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -342,11 +342,11 @@ func (s *spyReader) Starts() []time.Time {
 	return starts
 }
 
-func (s *spyReader) Opts() [][]gologcache.ReadOption {
+func (s *spyReader) Opts() [][]logcache.ReadOption {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	o := make([][]gologcache.ReadOption, len(s.opts))
+	o := make([][]logcache.ReadOption, len(s.opts))
 	copy(o, s.opts)
 	return o
 }

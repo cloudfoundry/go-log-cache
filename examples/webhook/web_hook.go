@@ -1,4 +1,4 @@
-package logcache
+package webhook
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"time"
 
-	"code.cloudfoundry.org/go-log-cache"
+	logcache "code.cloudfoundry.org/go-log-cache"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 	"golang.org/x/net/context"
 )

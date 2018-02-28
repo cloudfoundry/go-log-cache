@@ -12,9 +12,9 @@ import (
 	"os"
 	"time"
 
-	"code.cloudfoundry.org/go-envstruct"
-	gologcache "code.cloudfoundry.org/go-log-cache"
-	"code.cloudfoundry.org/log-cache"
+	envstruct "code.cloudfoundry.org/go-envstruct"
+	logcache "code.cloudfoundry.org/go-log-cache"
+	"code.cloudfoundry.org/go-log-cache/examples/webhook"
 	"google.golang.org/grpc"
 )
 
@@ -31,9 +31,9 @@ func main() {
 
 	envstruct.WriteReport(cfg)
 
-	client := gologcache.NewGroupReaderClient(
+	client := logcache.NewGroupReaderClient(
 		cfg.LogCacheAddr,
-		gologcache.WithViaGRPC(
+		logcache.WithViaGRPC(
 			grpc.WithTransportCredentials(cfg.TLS.Credentials("log-cache")),
 		),
 	)
@@ -50,7 +50,7 @@ func main() {
 	log.Printf("Health: %s", http.ListenAndServe(fmt.Sprintf("localhost:%d", cfg.HealthPort), nil))
 }
 
-func startTemplate(info templateInfo, groupPrefix string, follow bool, client *gologcache.GroupReaderClient) {
+func startTemplate(info templateInfo, groupPrefix string, follow bool, client *logcache.GroupReaderClient) {
 	templateFs, err := os.Open(info.TemplatePath)
 	if err != nil {
 		log.Fatalf("failed to open template %s: %s", info.TemplatePath, err)
@@ -63,16 +63,16 @@ func startTemplate(info templateInfo, groupPrefix string, follow bool, client *g
 
 	loggr := log.New(os.Stderr, "[WEBHOOK] ", log.LstdFlags)
 
-	opts := []logcache.WebHookOption{
-		logcache.WithWebHookLogger(loggr),
-		logcache.WithWebHookInterval(time.Second),
-		logcache.WithWebHookErrorHandler(func(e error) {
+	opts := []webhook.WebHookOption{
+		webhook.WithWebHookLogger(loggr),
+		webhook.WithWebHookInterval(time.Second),
+		webhook.WithWebHookErrorHandler(func(e error) {
 			loggr.Print(e)
 		}),
 	}
 
 	if !follow {
-		opts = append(opts, logcache.WithWebHookWindowing(time.Hour))
+		opts = append(opts, webhook.WithWebHookWindowing(time.Hour))
 	}
 
 	// Manage the group
@@ -90,10 +90,10 @@ func startTemplate(info templateInfo, groupPrefix string, follow bool, client *g
 
 	reader := client.BuildReader(rand.Uint64())
 
-	webHook := logcache.NewWebHook(
+	webHook := webhook.NewWebHook(
 		groupName,
 		string(template),
-		logcache.Reader(reader),
+		webhook.Reader(reader),
 		opts...,
 	)
 

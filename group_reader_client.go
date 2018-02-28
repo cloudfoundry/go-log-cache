@@ -133,7 +133,9 @@ func (c *GroupReaderClient) grpcRead(
 	}
 
 	if v, ok := q["envelope_type"]; ok {
-		req.EnvelopeType = logcache_v1.EnvelopeTypes(logcache_v1.EnvelopeTypes_value[v[0]])
+		req.EnvelopeTypes = []logcache_v1.EnvelopeType{
+			logcache_v1.EnvelopeType(logcache_v1.EnvelopeType_value[v[0]]),
+		}
 	}
 
 	resp, err := c.grpcClient.Read(ctx, req)
