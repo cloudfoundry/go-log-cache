@@ -63,7 +63,7 @@ func TestGrpcClientRead(t *testing.T) {
 	envelopes, err := client.Read(context.Background(), "some-id", time.Unix(0, 99),
 		logcache.WithLimit(10),
 		logcache.WithEndTime(endTime),
-		logcache.WithEnvelopeType(rpc.EnvelopeType_LOG),
+		logcache.WithEnvelopeTypes(rpc.EnvelopeType_LOG),
 		logcache.WithDescending(),
 	)
 
@@ -99,6 +99,10 @@ func TestGrpcClientRead(t *testing.T) {
 		t.Fatalf("expected Limit (%d) to equal %d", logCache.reqs[0].Limit, 10)
 	}
 
+	if len(logCache.reqs[0].EnvelopeTypes) == 0 {
+		t.Fatalf("expected to have EnvelopeTypes")
+	}
+
 	if logCache.reqs[0].EnvelopeTypes[0] != rpc.EnvelopeType_LOG {
 		t.Fatalf("expected EnvelopeType (%v) to equal %v", logCache.reqs[0].EnvelopeTypes[0], rpc.EnvelopeType_LOG)
 	}
@@ -119,7 +123,7 @@ func TestClientReadWithOptions(t *testing.T) {
 		time.Unix(0, 99),
 		logcache.WithEndTime(time.Unix(0, 101)),
 		logcache.WithLimit(103),
-		logcache.WithEnvelopeType(rpc.EnvelopeType_LOG),
+		logcache.WithEnvelopeTypes(rpc.EnvelopeType_LOG, rpc.EnvelopeType_GAUGE),
 		logcache.WithDescending(),
 	)
 
@@ -138,7 +142,7 @@ func TestClientReadWithOptions(t *testing.T) {
 	assertQueryParam(t, logCache.reqs[0].URL, "start_time", "99")
 	assertQueryParam(t, logCache.reqs[0].URL, "end_time", "101")
 	assertQueryParam(t, logCache.reqs[0].URL, "limit", "103")
-	assertQueryParam(t, logCache.reqs[0].URL, "envelope_type", "LOG")
+	assertQueryParam(t, logCache.reqs[0].URL, "envelope_types", "LOG", "GAUGE")
 	assertQueryParam(t, logCache.reqs[0].URL, "descending", "true")
 
 	if len(logCache.reqs[0].URL.Query()) != 5 {
@@ -209,7 +213,7 @@ func TestClientReadCancelling(t *testing.T) {
 		time.Unix(0, 99),
 		logcache.WithEndTime(time.Unix(0, 101)),
 		logcache.WithLimit(103),
-		logcache.WithEnvelopeType(rpc.EnvelopeType_LOG),
+		logcache.WithEnvelopeTypes(rpc.EnvelopeType_LOG),
 	)
 
 	if err == nil {
@@ -232,7 +236,7 @@ func TestGrpcClientReadCancelling(t *testing.T) {
 		time.Unix(0, 99),
 		logcache.WithEndTime(time.Unix(0, 101)),
 		logcache.WithLimit(103),
-		logcache.WithEnvelopeType(rpc.EnvelopeType_LOG),
+		logcache.WithEnvelopeTypes(rpc.EnvelopeType_LOG),
 	)
 
 	if err == nil {
@@ -402,13 +406,21 @@ func (s *stubLogCache) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write(s.result[r.Method+r.URL.Path])
 }
 
-func assertQueryParam(t *testing.T, u *url.URL, name, value string) {
+func assertQueryParam(t *testing.T, u *url.URL, name string, values ...string) {
 	t.Helper()
-	if u.Query().Get(name) == value {
-		return
-	}
+	for _, value := range values {
+		var found bool
+		for _, actual := range u.Query()[name] {
+			if actual == value {
+				found = true
+				break
+			}
+		}
 
-	t.Fatalf("expected query parameter '%s' to equal '%s', but got '%s'", name, value, u.Query().Get(name))
+		if !found {
+			t.Fatalf("expected query parameter '%s' to contain '%s', but got '%v'", name, value, u.Query()[name])
+		}
+	}
 }
 
 type stubGrpcLogCache struct {

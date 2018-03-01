@@ -132,7 +132,7 @@ func (c *GroupReaderClient) grpcRead(
 		req.EndTime, _ = strconv.ParseInt(v[0], 10, 64)
 	}
 
-	if v, ok := q["envelope_type"]; ok {
+	if v, ok := q["envelope_types"]; ok {
 		req.EnvelopeTypes = []logcache_v1.EnvelopeType{
 			logcache_v1.EnvelopeType(logcache_v1.EnvelopeType_value[v[0]]),
 		}

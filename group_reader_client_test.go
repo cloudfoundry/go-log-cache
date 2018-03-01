@@ -96,7 +96,7 @@ func TestClientGroupReadWithOptions(t *testing.T) {
 		999,
 		logcache.WithEndTime(time.Unix(0, 101)),
 		logcache.WithLimit(103),
-		logcache.WithEnvelopeType(rpc.EnvelopeType_LOG),
+		logcache.WithEnvelopeTypes(rpc.EnvelopeType_LOG),
 	)
 
 	if err != nil {
@@ -114,7 +114,7 @@ func TestClientGroupReadWithOptions(t *testing.T) {
 	assertQueryParam(t, logCache.reqs[0].URL, "start_time", "99")
 	assertQueryParam(t, logCache.reqs[0].URL, "end_time", "101")
 	assertQueryParam(t, logCache.reqs[0].URL, "limit", "103")
-	assertQueryParam(t, logCache.reqs[0].URL, "envelope_type", "LOG")
+	assertQueryParam(t, logCache.reqs[0].URL, "envelope_types", "LOG")
 	assertQueryParam(t, logCache.reqs[0].URL, "requester_id", "999")
 
 	if len(logCache.reqs[0].URL.Query()) != 5 {
@@ -186,7 +186,7 @@ func TestClientGroupReadCancelling(t *testing.T) {
 		999,
 		logcache.WithEndTime(time.Unix(0, 101)),
 		logcache.WithLimit(103),
-		logcache.WithEnvelopeType(rpc.EnvelopeType_LOG),
+		logcache.WithEnvelopeTypes(rpc.EnvelopeType_LOG),
 	)
 
 	if err == nil {
@@ -204,7 +204,7 @@ func TestGrpcClientGroupRead(t *testing.T) {
 	envelopes, err := client.Read(context.Background(), "some-id", time.Unix(0, 99), 999,
 		logcache.WithLimit(10),
 		logcache.WithEndTime(endTime),
-		logcache.WithEnvelopeType(rpc.EnvelopeType_LOG),
+		logcache.WithEnvelopeTypes(rpc.EnvelopeType_LOG),
 	)
 
 	if err != nil {
@@ -239,8 +239,12 @@ func TestGrpcClientGroupRead(t *testing.T) {
 		t.Fatalf("expected Limit (%d) to equal %d", logCache.readReqs[0].Limit, 10)
 	}
 
+	if len(logCache.readReqs[0].EnvelopeTypes) == 0 {
+		t.Fatalf("expected EnvelopeTypes to not be empty")
+	}
+
 	if logCache.readReqs[0].EnvelopeTypes[0] != rpc.EnvelopeType_LOG {
-		t.Fatalf("expected EnvelopeType (%v) to equal %v", logCache.readReqs[0].EnvelopeTypes[0], rpc.EnvelopeType_LOG)
+		t.Fatalf("expected EnvelopeTypes (%v) to equal %v", logCache.readReqs[0].EnvelopeTypes, rpc.EnvelopeType_LOG)
 	}
 }
 
@@ -260,7 +264,7 @@ func TestGrpcClientGroupReadCancelling(t *testing.T) {
 		999,
 		logcache.WithEndTime(time.Unix(0, 101)),
 		logcache.WithLimit(103),
-		logcache.WithEnvelopeType(rpc.EnvelopeType_LOG),
+		logcache.WithEnvelopeTypes(rpc.EnvelopeType_LOG),
 	)
 
 	if err == nil {

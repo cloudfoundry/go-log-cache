@@ -44,8 +44,8 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 		readOpts = append(readOpts, WithLimit(*c.limit))
 	}
 
-	if c.envelopeType != nil {
-		readOpts = append(readOpts, WithEnvelopeType(*c.envelopeType))
+	if c.envelopeTypes != nil {
+		readOpts = append(readOpts, WithEnvelopeTypes(c.envelopeTypes...))
 	}
 
 	for {
@@ -136,10 +136,10 @@ func WithWalkLimit(limit int) WalkOption {
 	})
 }
 
-// WithWalkEnvelopeType sets the envelope_type of the query.
-func WithWalkEnvelopeType(t logcache_v1.EnvelopeType) WalkOption {
+// WithWalkEnvelopeType sets the envelope_types of the query.
+func WithWalkEnvelopeTypes(t ...logcache_v1.EnvelopeType) WalkOption {
 	return walkOptionFunc(func(c *walkConfig) {
-		c.envelopeType = &t
+		c.envelopeTypes = t
 	})
 }
 
@@ -271,10 +271,10 @@ func (f walkOptionFunc) configure(c *walkConfig) {
 }
 
 type walkConfig struct {
-	log          *log.Logger
-	backoff      Backoff
-	start        int64
-	end          time.Time
-	limit        *int
-	envelopeType *logcache_v1.EnvelopeType
+	log           *log.Logger
+	backoff       Backoff
+	start         int64
+	end           time.Time
+	limit         *int
+	envelopeTypes []logcache_v1.EnvelopeType
 }

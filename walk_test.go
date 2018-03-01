@@ -253,7 +253,7 @@ func TestWalkPassesOpts(t *testing.T) {
 		},
 		r.read,
 		logcache.WithWalkLimit(99),
-		logcache.WithWalkEnvelopeType(rpc.EnvelopeType_LOG),
+		logcache.WithWalkEnvelopeTypes(rpc.EnvelopeType_LOG, rpc.EnvelopeType_GAUGE),
 	)
 
 	u := &url.URL{}
@@ -261,14 +261,10 @@ func TestWalkPassesOpts(t *testing.T) {
 	for _, o := range r.opts[0] {
 		o(u, q)
 	}
+	u.RawQuery = q.Encode()
 
-	if q.Get("limit") != "99" {
-		t.Fatal("expected 'limit' to be set")
-	}
-
-	if q.Get("envelope_type") != "LOG" {
-		t.Fatal("expected 'envelope_type' to be set")
-	}
+	assertQueryParam(t, u, "limit", "99")
+	assertQueryParam(t, u, "envelope_types", "LOG", "GAUGE")
 }
 
 type stubBackoff struct {
