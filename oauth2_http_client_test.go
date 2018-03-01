@@ -105,6 +105,76 @@ func TestOauth2HTTPClient(t *testing.T) {
 	}
 }
 
+func TestOauth2HTTPClientWithPasswordGrant(t *testing.T) {
+	t.Parallel()
+
+	stubClient := newStubHTTPClient()
+
+	c := logcache.NewOauth2HTTPClient(
+		"http://oauth2.something.com",
+		"client",
+		"client-secret",
+		logcache.WithOauth2HTTPClient(stubClient),
+		logcache.WithUser("user", "user-password"),
+	)
+
+	req, err := http.NewRequest("GET", "http://some-target.com", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("expected status code to be 200: %d", resp.StatusCode)
+	}
+
+	var r oauth2Resp
+	err = json.NewDecoder(resp.Body).Decode(&r)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if stubClient.reqs[0].Method != "POST" {
+		t.Fatalf("expected method to equal POST: %s", stubClient.reqs[0].Method)
+	}
+
+	if stubClient.reqs[0].URL.Host != "oauth2.something.com" {
+		t.Fatalf("expected Host to equal oauth2.something.com: %s", stubClient.reqs[0].URL.Host)
+	}
+
+	if stubClient.reqs[0].URL.Path != "/oauth/token" {
+		t.Fatalf("expected Path to equal /oauth/token: %s", stubClient.reqs[0].URL.Path)
+	}
+
+	if stubClient.reqs[0].Header.Get("Content-Type") != "application/x-www-form-urlencoded" {
+		t.Fatalf("expected Header Content-Type to equal application/x-www-form-urlencoded: %s", stubClient.reqs[0].Header.Get("Content-Type"))
+	}
+
+	if stubClient.reqs[0].URL.Query().Get("client_id") != "client" {
+		t.Fatalf("expected client_id to equal client: %s", stubClient.reqs[0].URL.Query().Get("client_id"))
+	}
+
+	if stubClient.reqs[0].URL.Query().Get("client_secret") != "client-secret" {
+		t.Fatalf("expected client_secret to equal client-secret: %s", stubClient.reqs[0].URL.Query().Get("client_secret"))
+	}
+
+	if stubClient.reqs[0].URL.Query().Get("grant_type") != "password" {
+		t.Fatalf("expected grant_type to equal password: %s", stubClient.reqs[0].URL.Query().Get("grant_type"))
+	}
+
+	if stubClient.reqs[0].URL.Query().Get("username") != "user" {
+		t.Fatalf("expected username to equal user: %s", stubClient.reqs[0].URL.Query().Get("username"))
+	}
+
+	if stubClient.reqs[0].URL.Query().Get("password") != "user-password" {
+		t.Fatalf("expected password to equal user-password: %s", stubClient.reqs[0].URL.Query().Get("password"))
+	}
+}
+
 func TestOauth2HTTPReturnsErrorForNon200(t *testing.T) {
 	t.Parallel()
 

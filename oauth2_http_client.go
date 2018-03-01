@@ -18,6 +18,9 @@ type Oauth2HTTPClient struct {
 	client       string
 	clientSecret string
 
+	username     string
+	userPassword string
+
 	mu    sync.Mutex
 	token string
 }
@@ -54,6 +57,14 @@ func WithOauth2HTTPClient(client HTTPClient) Oauth2Option {
 	})
 }
 
+// WithUser sets the username and password for user authentication.
+func WithUser(username, password string) Oauth2Option {
+	return oauth2HTTPClientOptionFunc(func(c *Oauth2HTTPClient) {
+		c.username = username
+		c.userPassword = password
+	})
+}
+
 // oauth2HTTPClientOptionFunc enables a function to be a
 // Oauth2Option.
 type oauth2HTTPClientOptionFunc func(c *Oauth2HTTPClient)
@@ -80,6 +91,7 @@ func (c *Oauth2HTTPClient) Do(req *http.Request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Set("Authorization", token)
 
 	resp, err := c.c.Do(req)
@@ -97,6 +109,13 @@ func (c *Oauth2HTTPClient) Do(req *http.Request) (*http.Response, error) {
 }
 
 func (c *Oauth2HTTPClient) getToken() (string, error) {
+	if c.username == "" {
+		return c.getClientToken()
+	}
+	return c.getUserToken()
+}
+
+func (c *Oauth2HTTPClient) getClientToken() (string, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -119,6 +138,37 @@ func (c *Oauth2HTTPClient) getToken() (string, error) {
 
 	req.URL.User = url.UserPassword(c.client, c.clientSecret)
 
+	return c.doTokenRequest(req)
+}
+
+func (c *Oauth2HTTPClient) getUserToken() (string, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.token != "" {
+		return c.token, nil
+	}
+
+	req, err := http.NewRequest("POST", c.oauth2Addr, nil)
+	if err != nil {
+		return "", err
+	}
+	req.URL.Path = "/oauth/token"
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	v := make(url.Values)
+	v.Set("client_id", c.client)
+	v.Set("client_secret", c.clientSecret)
+	v.Set("grant_type", "password")
+	v.Set("username", c.username)
+	v.Set("password", c.userPassword)
+
+	req.URL.RawQuery = v.Encode()
+	return c.doTokenRequest(req)
+}
+
+func (c *Oauth2HTTPClient) doTokenRequest(req *http.Request) (string, error) {
 	resp, err := c.c.Do(req)
 	if err != nil {
 		return "", err
@@ -140,6 +190,5 @@ func (c *Oauth2HTTPClient) getToken() (string, error) {
 	}
 
 	c.token = fmt.Sprintf("%s %s", token.TokenType, token.AccessToken)
-
 	return c.token, nil
 }
