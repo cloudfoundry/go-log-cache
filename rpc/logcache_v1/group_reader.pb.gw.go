@@ -348,9 +348,9 @@ func RegisterGroupReaderHandlerClient(ctx context.Context, mux *runtime.ServeMux
 }
 
 var (
-	pattern_GroupReader_AddToGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "group", "name", "source_id"}, ""))
+	pattern_GroupReader_AddToGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 3, 0, 4, 1, 5, 3}, []string{"v1", "group", "name", "source_id"}, ""))
 
-	pattern_GroupReader_RemoveFromGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "group", "name", "source_id"}, ""))
+	pattern_GroupReader_RemoveFromGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 3, 0, 4, 1, 5, 3}, []string{"v1", "group", "name", "source_id"}, ""))
 
 	pattern_GroupReader_Read_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "group", "name"}, ""))
 
