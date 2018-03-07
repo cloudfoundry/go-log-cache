@@ -179,8 +179,10 @@ func (c *ShardGroupReaderClient) SetShardGroup(ctx context.Context, name, source
 
 func (c *ShardGroupReaderClient) grpcSetGroup(ctx context.Context, name, sourceID string) error {
 	_, err := c.grpcClient.SetShardGroup(ctx, &logcache_v1.SetShardGroupRequest{
-		Name:     name,
-		SourceId: sourceID,
+		Name: name,
+		SubGroup: &logcache_v1.GroupedSourceIds{
+			SourceId: sourceID,
+		},
 	})
 	return err
 }

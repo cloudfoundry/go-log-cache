@@ -357,16 +357,16 @@ func TestGrpcClientSetGroup(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	if len(logCache.addReqs) != 1 {
-		t.Fatalf("expected have 1 request, have %d", len(logCache.addReqs))
+	if len(logCache.setReqs) != 1 {
+		t.Fatalf("expected have 1 request, have %d", len(logCache.setReqs))
 	}
 
-	if logCache.addReqs[0].Name != "some-name" {
-		t.Fatalf("expected Name 'some-name' but got '%s'", logCache.addReqs[0].Name)
+	if logCache.setReqs[0].Name != "some-name" {
+		t.Fatalf("expected Name 'some-name' but got '%s'", logCache.setReqs[0].Name)
 	}
 
-	if logCache.addReqs[0].SourceId != "some-id" {
-		t.Fatalf("expected SourceId 'some-id' but got '%s'", logCache.addReqs[0].SourceId)
+	if logCache.setReqs[0].GetSubGroup().GetSourceId() != "some-id" {
+		t.Fatalf("expected SourceId 'some-id' but got '%s'", logCache.setReqs[0].GetSubGroup().GetSourceId())
 	}
 
 	logCache.addErr = errors.New("some-error")
@@ -518,7 +518,7 @@ func TestGrpcClientGroup(t *testing.T) {
 
 type stubGrpcGroupReader struct {
 	mu        sync.Mutex
-	addReqs   []*rpc.SetShardGroupRequest
+	setReqs   []*rpc.SetShardGroupRequest
 	addErr    error
 	groupReqs []*rpc.ShardGroupRequest
 	groupErr  error
@@ -550,7 +550,7 @@ func (s *stubGrpcGroupReader) addr() string {
 func (s *stubGrpcGroupReader) SetShardGroup(ctx context.Context, r *rpc.SetShardGroupRequest) (*rpc.SetShardGroupResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.addReqs = append(s.addReqs, r)
+	s.setReqs = append(s.setReqs, r)
 	return &rpc.SetShardGroupResponse{}, s.addErr
 }
 

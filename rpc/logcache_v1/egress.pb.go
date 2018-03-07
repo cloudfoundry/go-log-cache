@@ -27,6 +27,7 @@ It has these top-level messages:
 	SetRangesRequest
 	SetRangesResponse
 	SetShardGroupRequest
+	GroupedSourceIds
 	SetShardGroupResponse
 	ShardGroupReadRequest
 	ShardGroupReadResponse
