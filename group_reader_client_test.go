@@ -376,110 +376,6 @@ func TestGrpcClientAddToGroup(t *testing.T) {
 	}
 }
 
-func TestClientRemoveFromGroup(t *testing.T) {
-	t.Parallel()
-	logCache := newStubLogCache()
-	logCache.result["DELETE/v1/group/some-name/some-id"] = []byte("{}")
-	client := logcache.NewGroupReaderClient(logCache.addr())
-
-	err := client.RemoveFromGroup(context.Background(), "some-name", "some-id")
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-
-	if len(logCache.reqs) != 1 {
-		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
-	}
-
-	if logCache.reqs[0].URL.Path != "/v1/group/some-name/some-id" {
-		t.Fatalf("expected Path '/v1/group/some-name/some-id' but got '%s'", logCache.reqs[0].URL.Path)
-	}
-
-	if logCache.reqs[0].Method != "DELETE" {
-		t.Fatalf("expected Method to be DELETE: %s", logCache.reqs[0].Method)
-	}
-}
-
-func TestClientRemoveFromGroupUnknownAddr(t *testing.T) {
-	t.Parallel()
-	client := logcache.NewGroupReaderClient("http://invalid.url")
-
-	err := client.RemoveFromGroup(context.Background(), "some-name", "some-id")
-
-	if err == nil {
-		t.Fatal("expected an error")
-	}
-}
-
-func TestClientRemoveFromGroupInvalidAddr(t *testing.T) {
-	t.Parallel()
-	client := logcache.NewGroupReaderClient("-:-invalid")
-
-	err := client.RemoveFromGroup(context.Background(), "some-name", "some-id")
-
-	if err == nil {
-		t.Fatal("expected an error")
-	}
-}
-
-func TestClientRemoveFromGroupNon200(t *testing.T) {
-	t.Parallel()
-	logCache := newStubLogCache()
-	logCache.statusCode = 500
-	client := logcache.NewGroupReaderClient(logCache.addr())
-
-	err := client.RemoveFromGroup(context.Background(), "some-name", "some-id")
-
-	if err == nil {
-		t.Fatal("expected an error")
-	}
-}
-
-func TestClientRemoveFromGroupCancelling(t *testing.T) {
-	t.Parallel()
-	logCache := newStubLogCache()
-	logCache.block = true
-	client := logcache.NewGroupReaderClient(logCache.addr())
-
-	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-
-	err := client.RemoveFromGroup(ctx, "some-name", "some-id")
-
-	if err == nil {
-		t.Fatal("expected an error")
-	}
-}
-
-func TestGrpcClientRemoveFromGroup(t *testing.T) {
-	t.Parallel()
-	logCache := newStubGrpcGroupReader()
-	client := logcache.NewGroupReaderClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
-
-	err := client.RemoveFromGroup(context.Background(), "some-name", "some-id")
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-
-	if len(logCache.removeReqs) != 1 {
-		t.Fatalf("expected have 1 request, have %d", len(logCache.removeReqs))
-	}
-
-	if logCache.removeReqs[0].Name != "some-name" {
-		t.Fatalf("expected Name 'some-name' but got '%s'", logCache.removeReqs[0].Name)
-	}
-
-	if logCache.removeReqs[0].SourceId != "some-id" {
-		t.Fatalf("expected SourceId 'some-id' but got '%s'", logCache.removeReqs[0].SourceId)
-	}
-
-	logCache.removeErr = errors.New("some-error")
-	err = client.RemoveFromGroup(context.Background(), "some-name", "some-id")
-	if err == nil {
-		t.Fatal("expected err")
-	}
-}
-
 func TestClientGroupMeta(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
@@ -621,15 +517,13 @@ func TestGrpcClientGroup(t *testing.T) {
 }
 
 type stubGrpcGroupReader struct {
-	mu         sync.Mutex
-	addReqs    []*rpc.AddToGroupRequest
-	addErr     error
-	removeReqs []*rpc.RemoveFromGroupRequest
-	removeErr  error
-	groupReqs  []*rpc.GroupRequest
-	groupErr   error
-	lis        net.Listener
-	block      bool
+	mu        sync.Mutex
+	addReqs   []*rpc.AddToGroupRequest
+	addErr    error
+	groupReqs []*rpc.GroupRequest
+	groupErr  error
+	lis       net.Listener
+	block     bool
 
 	readReqs []*rpc.GroupReadRequest
 	readErr  error
@@ -658,13 +552,6 @@ func (s *stubGrpcGroupReader) AddToGroup(ctx context.Context, r *rpc.AddToGroupR
 	defer s.mu.Unlock()
 	s.addReqs = append(s.addReqs, r)
 	return &rpc.AddToGroupResponse{}, s.addErr
-}
-
-func (s *stubGrpcGroupReader) RemoveFromGroup(ctx context.Context, r *rpc.RemoveFromGroupRequest) (*rpc.RemoveFromGroupResponse, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.removeReqs = append(s.removeReqs, r)
-	return &rpc.RemoveFromGroupResponse{}, s.removeErr
 }
 
 func (s *stubGrpcGroupReader) Read(ctx context.Context, r *rpc.GroupReadRequest) (*rpc.GroupReadResponse, error) {
