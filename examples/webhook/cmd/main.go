@@ -31,7 +31,7 @@ func main() {
 
 	envstruct.WriteReport(cfg)
 
-	client := logcache.NewGroupReaderClient(
+	client := logcache.NewShardGroupReaderClient(
 		cfg.LogCacheAddr,
 		logcache.WithViaGRPC(
 			grpc.WithTransportCredentials(cfg.TLS.Credentials("log-cache")),
@@ -50,7 +50,7 @@ func main() {
 	log.Printf("Health: %s", http.ListenAndServe(fmt.Sprintf("localhost:%d", cfg.HealthPort), nil))
 }
 
-func startTemplate(info templateInfo, groupPrefix string, follow bool, client *logcache.GroupReaderClient) {
+func startTemplate(info templateInfo, groupPrefix string, follow bool, client *logcache.ShardGroupReaderClient) {
 	templateFs, err := os.Open(info.TemplatePath)
 	if err != nil {
 		log.Fatalf("failed to open template %s: %s", info.TemplatePath, err)
@@ -81,7 +81,7 @@ func startTemplate(info templateInfo, groupPrefix string, follow bool, client *l
 		for range time.Tick(time.Minute) {
 			for _, ID := range info.SourceIDs {
 				ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
-				if err := client.AddToGroup(ctx, groupName, ID); err != nil {
+				if err := client.SetShardGroup(ctx, groupName, ID); err != nil {
 					loggr.Printf("error while adding source ID %s to group: %s", ID, err)
 				}
 			}

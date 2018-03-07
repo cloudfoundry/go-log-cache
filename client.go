@@ -63,7 +63,7 @@ func WithHTTPClient(h HTTPClient) ClientOption {
 		switch c := c.(type) {
 		case *Client:
 			c.httpClient = h
-		case *GroupReaderClient:
+		case *ShardGroupReaderClient:
 			c.httpClient = h
 		default:
 			panic("unknown type")
@@ -82,13 +82,13 @@ func WithViaGRPC(opts ...grpc.DialOption) ClientOption {
 			}
 
 			c.grpcClient = logcache_v1.NewEgressClient(conn)
-		case *GroupReaderClient:
+		case *ShardGroupReaderClient:
 			conn, err := grpc.Dial(c.addr, opts...)
 			if err != nil {
 				panic(fmt.Sprintf("failed to dial via gRPC: %s", err))
 			}
 
-			c.grpcClient = logcache_v1.NewGroupReaderClient(conn)
+			c.grpcClient = logcache_v1.NewShardGroupReaderClient(conn)
 		default:
 			panic("unknown type")
 		}

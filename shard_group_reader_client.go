@@ -15,18 +15,18 @@ import (
 	"github.com/golang/protobuf/jsonpb"
 )
 
-// GroupReaderClient reads and interacts from LogCache via the RESTful or gRPC
+// ShardGroupReaderClient reads and interacts from LogCache via the RESTful or gRPC
 // Group API.
-type GroupReaderClient struct {
+type ShardGroupReaderClient struct {
 	addr string
 
 	httpClient HTTPClient
-	grpcClient logcache_v1.GroupReaderClient
+	grpcClient logcache_v1.ShardGroupReaderClient
 }
 
-// NewGroupReaderClient creates a GroupReaderClient.
-func NewGroupReaderClient(addr string, opts ...ClientOption) *GroupReaderClient {
-	c := &GroupReaderClient{
+// NewShardGroupReaderClient creates a ShardGroupReaderClient.
+func NewShardGroupReaderClient(addr string, opts ...ClientOption) *ShardGroupReaderClient {
+	c := &ShardGroupReaderClient{
 		addr: addr,
 		httpClient: &http.Client{
 			Timeout: 5 * time.Second,
@@ -41,8 +41,8 @@ func NewGroupReaderClient(addr string, opts ...ClientOption) *GroupReaderClient 
 }
 
 // BuildReader is used to create a Reader (useful for things like Walk) with a
-// RequesterID. It simply wraps the GroupReaderClient.Read method.
-func (c *GroupReaderClient) BuildReader(requesterID uint64) Reader {
+// RequesterID. It simply wraps the ShardGroupReaderClient.Read method.
+func (c *ShardGroupReaderClient) BuildReader(requesterID uint64) Reader {
 	return Reader(func(
 		ctx context.Context,
 		name string,
@@ -55,7 +55,7 @@ func (c *GroupReaderClient) BuildReader(requesterID uint64) Reader {
 
 // Read queries the LogCache and returns the given envelopes. To override any
 // query defaults (e.g., end time), use the according option.
-func (c *GroupReaderClient) Read(
+func (c *ShardGroupReaderClient) Read(
 	ctx context.Context,
 	name string,
 	start time.Time,
@@ -104,7 +104,7 @@ func (c *GroupReaderClient) Read(
 	return r.Envelopes.Batch, nil
 }
 
-func (c *GroupReaderClient) grpcRead(
+func (c *ShardGroupReaderClient) grpcRead(
 	ctx context.Context,
 	name string,
 	start time.Time,
@@ -118,7 +118,7 @@ func (c *GroupReaderClient) grpcRead(
 		o(u, q)
 	}
 
-	req := &logcache_v1.GroupReadRequest{
+	req := &logcache_v1.ShardGroupReadRequest{
 		Name:        name,
 		RequesterId: requesterID,
 		StartTime:   start.UnixNano(),
@@ -145,12 +145,12 @@ func (c *GroupReaderClient) grpcRead(
 	return resp.Envelopes.Batch, nil
 }
 
-// AddToGroup adds a sourceID to the given group. If the group doesn't exist,
+// SetGroup adds a sourceID to the given group. If the group doesn't exist,
 // then it is created. If the group already has the given sourceID, then it is
 // a NOP.
-func (c *GroupReaderClient) AddToGroup(ctx context.Context, name, sourceID string) error {
+func (c *ShardGroupReaderClient) SetShardGroup(ctx context.Context, name, sourceID string) error {
 	if c.grpcClient != nil {
-		return c.grpcAddToGroup(ctx, name, sourceID)
+		return c.grpcSetGroup(ctx, name, sourceID)
 	}
 
 	u, err := url.Parse(c.addr)
@@ -177,8 +177,8 @@ func (c *GroupReaderClient) AddToGroup(ctx context.Context, name, sourceID strin
 	return nil
 }
 
-func (c *GroupReaderClient) grpcAddToGroup(ctx context.Context, name, sourceID string) error {
-	_, err := c.grpcClient.AddToGroup(ctx, &logcache_v1.AddToGroupRequest{
+func (c *ShardGroupReaderClient) grpcSetGroup(ctx context.Context, name, sourceID string) error {
+	_, err := c.grpcClient.SetShardGroup(ctx, &logcache_v1.SetShardGroupRequest{
 		Name:     name,
 		SourceId: sourceID,
 	})
@@ -192,7 +192,7 @@ type GroupMeta struct {
 }
 
 // Group returns the meta information about a group.
-func (c *GroupReaderClient) Group(ctx context.Context, name string) (GroupMeta, error) {
+func (c *ShardGroupReaderClient) ShardGroup(ctx context.Context, name string) (GroupMeta, error) {
 	if c.grpcClient != nil {
 		return c.grpcGroup(ctx, name)
 	}
@@ -224,7 +224,7 @@ func (c *GroupReaderClient) Group(ctx context.Context, name string) (GroupMeta, 
 		return GroupMeta{}, err
 	}
 
-	gresp := logcache_v1.GroupResponse{}
+	gresp := logcache_v1.ShardGroupResponse{}
 	if err := json.Unmarshal(data, &gresp); err != nil {
 		return GroupMeta{}, err
 	}
@@ -235,8 +235,8 @@ func (c *GroupReaderClient) Group(ctx context.Context, name string) (GroupMeta, 
 	}, nil
 }
 
-func (c *GroupReaderClient) grpcGroup(ctx context.Context, name string) (GroupMeta, error) {
-	resp, err := c.grpcClient.Group(ctx, &logcache_v1.GroupRequest{
+func (c *ShardGroupReaderClient) grpcGroup(ctx context.Context, name string) (GroupMeta, error) {
+	resp, err := c.grpcClient.ShardGroup(ctx, &logcache_v1.ShardGroupRequest{
 		Name: name,
 	})
 
