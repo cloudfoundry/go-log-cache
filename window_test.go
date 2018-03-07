@@ -156,7 +156,7 @@ func TestWindowCreatesWalkContextWithTimeoutAsInterval(t *testing.T) {
 		}
 
 		// context deadline gets set one interval into the ticker
-		if !almostEquals(timeout, now.Add(2*interval), time.Millisecond) {
+		if !almostEquals(timeout, now.Add(2*interval), interval) {
 			t.Fatalf("Deadline on walk context is too long")
 		}
 	}
