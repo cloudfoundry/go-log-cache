@@ -17,7 +17,7 @@ import (
 )
 
 // Assert that logcache.Reader is fulfilled by GroupReaderClient.BuildReader
-var _ logcache.Reader = logcache.Reader(logcache.NewGroupReaderClient("").BuildReader(999))
+var _ logcache.Reader = logcache.Reader(logcache.NewShardGroupReaderClient("").BuildReader(999))
 
 func TestClientGroupRead(t *testing.T) {
 	t.Parallel()
@@ -36,7 +36,7 @@ func TestClientGroupRead(t *testing.T) {
 			]
 		}
 	}`)
-	client := logcache.NewGroupReaderClient(logCache.addr())
+	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
 	reader := client.BuildReader(999)
 
@@ -87,7 +87,7 @@ func TestClientGroupReadWithOptions(t *testing.T) {
 			]
 		}
 	}`)
-	client := logcache.NewGroupReaderClient(logCache.addr())
+	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
 	_, err := client.Read(
 		context.Background(),
@@ -126,7 +126,7 @@ func TestClientGroupReadNon200(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 	logCache.statusCode = 500
-	client := logcache.NewGroupReaderClient(logCache.addr())
+	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
 	_, err := client.Read(context.Background(), "some-id", time.Unix(0, 99), 999)
 
@@ -139,7 +139,7 @@ func TestClientGroupReadInvalidResponse(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 	logCache.result["GET/v1/group/some-name"] = []byte("invalid")
-	client := logcache.NewGroupReaderClient(logCache.addr())
+	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
 	_, err := client.Read(context.Background(), "some-name", time.Unix(0, 99), 999)
 
@@ -150,7 +150,7 @@ func TestClientGroupReadInvalidResponse(t *testing.T) {
 
 func TestClientGroupReadUnknownAddr(t *testing.T) {
 	t.Parallel()
-	client := logcache.NewGroupReaderClient("http://invalid.url")
+	client := logcache.NewShardGroupReaderClient("http://invalid.url")
 
 	_, err := client.Read(context.Background(), "some-id", time.Unix(0, 99), 999)
 
@@ -161,7 +161,7 @@ func TestClientGroupReadUnknownAddr(t *testing.T) {
 
 func TestClientGroupReadInvalidAddr(t *testing.T) {
 	t.Parallel()
-	client := logcache.NewGroupReaderClient("-:-invalid")
+	client := logcache.NewShardGroupReaderClient("-:-invalid")
 
 	_, err := client.Read(context.Background(), "some-id", time.Unix(0, 99), 999)
 
@@ -174,7 +174,7 @@ func TestClientGroupReadCancelling(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 	logCache.block = true
-	client := logcache.NewGroupReaderClient(logCache.addr())
+	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
@@ -197,7 +197,7 @@ func TestClientGroupReadCancelling(t *testing.T) {
 func TestGrpcClientGroupRead(t *testing.T) {
 	t.Parallel()
 	logCache := newStubGrpcGroupReader()
-	client := logcache.NewGroupReaderClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
+	client := logcache.NewShardGroupReaderClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
 
 	endTime := time.Now()
 
@@ -252,7 +252,7 @@ func TestGrpcClientGroupReadCancelling(t *testing.T) {
 	t.Parallel()
 	logCache := newStubGrpcGroupReader()
 	logCache.block = true
-	client := logcache.NewGroupReaderClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
+	client := logcache.NewShardGroupReaderClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
@@ -272,13 +272,13 @@ func TestGrpcClientGroupReadCancelling(t *testing.T) {
 	}
 }
 
-func TestClientAddToGroup(t *testing.T) {
+func TestClientSetGroup(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 	logCache.result["PUT/v1/group/some-name/some-id"] = []byte("{}")
-	client := logcache.NewGroupReaderClient(logCache.addr())
+	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
-	err := client.AddToGroup(context.Background(), "some-name", "some-id")
+	err := client.SetShardGroup(context.Background(), "some-name", "some-id")
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -296,63 +296,63 @@ func TestClientAddToGroup(t *testing.T) {
 	}
 }
 
-func TestClientAddToGroupUnknownAddr(t *testing.T) {
+func TestClientSetGroupUnknownAddr(t *testing.T) {
 	t.Parallel()
-	client := logcache.NewGroupReaderClient("http://invalid.url")
+	client := logcache.NewShardGroupReaderClient("http://invalid.url")
 
-	err := client.AddToGroup(context.Background(), "some-name", "some-id")
+	err := client.SetShardGroup(context.Background(), "some-name", "some-id")
 
 	if err == nil {
 		t.Fatal("expected an error")
 	}
 }
 
-func TestClientAddToGroupInvalidAddr(t *testing.T) {
+func TestClientSetGroupInvalidAddr(t *testing.T) {
 	t.Parallel()
-	client := logcache.NewGroupReaderClient("-:-invalid")
+	client := logcache.NewShardGroupReaderClient("-:-invalid")
 
-	err := client.AddToGroup(context.Background(), "some-name", "some-id")
+	err := client.SetShardGroup(context.Background(), "some-name", "some-id")
 
 	if err == nil {
 		t.Fatal("expected an error")
 	}
 }
 
-func TestClientAddToGroupNon200(t *testing.T) {
+func TestClientSetGroupNon200(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 	logCache.statusCode = 500
-	client := logcache.NewGroupReaderClient(logCache.addr())
+	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
-	err := client.AddToGroup(context.Background(), "some-name", "some-id")
+	err := client.SetShardGroup(context.Background(), "some-name", "some-id")
 
 	if err == nil {
 		t.Fatal("expected an error")
 	}
 }
 
-func TestClientAddToGroupCancelling(t *testing.T) {
+func TestClientSetGroupCancelling(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 	logCache.block = true
-	client := logcache.NewGroupReaderClient(logCache.addr())
+	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	err := client.AddToGroup(ctx, "some-name", "some-id")
+	err := client.SetShardGroup(ctx, "some-name", "some-id")
 
 	if err == nil {
 		t.Fatal("expected an error")
 	}
 }
 
-func TestGrpcClientAddToGroup(t *testing.T) {
+func TestGrpcClientSetGroup(t *testing.T) {
 	t.Parallel()
 	logCache := newStubGrpcGroupReader()
-	client := logcache.NewGroupReaderClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
+	client := logcache.NewShardGroupReaderClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
 
-	err := client.AddToGroup(context.Background(), "some-name", "some-id")
+	err := client.SetShardGroup(context.Background(), "some-name", "some-id")
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -370,7 +370,7 @@ func TestGrpcClientAddToGroup(t *testing.T) {
 	}
 
 	logCache.addErr = errors.New("some-error")
-	err = client.AddToGroup(context.Background(), "some-name", "some-id")
+	err = client.SetShardGroup(context.Background(), "some-name", "some-id")
 	if err == nil {
 		t.Fatal("expected err")
 	}
@@ -380,7 +380,7 @@ func TestClientGroupMeta(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 
-	expectedResp := &rpc.GroupResponse{
+	expectedResp := &rpc.ShardGroupResponse{
 		SourceIds:    []string{"a", "b"},
 		RequesterIds: []uint64{1, 2},
 	}
@@ -391,9 +391,9 @@ func TestClientGroupMeta(t *testing.T) {
 	}
 
 	logCache.result["GET/v1/group/some-name/meta"] = data
-	client := logcache.NewGroupReaderClient(logCache.addr())
+	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
-	resp, err := client.Group(context.Background(), "some-name")
+	resp, err := client.ShardGroup(context.Background(), "some-name")
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -421,9 +421,9 @@ func TestClientGroupMeta(t *testing.T) {
 
 func TestClientGroupsUnknownAddr(t *testing.T) {
 	t.Parallel()
-	client := logcache.NewGroupReaderClient("http://invalid.url")
+	client := logcache.NewShardGroupReaderClient("http://invalid.url")
 
-	_, err := client.Group(context.Background(), "some-name")
+	_, err := client.ShardGroup(context.Background(), "some-name")
 
 	if err == nil {
 		t.Fatal("expected an error")
@@ -432,9 +432,9 @@ func TestClientGroupsUnknownAddr(t *testing.T) {
 
 func TestClientGroupInvalidAddr(t *testing.T) {
 	t.Parallel()
-	client := logcache.NewGroupReaderClient("-:-invalid")
+	client := logcache.NewShardGroupReaderClient("-:-invalid")
 
-	_, err := client.Group(context.Background(), "some-name")
+	_, err := client.ShardGroup(context.Background(), "some-name")
 
 	if err == nil {
 		t.Fatal("expected an error")
@@ -445,9 +445,9 @@ func TestClientGroupNon200(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 	logCache.statusCode = 500
-	client := logcache.NewGroupReaderClient(logCache.addr())
+	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
-	_, err := client.Group(context.Background(), "some-name")
+	_, err := client.ShardGroup(context.Background(), "some-name")
 
 	if err == nil {
 		t.Fatal("expected an error")
@@ -458,9 +458,9 @@ func TestClientGroupInvalidResponse(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 	logCache.result["GET/v1/group/some-name/meta"] = []byte("invalid")
-	client := logcache.NewGroupReaderClient(logCache.addr())
+	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
-	_, err := client.Group(context.Background(), "some-name")
+	_, err := client.ShardGroup(context.Background(), "some-name")
 
 	if err == nil {
 		t.Fatal("expected an error")
@@ -471,12 +471,12 @@ func TestClientGroupCancelling(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 	logCache.block = true
-	client := logcache.NewGroupReaderClient(logCache.addr())
+	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	_, err := client.Group(ctx, "some-name")
+	_, err := client.ShardGroup(ctx, "some-name")
 
 	if err == nil {
 		t.Fatal("expected an error")
@@ -486,9 +486,9 @@ func TestClientGroupCancelling(t *testing.T) {
 func TestGrpcClientGroup(t *testing.T) {
 	t.Parallel()
 	logCache := newStubGrpcGroupReader()
-	client := logcache.NewGroupReaderClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
+	client := logcache.NewShardGroupReaderClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
 
-	resp, err := client.Group(context.Background(), "some-name")
+	resp, err := client.ShardGroup(context.Background(), "some-name")
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -510,7 +510,7 @@ func TestGrpcClientGroup(t *testing.T) {
 	}
 
 	logCache.groupErr = errors.New("some-error")
-	_, err = client.Group(context.Background(), "some-name")
+	_, err = client.ShardGroup(context.Background(), "some-name")
 	if err == nil {
 		t.Fatal("expected err")
 	}
@@ -518,14 +518,14 @@ func TestGrpcClientGroup(t *testing.T) {
 
 type stubGrpcGroupReader struct {
 	mu        sync.Mutex
-	addReqs   []*rpc.AddToGroupRequest
+	addReqs   []*rpc.SetShardGroupRequest
 	addErr    error
-	groupReqs []*rpc.GroupRequest
+	groupReqs []*rpc.ShardGroupRequest
 	groupErr  error
 	lis       net.Listener
 	block     bool
 
-	readReqs []*rpc.GroupReadRequest
+	readReqs []*rpc.ShardGroupReadRequest
 	readErr  error
 }
 
@@ -537,7 +537,7 @@ func newStubGrpcGroupReader() *stubGrpcGroupReader {
 	}
 	s.lis = lis
 	srv := grpc.NewServer()
-	rpc.RegisterGroupReaderServer(srv, s)
+	rpc.RegisterShardGroupReaderServer(srv, s)
 	go srv.Serve(lis)
 
 	return s
@@ -547,14 +547,14 @@ func (s *stubGrpcGroupReader) addr() string {
 	return s.lis.Addr().String()
 }
 
-func (s *stubGrpcGroupReader) AddToGroup(ctx context.Context, r *rpc.AddToGroupRequest) (*rpc.AddToGroupResponse, error) {
+func (s *stubGrpcGroupReader) SetShardGroup(ctx context.Context, r *rpc.SetShardGroupRequest) (*rpc.SetShardGroupResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.addReqs = append(s.addReqs, r)
-	return &rpc.AddToGroupResponse{}, s.addErr
+	return &rpc.SetShardGroupResponse{}, s.addErr
 }
 
-func (s *stubGrpcGroupReader) Read(ctx context.Context, r *rpc.GroupReadRequest) (*rpc.GroupReadResponse, error) {
+func (s *stubGrpcGroupReader) Read(ctx context.Context, r *rpc.ShardGroupReadRequest) (*rpc.ShardGroupReadResponse, error) {
 	if s.block {
 		var block chan struct{}
 		<-block
@@ -564,7 +564,7 @@ func (s *stubGrpcGroupReader) Read(ctx context.Context, r *rpc.GroupReadRequest)
 	defer s.mu.Unlock()
 	s.readReqs = append(s.readReqs, r)
 
-	return &rpc.GroupReadResponse{
+	return &rpc.ShardGroupReadResponse{
 		Envelopes: &loggregator_v2.EnvelopeBatch{
 			Batch: []*loggregator_v2.Envelope{
 				{Timestamp: 99, SourceId: "some-id"},
@@ -574,11 +574,11 @@ func (s *stubGrpcGroupReader) Read(ctx context.Context, r *rpc.GroupReadRequest)
 	}, nil
 }
 
-func (s *stubGrpcGroupReader) Group(ctx context.Context, r *rpc.GroupRequest) (*rpc.GroupResponse, error) {
+func (s *stubGrpcGroupReader) ShardGroup(ctx context.Context, r *rpc.ShardGroupRequest) (*rpc.ShardGroupResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.groupReqs = append(s.groupReqs, r)
-	return &rpc.GroupResponse{
+	return &rpc.ShardGroupResponse{
 		SourceIds:    []string{"a", "b"},
 		RequesterIds: []uint64{1, 2},
 	}, s.groupErr
