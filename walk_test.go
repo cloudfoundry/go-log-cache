@@ -119,17 +119,25 @@ func TestWalkUsesEndTime(t *testing.T) {
 func TestWalkWithinWindow(t *testing.T) {
 	t.Parallel()
 
+	now := time.Now()
+	times := []int64{
+		now.Add(-3).UnixNano(),
+		now.Add(-2).UnixNano(),
+		now.Add(-1).UnixNano(),
+		now.UnixNano(),
+	}
+
 	r := &stubReader{
 		envelopes: [][]*loggregator_v2.Envelope{
 			{
-				{Timestamp: 1},
-				{Timestamp: 2},
+				{Timestamp: times[0]},
+				{Timestamp: times[1]},
 			},
 			{
-				{Timestamp: 3},
+				{Timestamp: times[2]},
 			},
 			{
-				{Timestamp: 4},
+				{Timestamp: times[3]},
 			},
 		},
 		errs: []error{nil, nil, nil},
@@ -141,15 +149,15 @@ func TestWalkWithinWindow(t *testing.T) {
 		return true
 	},
 		r.read,
-		logcache.WithWalkStartTime(time.Unix(0, 1)),
-		logcache.WithWalkEndTime(time.Unix(0, 4)),
+		logcache.WithWalkStartTime(time.Unix(0, times[0])),
+		logcache.WithWalkEndTime(time.Unix(0, times[3])),
 	)
 
 	if len(r.sourceIDs) != 2 {
 		t.Fatalf("expected read to be invoked 2 times: %d", len(r.sourceIDs))
 	}
 
-	if !reflect.DeepEqual(r.starts, []int64{1, 3}) {
+	if !reflect.DeepEqual(r.starts, []int64{times[0], times[2]}) {
 		t.Fatalf("wrong starts: %v", r.starts)
 	}
 
@@ -161,9 +169,9 @@ func TestWalkWithinWindow(t *testing.T) {
 		t.Fatalf("expected 3 envlopes: %d", len(es))
 	}
 
-	for i := 1; i < 4; i++ {
-		if es[i-1].Timestamp != int64(i) {
-			t.Fatalf("expected timestamp to equal %d: %d", i, es[i-1].Timestamp)
+	for i, x := range times[:len(times)-2] {
+		if es[i].Timestamp != x {
+			t.Fatalf("expected timestamp to equal %d: %d", x, es[i].Timestamp)
 		}
 	}
 }
