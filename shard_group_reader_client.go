@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
@@ -70,7 +71,7 @@ func (c *ShardGroupReaderClient) Read(
 	if err != nil {
 		return nil, err
 	}
-	u.Path = "v1/group/" + name
+	u.Path = "v1/shard_group/" + name
 	q := u.Query()
 	q.Set("start_time", strconv.FormatInt(start.UnixNano(), 10))
 	q.Set("requester_id", strconv.FormatUint(requesterID, 10))
@@ -145,21 +146,35 @@ func (c *ShardGroupReaderClient) grpcRead(
 	return resp.Envelopes.Batch, nil
 }
 
-// SetGroup adds a sourceID to the given group. If the group doesn't exist,
-// then it is created. If the group already has the given sourceID, then it is
-// a NOP.
-func (c *ShardGroupReaderClient) SetShardGroup(ctx context.Context, name, sourceID string) error {
+// SetGroup adds a group of sourceIDs to the given group. If the group doesn't
+// exist, then it is created. If the group already has the given sub-group,
+// then it is a NOP.
+func (c *ShardGroupReaderClient) SetShardGroup(
+	ctx context.Context,
+	name string,
+	sourceIDs ...string,
+) error {
 	if c.grpcClient != nil {
-		return c.grpcSetGroup(ctx, name, sourceID)
+		return c.grpcSetGroup(ctx, name, sourceIDs)
 	}
 
 	u, err := url.Parse(c.addr)
 	if err != nil {
 		return err
 	}
-	u.Path = fmt.Sprintf("v1/group/%s/%s", name, sourceID)
+	u.Path = fmt.Sprintf("v1/shard_group/%s", name)
 
-	req, err := http.NewRequest("PUT", u.String(), nil)
+	marshalled, err := (&jsonpb.Marshaler{}).MarshalToString(
+		&logcache_v1.GroupedSourceIds{
+			SourceIds: sourceIDs,
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("PUT", u.String(), strings.NewReader(marshalled))
 	if err != nil {
 		return err
 	}
@@ -177,11 +192,15 @@ func (c *ShardGroupReaderClient) SetShardGroup(ctx context.Context, name, source
 	return nil
 }
 
-func (c *ShardGroupReaderClient) grpcSetGroup(ctx context.Context, name, sourceID string) error {
+func (c *ShardGroupReaderClient) grpcSetGroup(
+	ctx context.Context,
+	name string,
+	sourceIDs []string,
+) error {
 	_, err := c.grpcClient.SetShardGroup(ctx, &logcache_v1.SetShardGroupRequest{
 		Name: name,
 		SubGroup: &logcache_v1.GroupedSourceIds{
-			SourceId: sourceID,
+			SourceIds: sourceIDs,
 		},
 	})
 	return err
@@ -189,8 +208,19 @@ func (c *ShardGroupReaderClient) grpcSetGroup(ctx context.Context, name, sourceI
 
 // GroupMeta gives the information about given group.
 type GroupMeta struct {
-	SourceIDs    []string
+	// SubGroups are the collection of sub-groups that the overall group is
+	// managing.
+	SubGroups []SubGroup
+
+	// RequesterIDs is the active list of requesters that are currently
+	// reading from the group.
 	RequesterIDs []uint64
+}
+
+// SubGroup is a group of SourceIDs that are read together.
+type SubGroup struct {
+	// SourceIDs are the SourceIDs that are read from the group.
+	SourceIDs []string
 }
 
 // Group returns the meta information about a group.
@@ -203,7 +233,7 @@ func (c *ShardGroupReaderClient) ShardGroup(ctx context.Context, name string) (G
 	if err != nil {
 		return GroupMeta{}, err
 	}
-	u.Path = fmt.Sprintf("v1/group/%s/meta", name)
+	u.Path = fmt.Sprintf("v1/shard_group/%s/meta", name)
 
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -231,10 +261,17 @@ func (c *ShardGroupReaderClient) ShardGroup(ctx context.Context, name string) (G
 		return GroupMeta{}, err
 	}
 
-	return GroupMeta{
-		SourceIDs:    gresp.SourceIds,
+	gm := GroupMeta{
 		RequesterIDs: gresp.RequesterIds,
-	}, nil
+	}
+
+	for _, group := range gresp.GetSubGroups() {
+		gm.SubGroups = append(gm.SubGroups, SubGroup{
+			SourceIDs: group.SourceIds,
+		})
+	}
+
+	return gm, nil
 }
 
 func (c *ShardGroupReaderClient) grpcGroup(ctx context.Context, name string) (GroupMeta, error) {
@@ -246,8 +283,15 @@ func (c *ShardGroupReaderClient) grpcGroup(ctx context.Context, name string) (Gr
 		return GroupMeta{}, err
 	}
 
-	return GroupMeta{
-		SourceIDs:    resp.SourceIds,
+	gm := GroupMeta{
 		RequesterIDs: resp.RequesterIds,
-	}, nil
+	}
+
+	for _, group := range resp.GetSubGroups() {
+		gm.SubGroups = append(gm.SubGroups, SubGroup{
+			SourceIDs: group.SourceIds,
+		})
+	}
+
+	return gm, nil
 }

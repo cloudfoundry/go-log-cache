@@ -2,6 +2,7 @@ package logcache_test
 
 import (
 	"context"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -363,6 +364,7 @@ type stubLogCache struct {
 	statusCode int
 	server     *httptest.Server
 	reqs       []*http.Request
+	bodies     [][]byte
 	result     map[string][]byte
 	block      bool
 }
@@ -401,6 +403,12 @@ func (s *stubLogCache) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		<-block
 	}
 
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	s.bodies = append(s.bodies, body)
 	s.reqs = append(s.reqs, r)
 	w.WriteHeader(s.statusCode)
 	w.Write(s.result[r.Method+r.URL.Path])
