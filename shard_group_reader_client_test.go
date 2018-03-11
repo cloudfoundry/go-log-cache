@@ -22,7 +22,7 @@ var _ logcache.Reader = logcache.Reader(logcache.NewShardGroupReaderClient("").B
 func TestClientGroupRead(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
-	logCache.result["GET/v1/group/some-name"] = []byte(`{
+	logCache.result["GET/v1/shard_group/some-name"] = []byte(`{
 		"envelopes": {
 			"batch": [
 			    {
@@ -58,8 +58,8 @@ func TestClientGroupRead(t *testing.T) {
 		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
 	}
 
-	if logCache.reqs[0].URL.Path != "/v1/group/some-name" {
-		t.Fatalf("expected Path '/v1/group/some-name' but got '%s'", logCache.reqs[0].URL.Path)
+	if logCache.reqs[0].URL.Path != "/v1/shard_group/some-name" {
+		t.Fatalf("expected Path '/v1/shard_group/some-name' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
 	assertQueryParam(t, logCache.reqs[0].URL, "start_time", "99")
@@ -73,7 +73,7 @@ func TestClientGroupRead(t *testing.T) {
 func TestClientGroupReadWithOptions(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
-	logCache.result["GET/v1/group/some-name"] = []byte(`{
+	logCache.result["GET/v1/shard_group/some-name"] = []byte(`{
 		"envelopes": {
 			"batch": [
 			    {
@@ -107,8 +107,8 @@ func TestClientGroupReadWithOptions(t *testing.T) {
 		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
 	}
 
-	if logCache.reqs[0].URL.Path != "/v1/group/some-name" {
-		t.Fatalf("expected Path '/v1/group/some-name' but got '%s'", logCache.reqs[0].URL.Path)
+	if logCache.reqs[0].URL.Path != "/v1/shard_group/some-name" {
+		t.Fatalf("expected Path '/v1/shard_group/some-name' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
 	assertQueryParam(t, logCache.reqs[0].URL, "start_time", "99")
@@ -275,10 +275,15 @@ func TestGrpcClientGroupReadCancelling(t *testing.T) {
 func TestClientSetGroup(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
-	logCache.result["PUT/v1/group/some-name/some-id"] = []byte("{}")
+	logCache.result["PUT/v1/shard_group/some-name"] = []byte("{}")
 	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
-	err := client.SetShardGroup(context.Background(), "some-name", "some-id")
+	err := client.SetShardGroup(
+		context.Background(),
+		"some-name",
+		"some-id-1",
+		"some-id-2",
+	)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -287,12 +292,21 @@ func TestClientSetGroup(t *testing.T) {
 		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
 	}
 
-	if logCache.reqs[0].URL.Path != "/v1/group/some-name/some-id" {
-		t.Fatalf("expected Path '/v1/group/some-name/some-id' but got '%s'", logCache.reqs[0].URL.Path)
+	if logCache.reqs[0].URL.Path != "/v1/shard_group/some-name" {
+		t.Fatalf("expected Path '/v1/shard_group/some-name' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
 	if logCache.reqs[0].Method != "PUT" {
 		t.Fatalf("expected Method to be PUT: %s", logCache.reqs[0].Method)
+	}
+
+	var m map[string][]string
+	if err := json.Unmarshal(logCache.bodies[0], &m); err != nil {
+		t.Fatalf("unable to unmarshal body: %s", err)
+	}
+
+	if !reflect.DeepEqual(m["sourceIds"], []string{"some-id-1", "some-id-2"}) {
+		t.Fatalf("expected some-id-1 and some-id-2: %v", m["sourceIds"])
 	}
 }
 
@@ -365,8 +379,8 @@ func TestGrpcClientSetGroup(t *testing.T) {
 		t.Fatalf("expected Name 'some-name' but got '%s'", logCache.setReqs[0].Name)
 	}
 
-	if logCache.setReqs[0].GetSubGroup().GetSourceId() != "some-id" {
-		t.Fatalf("expected SourceId 'some-id' but got '%s'", logCache.setReqs[0].GetSubGroup().GetSourceId())
+	if !reflect.DeepEqual(logCache.setReqs[0].GetSubGroup().GetSourceIds(), []string{"some-id"}) {
+		t.Fatalf("expected SourceId 'some-id' but got '%v'", logCache.setReqs[0].GetSubGroup().GetSourceIds())
 	}
 
 	logCache.addErr = errors.New("some-error")
@@ -381,7 +395,11 @@ func TestClientGroupMeta(t *testing.T) {
 	logCache := newStubLogCache()
 
 	expectedResp := &rpc.ShardGroupResponse{
-		SourceIds:    []string{"a", "b"},
+		SubGroups: []*rpc.GroupedSourceIds{
+			{
+				SourceIds: []string{"a", "b"},
+			},
+		},
 		RequesterIds: []uint64{1, 2},
 	}
 
@@ -390,7 +408,7 @@ func TestClientGroupMeta(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	logCache.result["GET/v1/group/some-name/meta"] = data
+	logCache.result["GET/v1/shard_group/some-name/meta"] = data
 	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
 	resp, err := client.ShardGroup(context.Background(), "some-name")
@@ -402,16 +420,20 @@ func TestClientGroupMeta(t *testing.T) {
 		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
 	}
 
-	if logCache.reqs[0].URL.Path != "/v1/group/some-name/meta" {
-		t.Fatalf("expected Path '/v1/group/some-name/meta' but got '%s'", logCache.reqs[0].URL.Path)
+	if logCache.reqs[0].URL.Path != "/v1/shard_group/some-name/meta" {
+		t.Fatalf("expected Path '/v1/shard_group/some-name/meta' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
 	if logCache.reqs[0].Method != "GET" {
 		t.Fatalf("expected Method to be GET: %s", logCache.reqs[0].Method)
 	}
 
-	if !reflect.DeepEqual(resp.SourceIDs, []string{"a", "b"}) {
-		t.Fatalf(`expected SourceIds to equal: ["a", "b"]: %s`, resp.SourceIDs)
+	if len(resp.SubGroups) != 1 {
+		t.Fatalf(`expected to have a SubGroup: %d`, len(resp.SubGroups))
+	}
+
+	if !reflect.DeepEqual(resp.SubGroups[0].SourceIDs, []string{"a", "b"}) {
+		t.Fatalf(`expected SourceIds to equal: ["a", "b"]: %s`, resp.SubGroups[0].SourceIDs)
 	}
 
 	if !reflect.DeepEqual(resp.RequesterIDs, []uint64{1, 2}) {
@@ -457,7 +479,7 @@ func TestClientGroupNon200(t *testing.T) {
 func TestClientGroupInvalidResponse(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
-	logCache.result["GET/v1/group/some-name/meta"] = []byte("invalid")
+	logCache.result["GET/v1/shard_group/some-name/meta"] = []byte("invalid")
 	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
 	_, err := client.ShardGroup(context.Background(), "some-name")
@@ -501,8 +523,12 @@ func TestGrpcClientGroup(t *testing.T) {
 		t.Fatalf("expected Name 'some-name' but got '%s'", logCache.groupReqs[0].Name)
 	}
 
-	if !reflect.DeepEqual(resp.SourceIDs, []string{"a", "b"}) {
-		t.Fatalf(`expected SourceIds to equal: ["a", "b"]: %s`, resp.SourceIDs)
+	if len(resp.SubGroups) != 1 {
+		t.Fatalf(`expected to have a SubGroup: %d`, len(resp.SubGroups))
+	}
+
+	if !reflect.DeepEqual(resp.SubGroups[0].SourceIDs, []string{"a", "b"}) {
+		t.Fatalf(`expected SourceIds to equal: ["a", "b"]: %s`, resp.SubGroups[0].SourceIDs)
 	}
 
 	if !reflect.DeepEqual(resp.RequesterIDs, []uint64{1, 2}) {
@@ -579,7 +605,11 @@ func (s *stubGrpcGroupReader) ShardGroup(ctx context.Context, r *rpc.ShardGroupR
 	defer s.mu.Unlock()
 	s.groupReqs = append(s.groupReqs, r)
 	return &rpc.ShardGroupResponse{
-		SourceIds:    []string{"a", "b"},
+		SubGroups: []*rpc.GroupedSourceIds{
+			{
+				SourceIds: []string{"a", "b"},
+			},
+		},
 		RequesterIds: []uint64{1, 2},
 	}, s.groupErr
 }
