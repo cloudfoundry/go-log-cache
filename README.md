@@ -15,5 +15,5 @@ This repository should be imported as:
 [log-cache]:                https://code.cloudfoundry.org/log-cache
 [go-doc-badge]:             https://godoc.org/code.cloudfoundry.org/go-log-cache?status.svg
 [go-doc]:                   https://godoc.org/code.cloudfoundry.org/go-log-cache
-[travis-badge]:             https://travis-ci.org/cloudfoundry-incubator/go-log-cache.svg?branch=master
-[travis]:                   https://travis-ci.org/cloudfoundry-incubator/go-log-cache?branch=master
+[travis-badge]:             https://travis-ci.org/cloudfoundry/go-log-cache.svg?branch=master
+[travis]:                   https://travis-ci.org/cloudfoundry/go-log-cache?branch=master
