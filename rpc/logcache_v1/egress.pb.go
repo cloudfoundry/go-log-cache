@@ -18,8 +18,6 @@ It has these top-level messages:
 	MetaInfo
 	AddToGroupRequest
 	AddToGroupResponse
-	RemoveFromGroupRequest
-	RemoveFromGroupResponse
 	GroupReadRequest
 	GroupReadResponse
 	GroupRequest

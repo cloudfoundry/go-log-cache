@@ -185,46 +185,6 @@ func (c *GroupReaderClient) grpcAddToGroup(ctx context.Context, name, sourceID s
 	return err
 }
 
-// RemoveFromGroup removes a sourceID from the given group. If the given
-// sourceID was the last one, then the grou is removed. If the group does not
-// have the given sourceID, then it is a NOP.
-func (c *GroupReaderClient) RemoveFromGroup(ctx context.Context, name, sourceID string) error {
-	if c.grpcClient != nil {
-		return c.grpcRemoveFromGroup(ctx, name, sourceID)
-	}
-
-	u, err := url.Parse(c.addr)
-	if err != nil {
-		return err
-	}
-	u.Path = fmt.Sprintf("v1/group/%s/%s", name, sourceID)
-
-	req, err := http.NewRequest("DELETE", u.String(), nil)
-	if err != nil {
-		return err
-	}
-	req = req.WithContext(ctx)
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code %d", resp.StatusCode)
-	}
-
-	return nil
-}
-
-func (c *GroupReaderClient) grpcRemoveFromGroup(ctx context.Context, name, sourceID string) error {
-	_, err := c.grpcClient.RemoveFromGroup(ctx, &logcache_v1.RemoveFromGroupRequest{
-		Name:     name,
-		SourceId: sourceID,
-	})
-	return err
-}
-
 // GroupMeta gives the information about given group.
 type GroupMeta struct {
 	SourceIDs    []string
