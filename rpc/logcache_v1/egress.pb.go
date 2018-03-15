@@ -6,9 +6,9 @@ Package logcache_v1 is a generated protocol buffer package.
 
 It is generated from these files:
 	egress.proto
-	group_reader.proto
 	ingress.proto
 	orchestration.proto
+	shard_group_reader.proto
 
 It has these top-level messages:
 	ReadRequest
@@ -16,14 +16,6 @@ It has these top-level messages:
 	MetaRequest
 	MetaResponse
 	MetaInfo
-	AddToGroupRequest
-	AddToGroupResponse
-	RemoveFromGroupRequest
-	RemoveFromGroupResponse
-	GroupReadRequest
-	GroupReadResponse
-	GroupRequest
-	GroupResponse
 	SendRequest
 	SendResponse
 	Range
@@ -36,6 +28,13 @@ It has these top-level messages:
 	ListRangesResponse
 	SetRangesRequest
 	SetRangesResponse
+	SetShardGroupRequest
+	GroupedSourceIds
+	SetShardGroupResponse
+	ShardGroupReadRequest
+	ShardGroupReadResponse
+	ShardGroupRequest
+	ShardGroupResponse
 */
 package logcache_v1
 

@@ -27,7 +27,7 @@ type Range struct {
 func (m *Range) Reset()                    { *m = Range{} }
 func (m *Range) String() string            { return proto.CompactTextString(m) }
 func (*Range) ProtoMessage()               {}
-func (*Range) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
+func (*Range) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
 
 func (m *Range) GetStart() uint64 {
 	if m != nil {
@@ -50,7 +50,7 @@ type Ranges struct {
 func (m *Ranges) Reset()                    { *m = Ranges{} }
 func (m *Ranges) String() string            { return proto.CompactTextString(m) }
 func (*Ranges) ProtoMessage()               {}
-func (*Ranges) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
+func (*Ranges) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
 
 func (m *Ranges) GetRanges() []*Range {
 	if m != nil {
@@ -66,7 +66,7 @@ type AddRangeRequest struct {
 func (m *AddRangeRequest) Reset()                    { *m = AddRangeRequest{} }
 func (m *AddRangeRequest) String() string            { return proto.CompactTextString(m) }
 func (*AddRangeRequest) ProtoMessage()               {}
-func (*AddRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{2} }
+func (*AddRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
 
 func (m *AddRangeRequest) GetRange() *Range {
 	if m != nil {
@@ -81,7 +81,7 @@ type AddRangeResponse struct {
 func (m *AddRangeResponse) Reset()                    { *m = AddRangeResponse{} }
 func (m *AddRangeResponse) String() string            { return proto.CompactTextString(m) }
 func (*AddRangeResponse) ProtoMessage()               {}
-func (*AddRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{3} }
+func (*AddRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3} }
 
 type RemoveRangeRequest struct {
 	Range *Range `protobuf:"bytes,1,opt,name=range" json:"range,omitempty"`
@@ -90,7 +90,7 @@ type RemoveRangeRequest struct {
 func (m *RemoveRangeRequest) Reset()                    { *m = RemoveRangeRequest{} }
 func (m *RemoveRangeRequest) String() string            { return proto.CompactTextString(m) }
 func (*RemoveRangeRequest) ProtoMessage()               {}
-func (*RemoveRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{4} }
+func (*RemoveRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{4} }
 
 func (m *RemoveRangeRequest) GetRange() *Range {
 	if m != nil {
@@ -105,7 +105,7 @@ type RemoveRangeResponse struct {
 func (m *RemoveRangeResponse) Reset()                    { *m = RemoveRangeResponse{} }
 func (m *RemoveRangeResponse) String() string            { return proto.CompactTextString(m) }
 func (*RemoveRangeResponse) ProtoMessage()               {}
-func (*RemoveRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{5} }
+func (*RemoveRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{5} }
 
 type ListRangesRequest struct {
 }
@@ -113,7 +113,7 @@ type ListRangesRequest struct {
 func (m *ListRangesRequest) Reset()                    { *m = ListRangesRequest{} }
 func (m *ListRangesRequest) String() string            { return proto.CompactTextString(m) }
 func (*ListRangesRequest) ProtoMessage()               {}
-func (*ListRangesRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{6} }
+func (*ListRangesRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{6} }
 
 type ListRangesResponse struct {
 	Ranges []*Range `protobuf:"bytes,1,rep,name=ranges" json:"ranges,omitempty"`
@@ -122,7 +122,7 @@ type ListRangesResponse struct {
 func (m *ListRangesResponse) Reset()                    { *m = ListRangesResponse{} }
 func (m *ListRangesResponse) String() string            { return proto.CompactTextString(m) }
 func (*ListRangesResponse) ProtoMessage()               {}
-func (*ListRangesResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{7} }
+func (*ListRangesResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{7} }
 
 func (m *ListRangesResponse) GetRanges() []*Range {
 	if m != nil {
@@ -139,7 +139,7 @@ type SetRangesRequest struct {
 func (m *SetRangesRequest) Reset()                    { *m = SetRangesRequest{} }
 func (m *SetRangesRequest) String() string            { return proto.CompactTextString(m) }
 func (*SetRangesRequest) ProtoMessage()               {}
-func (*SetRangesRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{8} }
+func (*SetRangesRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{8} }
 
 func (m *SetRangesRequest) GetRanges() map[string]*Ranges {
 	if m != nil {
@@ -154,7 +154,7 @@ type SetRangesResponse struct {
 func (m *SetRangesResponse) Reset()                    { *m = SetRangesResponse{} }
 func (m *SetRangesResponse) String() string            { return proto.CompactTextString(m) }
 func (*SetRangesResponse) ProtoMessage()               {}
-func (*SetRangesResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{9} }
+func (*SetRangesResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{9} }
 
 func init() {
 	proto.RegisterType((*Range)(nil), "logcache.v1.Range")
@@ -340,9 +340,9 @@ var _Orchestration_serviceDesc = grpc.ServiceDesc{
 	Metadata: "orchestration.proto",
 }
 
-func init() { proto.RegisterFile("orchestration.proto", fileDescriptor3) }
+func init() { proto.RegisterFile("orchestration.proto", fileDescriptor2) }
 
-var fileDescriptor3 = []byte{
+var fileDescriptor2 = []byte{
 	// 362 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0xcf, 0x4e, 0xc2, 0x40,
 	0x10, 0xc6, 0x2d, 0x58, 0x22, 0xd3, 0x18, 0x71, 0xaa, 0x09, 0x69, 0xe4, 0x4f, 0x7a, 0x02, 0x0f,
