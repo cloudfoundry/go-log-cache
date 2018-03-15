@@ -22,16 +22,12 @@ type Range struct {
 	Start uint64 `protobuf:"varint,1,opt,name=start" json:"start,omitempty"`
 	// end is the last hash within the given range. [start..end]
 	End uint64 `protobuf:"varint,2,opt,name=end" json:"end,omitempty"`
-	// term is the term that the range was applied to. The term is ever
-	// incrementing (managed by the scheduler algorithm). A range with a
-	// larger term is preferred.
-	Term uint64 `protobuf:"varint,3,opt,name=term" json:"term,omitempty"`
 }
 
 func (m *Range) Reset()                    { *m = Range{} }
 func (m *Range) String() string            { return proto.CompactTextString(m) }
 func (*Range) ProtoMessage()               {}
-func (*Range) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
+func (*Range) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
 
 func (m *Range) GetStart() uint64 {
 	if m != nil {
@@ -47,13 +43,6 @@ func (m *Range) GetEnd() uint64 {
 	return 0
 }
 
-func (m *Range) GetTerm() uint64 {
-	if m != nil {
-		return m.Term
-	}
-	return 0
-}
-
 type Ranges struct {
 	Ranges []*Range `protobuf:"bytes,1,rep,name=ranges" json:"ranges,omitempty"`
 }
@@ -61,7 +50,7 @@ type Ranges struct {
 func (m *Ranges) Reset()                    { *m = Ranges{} }
 func (m *Ranges) String() string            { return proto.CompactTextString(m) }
 func (*Ranges) ProtoMessage()               {}
-func (*Ranges) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
+func (*Ranges) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
 
 func (m *Ranges) GetRanges() []*Range {
 	if m != nil {
@@ -77,7 +66,7 @@ type AddRangeRequest struct {
 func (m *AddRangeRequest) Reset()                    { *m = AddRangeRequest{} }
 func (m *AddRangeRequest) String() string            { return proto.CompactTextString(m) }
 func (*AddRangeRequest) ProtoMessage()               {}
-func (*AddRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
+func (*AddRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{2} }
 
 func (m *AddRangeRequest) GetRange() *Range {
 	if m != nil {
@@ -92,7 +81,31 @@ type AddRangeResponse struct {
 func (m *AddRangeResponse) Reset()                    { *m = AddRangeResponse{} }
 func (m *AddRangeResponse) String() string            { return proto.CompactTextString(m) }
 func (*AddRangeResponse) ProtoMessage()               {}
-func (*AddRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3} }
+func (*AddRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{3} }
+
+type RemoveRangeRequest struct {
+	Range *Range `protobuf:"bytes,1,opt,name=range" json:"range,omitempty"`
+}
+
+func (m *RemoveRangeRequest) Reset()                    { *m = RemoveRangeRequest{} }
+func (m *RemoveRangeRequest) String() string            { return proto.CompactTextString(m) }
+func (*RemoveRangeRequest) ProtoMessage()               {}
+func (*RemoveRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{4} }
+
+func (m *RemoveRangeRequest) GetRange() *Range {
+	if m != nil {
+		return m.Range
+	}
+	return nil
+}
+
+type RemoveRangeResponse struct {
+}
+
+func (m *RemoveRangeResponse) Reset()                    { *m = RemoveRangeResponse{} }
+func (m *RemoveRangeResponse) String() string            { return proto.CompactTextString(m) }
+func (*RemoveRangeResponse) ProtoMessage()               {}
+func (*RemoveRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{5} }
 
 type ListRangesRequest struct {
 }
@@ -100,7 +113,7 @@ type ListRangesRequest struct {
 func (m *ListRangesRequest) Reset()                    { *m = ListRangesRequest{} }
 func (m *ListRangesRequest) String() string            { return proto.CompactTextString(m) }
 func (*ListRangesRequest) ProtoMessage()               {}
-func (*ListRangesRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{4} }
+func (*ListRangesRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{6} }
 
 type ListRangesResponse struct {
 	Ranges []*Range `protobuf:"bytes,1,rep,name=ranges" json:"ranges,omitempty"`
@@ -109,7 +122,7 @@ type ListRangesResponse struct {
 func (m *ListRangesResponse) Reset()                    { *m = ListRangesResponse{} }
 func (m *ListRangesResponse) String() string            { return proto.CompactTextString(m) }
 func (*ListRangesResponse) ProtoMessage()               {}
-func (*ListRangesResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{5} }
+func (*ListRangesResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{7} }
 
 func (m *ListRangesResponse) GetRanges() []*Range {
 	if m != nil {
@@ -126,7 +139,7 @@ type SetRangesRequest struct {
 func (m *SetRangesRequest) Reset()                    { *m = SetRangesRequest{} }
 func (m *SetRangesRequest) String() string            { return proto.CompactTextString(m) }
 func (*SetRangesRequest) ProtoMessage()               {}
-func (*SetRangesRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{6} }
+func (*SetRangesRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{8} }
 
 func (m *SetRangesRequest) GetRanges() map[string]*Ranges {
 	if m != nil {
@@ -141,13 +154,15 @@ type SetRangesResponse struct {
 func (m *SetRangesResponse) Reset()                    { *m = SetRangesResponse{} }
 func (m *SetRangesResponse) String() string            { return proto.CompactTextString(m) }
 func (*SetRangesResponse) ProtoMessage()               {}
-func (*SetRangesResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{7} }
+func (*SetRangesResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{9} }
 
 func init() {
 	proto.RegisterType((*Range)(nil), "logcache.v1.Range")
 	proto.RegisterType((*Ranges)(nil), "logcache.v1.Ranges")
 	proto.RegisterType((*AddRangeRequest)(nil), "logcache.v1.AddRangeRequest")
 	proto.RegisterType((*AddRangeResponse)(nil), "logcache.v1.AddRangeResponse")
+	proto.RegisterType((*RemoveRangeRequest)(nil), "logcache.v1.RemoveRangeRequest")
+	proto.RegisterType((*RemoveRangeResponse)(nil), "logcache.v1.RemoveRangeResponse")
 	proto.RegisterType((*ListRangesRequest)(nil), "logcache.v1.ListRangesRequest")
 	proto.RegisterType((*ListRangesResponse)(nil), "logcache.v1.ListRangesResponse")
 	proto.RegisterType((*SetRangesRequest)(nil), "logcache.v1.SetRangesRequest")
@@ -166,6 +181,7 @@ const _ = grpc.SupportPackageIsVersion4
 
 type OrchestrationClient interface {
 	AddRange(ctx context.Context, in *AddRangeRequest, opts ...grpc.CallOption) (*AddRangeResponse, error)
+	RemoveRange(ctx context.Context, in *RemoveRangeRequest, opts ...grpc.CallOption) (*RemoveRangeResponse, error)
 	ListRanges(ctx context.Context, in *ListRangesRequest, opts ...grpc.CallOption) (*ListRangesResponse, error)
 	SetRanges(ctx context.Context, in *SetRangesRequest, opts ...grpc.CallOption) (*SetRangesResponse, error)
 }
@@ -181,6 +197,15 @@ func NewOrchestrationClient(cc *grpc.ClientConn) OrchestrationClient {
 func (c *orchestrationClient) AddRange(ctx context.Context, in *AddRangeRequest, opts ...grpc.CallOption) (*AddRangeResponse, error) {
 	out := new(AddRangeResponse)
 	err := grpc.Invoke(ctx, "/logcache.v1.Orchestration/AddRange", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orchestrationClient) RemoveRange(ctx context.Context, in *RemoveRangeRequest, opts ...grpc.CallOption) (*RemoveRangeResponse, error) {
+	out := new(RemoveRangeResponse)
+	err := grpc.Invoke(ctx, "/logcache.v1.Orchestration/RemoveRange", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -209,6 +234,7 @@ func (c *orchestrationClient) SetRanges(ctx context.Context, in *SetRangesReques
 
 type OrchestrationServer interface {
 	AddRange(context.Context, *AddRangeRequest) (*AddRangeResponse, error)
+	RemoveRange(context.Context, *RemoveRangeRequest) (*RemoveRangeResponse, error)
 	ListRanges(context.Context, *ListRangesRequest) (*ListRangesResponse, error)
 	SetRanges(context.Context, *SetRangesRequest) (*SetRangesResponse, error)
 }
@@ -231,6 +257,24 @@ func _Orchestration_AddRange_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrchestrationServer).AddRange(ctx, req.(*AddRangeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Orchestration_RemoveRange_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveRangeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrchestrationServer).RemoveRange(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/logcache.v1.Orchestration/RemoveRange",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrchestrationServer).RemoveRange(ctx, req.(*RemoveRangeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -280,6 +324,10 @@ var _Orchestration_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Orchestration_AddRange_Handler,
 		},
 		{
+			MethodName: "RemoveRange",
+			Handler:    _Orchestration_RemoveRange_Handler,
+		},
+		{
 			MethodName: "ListRanges",
 			Handler:    _Orchestration_ListRanges_Handler,
 		},
@@ -292,30 +340,31 @@ var _Orchestration_serviceDesc = grpc.ServiceDesc{
 	Metadata: "orchestration.proto",
 }
 
-func init() { proto.RegisterFile("orchestration.proto", fileDescriptor2) }
+func init() { proto.RegisterFile("orchestration.proto", fileDescriptor3) }
 
-var fileDescriptor2 = []byte{
-	// 342 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x92, 0xc1, 0x4e, 0xfa, 0x40,
-	0x10, 0xc6, 0xff, 0x0b, 0x94, 0xfc, 0x99, 0xc6, 0x88, 0x83, 0x87, 0xa6, 0x11, 0x24, 0x7b, 0x02,
-	0x0f, 0x4d, 0x44, 0x0f, 0x46, 0x2f, 0x12, 0xe3, 0xc1, 0x84, 0x48, 0x52, 0x9f, 0xa0, 0xb6, 0x1b,
-	0x20, 0x62, 0x17, 0x77, 0x17, 0x12, 0x1e, 0xc8, 0x87, 0xf4, 0x66, 0xba, 0xdb, 0x42, 0x5b, 0xac,
-	0x89, 0xb7, 0xe9, 0x37, 0x5f, 0x7f, 0x3b, 0xf3, 0xed, 0x42, 0x87, 0x8b, 0x70, 0xce, 0xa4, 0x12,
-	0x81, 0x5a, 0xf0, 0xd8, 0x5b, 0x09, 0xae, 0x38, 0xda, 0x4b, 0x3e, 0x0b, 0x83, 0x70, 0xce, 0xbc,
-	0xcd, 0x25, 0x7d, 0x00, 0xcb, 0x0f, 0xe2, 0x19, 0xc3, 0x53, 0xb0, 0xa4, 0x0a, 0x84, 0x72, 0x48,
-	0x9f, 0x0c, 0x1a, 0xbe, 0xf9, 0xc0, 0x36, 0xd4, 0x59, 0x1c, 0x39, 0x35, 0xad, 0x25, 0x25, 0x22,
-	0x34, 0x14, 0x13, 0xef, 0x4e, 0x5d, 0x4b, 0xba, 0xa6, 0xd7, 0xd0, 0xd4, 0x10, 0x89, 0x17, 0xd0,
-	0x14, 0xba, 0x72, 0x48, 0xbf, 0x3e, 0xb0, 0x47, 0xe8, 0xe5, 0x0e, 0xf3, 0xb4, 0xc9, 0x4f, 0x1d,
-	0xf4, 0x0e, 0x8e, 0xc7, 0x51, 0x64, 0x34, 0xf6, 0xb1, 0x66, 0x52, 0xe1, 0x00, 0x2c, 0xdd, 0xd4,
-	0x43, 0xfc, 0xfc, 0xb7, 0x31, 0x50, 0x84, 0xf6, 0xfe, 0x67, 0xb9, 0xe2, 0xb1, 0x64, 0xb4, 0x03,
-	0x27, 0x93, 0x85, 0x54, 0x66, 0x94, 0x14, 0x49, 0xef, 0x01, 0xf3, 0xa2, 0xb1, 0xfe, 0x69, 0xce,
-	0x4f, 0x02, 0xed, 0x17, 0x56, 0xc4, 0xe2, 0xb8, 0x04, 0x18, 0x16, 0x00, 0x65, 0xbb, 0x21, 0xca,
-	0xc7, 0x58, 0x89, 0x6d, 0xc6, 0x75, 0x9f, 0xc1, 0xce, 0xc9, 0x49, 0xd4, 0x6f, 0x6c, 0xab, 0x37,
-	0x6f, 0xf9, 0x49, 0x89, 0x43, 0xb0, 0x36, 0xc1, 0x72, 0xcd, 0x74, 0xfc, 0xf6, 0xa8, 0x73, 0x38,
-	0xa3, 0xf4, 0x8d, 0xe3, 0xb6, 0x76, 0x43, 0x92, 0xf5, 0x73, 0xe7, 0x9a, 0x45, 0x47, 0x5f, 0x04,
-	0x8e, 0xa6, 0xf9, 0x47, 0x80, 0x4f, 0xf0, 0x3f, 0x4b, 0x0e, 0xcf, 0x0a, 0xc8, 0xd2, 0x6d, 0xb8,
-	0xdd, 0x8a, 0x6e, 0x1a, 0xf7, 0x3f, 0x9c, 0x02, 0xec, 0xb3, 0xc5, 0x5e, 0xc1, 0x7e, 0x70, 0x13,
-	0xee, 0x79, 0x65, 0x7f, 0x07, 0x9c, 0x40, 0x6b, 0xb7, 0x02, 0x76, 0x7f, 0x8d, 0xd4, 0xed, 0x55,
-	0xb5, 0x33, 0xda, 0x6b, 0x53, 0xbf, 0xf7, 0xab, 0xef, 0x00, 0x00, 0x00, 0xff, 0xff, 0x80, 0x30,
-	0xa9, 0xbb, 0x06, 0x03, 0x00, 0x00,
+var fileDescriptor3 = []byte{
+	// 362 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0xcf, 0x4e, 0xc2, 0x40,
+	0x10, 0xc6, 0x2d, 0x58, 0x22, 0xd3, 0x18, 0x71, 0xaa, 0x09, 0x69, 0xe4, 0x4f, 0x7a, 0x02, 0x0f,
+	0x35, 0xa2, 0x07, 0xa3, 0x89, 0x91, 0x83, 0x07, 0x13, 0x22, 0xc9, 0xfa, 0x04, 0x15, 0x26, 0x40,
+	0xc4, 0x2e, 0x76, 0x17, 0x12, 0x1e, 0xc8, 0xc7, 0xf1, 0x9d, 0x4c, 0x77, 0x0b, 0x74, 0xc1, 0x9a,
+	0xe8, 0x6d, 0x98, 0xf9, 0xe6, 0xb7, 0xfb, 0xed, 0x47, 0xc1, 0xe5, 0xf1, 0x60, 0x4c, 0x42, 0xc6,
+	0xa1, 0x9c, 0xf0, 0x28, 0x98, 0xc5, 0x5c, 0x72, 0x74, 0xa6, 0x7c, 0x34, 0x08, 0x07, 0x63, 0x0a,
+	0x16, 0x97, 0xfe, 0x05, 0xd8, 0x2c, 0x8c, 0x46, 0x84, 0x27, 0x60, 0x0b, 0x19, 0xc6, 0xb2, 0x6a,
+	0x35, 0xad, 0xd6, 0x3e, 0xd3, 0x3f, 0xb0, 0x02, 0x45, 0x8a, 0x86, 0xd5, 0x82, 0xea, 0x25, 0xa5,
+	0x7f, 0x0d, 0x25, 0xb5, 0x20, 0xf0, 0x1c, 0x4a, 0xb1, 0xaa, 0xaa, 0x56, 0xb3, 0xd8, 0x72, 0x3a,
+	0x18, 0x64, 0xc0, 0x81, 0x12, 0xb1, 0x54, 0xe1, 0xdf, 0xc1, 0x51, 0x77, 0x38, 0xd4, 0x3d, 0xfa,
+	0x98, 0x93, 0x90, 0xd8, 0x02, 0x5b, 0x0d, 0xd5, 0x81, 0x3f, 0x6f, 0x6b, 0x81, 0x8f, 0x50, 0xd9,
+	0x2c, 0x8b, 0x19, 0x8f, 0x04, 0xf9, 0xf7, 0x80, 0x8c, 0xde, 0xf9, 0x82, 0xfe, 0xc9, 0x3c, 0x05,
+	0xd7, 0xd8, 0x4f, 0xb1, 0x2e, 0x1c, 0xf7, 0x26, 0x42, 0x6a, 0x87, 0x29, 0xd5, 0x7f, 0x00, 0xcc,
+	0x36, 0xb5, 0xf4, 0x4f, 0xf6, 0x3f, 0x2d, 0xa8, 0xbc, 0x90, 0x89, 0xc5, 0xee, 0x16, 0xa0, 0x6d,
+	0x00, 0xb6, 0xe5, 0x9a, 0x28, 0x1e, 0x23, 0x19, 0x2f, 0x57, 0x5c, 0xef, 0x19, 0x9c, 0x4c, 0x3b,
+	0x49, 0xeb, 0x8d, 0x96, 0xca, 0x7c, 0x99, 0x25, 0x25, 0xb6, 0xc1, 0x5e, 0x84, 0xd3, 0x39, 0xa9,
+	0x04, 0x9d, 0x8e, 0xbb, 0x7b, 0x47, 0xc1, 0xb4, 0xe2, 0xb6, 0x70, 0x63, 0x25, 0xf6, 0x33, 0xe7,
+	0x6a, 0xa3, 0x9d, 0xaf, 0x02, 0x1c, 0xf6, 0xb3, 0xff, 0x23, 0x7c, 0x82, 0x83, 0x55, 0x20, 0x78,
+	0x66, 0x20, 0xb7, 0x42, 0xf6, 0x6a, 0x39, 0xd3, 0xf4, 0xb9, 0xf7, 0x90, 0x81, 0x93, 0xc9, 0x01,
+	0x1b, 0xe6, 0x05, 0x77, 0x12, 0xf6, 0x9a, 0xf9, 0x82, 0x35, 0xb3, 0x0f, 0xb0, 0xc9, 0x0b, 0xeb,
+	0xc6, 0xc6, 0x4e, 0xba, 0x5e, 0x23, 0x77, 0xbe, 0x06, 0xf6, 0xa0, 0xbc, 0x7e, 0x16, 0xac, 0xfd,
+	0x1a, 0x93, 0x57, 0xcf, 0x1b, 0xaf, 0x68, 0xaf, 0x25, 0xf5, 0x19, 0x5e, 0x7d, 0x07, 0x00, 0x00,
+	0xff, 0xff, 0x68, 0x15, 0x04, 0x7c, 0x9d, 0x03, 0x00, 0x00,
 }

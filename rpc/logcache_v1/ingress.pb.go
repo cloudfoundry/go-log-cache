@@ -25,7 +25,7 @@ type SendRequest struct {
 func (m *SendRequest) Reset()                    { *m = SendRequest{} }
 func (m *SendRequest) String() string            { return proto.CompactTextString(m) }
 func (*SendRequest) ProtoMessage()               {}
-func (*SendRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (*SendRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
 
 func (m *SendRequest) GetEnvelopes() *loggregator_v2.EnvelopeBatch {
 	if m != nil {
@@ -40,7 +40,7 @@ type SendResponse struct {
 func (m *SendResponse) Reset()                    { *m = SendResponse{} }
 func (m *SendResponse) String() string            { return proto.CompactTextString(m) }
 func (*SendResponse) ProtoMessage()               {}
-func (*SendResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
+func (*SendResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
 
 func init() {
 	proto.RegisterType((*SendRequest)(nil), "logcache.v1.SendRequest")
@@ -123,9 +123,9 @@ var _Ingress_serviceDesc = grpc.ServiceDesc{
 	Metadata: "ingress.proto",
 }
 
-func init() { proto.RegisterFile("ingress.proto", fileDescriptor1) }
+func init() { proto.RegisterFile("ingress.proto", fileDescriptor2) }
 
-var fileDescriptor1 = []byte{
+var fileDescriptor2 = []byte{
 	// 171 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0xcd, 0xcc, 0x4b, 0x2f,
 	0x4a, 0x2d, 0x2e, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0xce, 0xc9, 0x4f, 0x4f, 0x4e,
