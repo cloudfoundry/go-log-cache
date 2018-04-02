@@ -302,14 +302,14 @@ func TestClientSetGroup(t *testing.T) {
 		t.Fatalf("expected Method to be PUT: %s", logCache.reqs[0].Method)
 	}
 
-	var m rpc.SetShardGroupRequest
+	var g rpc.GroupedSourceIds
 	r := bytes.NewReader(logCache.bodies[0])
-	if err := jsonpb.Unmarshal(r, &m); err != nil {
+	if err := jsonpb.Unmarshal(r, &g); err != nil {
 		t.Fatalf("unable to unmarshal body: %s", err)
 	}
 
-	if !reflect.DeepEqual(m.SubGroup.SourceIds, []string{"some-id-1", "some-id-2"}) {
-		t.Fatalf("expected some-id-1 and some-id-2: %v", m.SubGroup.SourceIds)
+	if !reflect.DeepEqual(g.SourceIds, []string{"some-id-1", "some-id-2"}) {
+		t.Fatalf("expected some-id-1 and some-id-2: %v", g.SourceIds)
 	}
 }
 
