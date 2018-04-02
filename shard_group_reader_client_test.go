@@ -1,6 +1,7 @@
 package logcache_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -13,6 +14,7 @@ import (
 	logcache "code.cloudfoundry.org/go-log-cache"
 	rpc "code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
+	"github.com/golang/protobuf/jsonpb"
 	"google.golang.org/grpc"
 )
 
@@ -300,13 +302,14 @@ func TestClientSetGroup(t *testing.T) {
 		t.Fatalf("expected Method to be PUT: %s", logCache.reqs[0].Method)
 	}
 
-	var m map[string][]string
-	if err := json.Unmarshal(logCache.bodies[0], &m); err != nil {
+	var m rpc.SetShardGroupRequest
+	r := bytes.NewReader(logCache.bodies[0])
+	if err := jsonpb.Unmarshal(r, &m); err != nil {
 		t.Fatalf("unable to unmarshal body: %s", err)
 	}
 
-	if !reflect.DeepEqual(m["sourceIds"], []string{"some-id-1", "some-id-2"}) {
-		t.Fatalf("expected some-id-1 and some-id-2: %v", m["sourceIds"])
+	if !reflect.DeepEqual(m.SubGroup.SourceIds, []string{"some-id-1", "some-id-2"}) {
+		t.Fatalf("expected some-id-1 and some-id-2: %v", m.SubGroup.SourceIds)
 	}
 }
 

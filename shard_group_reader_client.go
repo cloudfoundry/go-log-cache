@@ -165,8 +165,10 @@ func (c *ShardGroupReaderClient) SetShardGroup(
 	u.Path = fmt.Sprintf("v1/shard_group/%s", name)
 
 	marshalled, err := (&jsonpb.Marshaler{}).MarshalToString(
-		&logcache_v1.GroupedSourceIds{
-			SourceIds: sourceIDs,
+		&logcache_v1.SetShardGroupRequest{
+			SubGroup: &logcache_v1.GroupedSourceIds{
+				SourceIds: sourceIDs,
+			},
 		},
 	)
 
