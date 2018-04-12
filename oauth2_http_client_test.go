@@ -230,13 +230,13 @@ func TestOauth2HTTPClientReusesToken(t *testing.T) {
 	}
 }
 
-func TestOauth2HTTPClientFetchesNewTokenOn401(t *testing.T) {
+func TestOauth2HTTPClientClearsTokenOnNonSuccessfulStatusCode(t *testing.T) {
 	t.Parallel()
 
 	stubClient := newStubHTTPClient()
 
-	stubClient.resps = append(stubClient.resps, tokenResp(), &http.Response{StatusCode: 401})
-	stubClient.errs = append(stubClient.errs, nil, nil)
+	stubClient.resps = append(stubClient.resps, tokenResp(), &http.Response{StatusCode: 404}, &http.Response{StatusCode: 199})
+	stubClient.errs = append(stubClient.errs, nil, nil, nil)
 
 	c := logcache.NewOauth2HTTPClient(
 		"http://oauth2.something.com",
@@ -254,13 +254,19 @@ func TestOauth2HTTPClientFetchesNewTokenOn401(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Returns 401 and induces a new Oauth2 call
+	// Returns 401 and clears existing auth token
 	_, err = c.Do(req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if len(stubClient.reqs) != 5 {
+	// Returns 199 and clears existing auth token
+	_, err = c.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(stubClient.reqs) != 4 {
 		t.Fatalf("expected to only get the token again: %d", len(stubClient.reqs))
 	}
 }

@@ -99,10 +99,9 @@ func (c *Oauth2HTTPClient) Do(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
-	if resp.StatusCode == http.StatusUnauthorized {
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
 		c.token = ""
-		req.Header.Del("Authorization")
-		return c.Do(req)
+		return resp, nil
 	}
 
 	return resp, nil
