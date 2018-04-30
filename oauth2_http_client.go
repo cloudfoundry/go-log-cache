@@ -57,8 +57,8 @@ func WithOauth2HTTPClient(client HTTPClient) Oauth2Option {
 	})
 }
 
-// WithUser sets the username and password for user authentication.
-func WithUser(username, password string) Oauth2Option {
+// WithOauth2HTTPUser sets the username and password for user authentication.
+func WithOauth2HTTPUser(username, password string) Oauth2Option {
 	return oauth2HTTPClientOptionFunc(func(c *Oauth2HTTPClient) {
 		c.username = username
 		c.userPassword = password

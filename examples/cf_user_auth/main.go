@@ -42,7 +42,7 @@ func main() {
 	}
 
 	c := logcache.NewOauth2HTTPClient(uaaAddr, uaaClient, uaaClientSecret,
-		logcache.WithUser(username, password),
+		logcache.WithOauth2HTTPUser(username, password),
 	)
 
 	req, err := http.NewRequest(http.MethodGet, logCacheAddr+"/v1/meta", nil)

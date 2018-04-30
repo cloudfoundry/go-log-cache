@@ -115,7 +115,7 @@ func TestOauth2HTTPClientWithPasswordGrant(t *testing.T) {
 		"client",
 		"client-secret",
 		logcache.WithOauth2HTTPClient(stubClient),
-		logcache.WithUser("user", "user-password"),
+		logcache.WithOauth2HTTPUser("user", "user-password"),
 	)
 
 	req, err := http.NewRequest("GET", "http://some-target.com", nil)
