@@ -29,7 +29,7 @@ type SetShardGroupRequest struct {
 func (m *SetShardGroupRequest) Reset()                    { *m = SetShardGroupRequest{} }
 func (m *SetShardGroupRequest) String() string            { return proto.CompactTextString(m) }
 func (*SetShardGroupRequest) ProtoMessage()               {}
-func (*SetShardGroupRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
+func (*SetShardGroupRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{0} }
 
 func (m *SetShardGroupRequest) GetName() string {
 	if m != nil {
@@ -59,7 +59,7 @@ type GroupedSourceIds struct {
 func (m *GroupedSourceIds) Reset()                    { *m = GroupedSourceIds{} }
 func (m *GroupedSourceIds) String() string            { return proto.CompactTextString(m) }
 func (*GroupedSourceIds) ProtoMessage()               {}
-func (*GroupedSourceIds) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
+func (*GroupedSourceIds) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{1} }
 
 func (m *GroupedSourceIds) GetSourceIds() []string {
 	if m != nil {
@@ -74,7 +74,7 @@ type SetShardGroupResponse struct {
 func (m *SetShardGroupResponse) Reset()                    { *m = SetShardGroupResponse{} }
 func (m *SetShardGroupResponse) String() string            { return proto.CompactTextString(m) }
 func (*SetShardGroupResponse) ProtoMessage()               {}
-func (*SetShardGroupResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{2} }
+func (*SetShardGroupResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{2} }
 
 type ShardGroupReadRequest struct {
 	Name          string         `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
@@ -90,7 +90,7 @@ type ShardGroupReadRequest struct {
 func (m *ShardGroupReadRequest) Reset()                    { *m = ShardGroupReadRequest{} }
 func (m *ShardGroupReadRequest) String() string            { return proto.CompactTextString(m) }
 func (*ShardGroupReadRequest) ProtoMessage()               {}
-func (*ShardGroupReadRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{3} }
+func (*ShardGroupReadRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{3} }
 
 func (m *ShardGroupReadRequest) GetName() string {
 	if m != nil {
@@ -148,7 +148,7 @@ type ShardGroupReadResponse struct {
 func (m *ShardGroupReadResponse) Reset()                    { *m = ShardGroupReadResponse{} }
 func (m *ShardGroupReadResponse) String() string            { return proto.CompactTextString(m) }
 func (*ShardGroupReadResponse) ProtoMessage()               {}
-func (*ShardGroupReadResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{4} }
+func (*ShardGroupReadResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{4} }
 
 func (m *ShardGroupReadResponse) GetEnvelopes() *loggregator_v2.EnvelopeBatch {
 	if m != nil {
@@ -166,7 +166,7 @@ type ShardGroupRequest struct {
 func (m *ShardGroupRequest) Reset()                    { *m = ShardGroupRequest{} }
 func (m *ShardGroupRequest) String() string            { return proto.CompactTextString(m) }
 func (*ShardGroupRequest) ProtoMessage()               {}
-func (*ShardGroupRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{5} }
+func (*ShardGroupRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{5} }
 
 func (m *ShardGroupRequest) GetName() string {
 	if m != nil {
@@ -190,7 +190,7 @@ type ShardGroupResponse struct {
 func (m *ShardGroupResponse) Reset()                    { *m = ShardGroupResponse{} }
 func (m *ShardGroupResponse) String() string            { return proto.CompactTextString(m) }
 func (*ShardGroupResponse) ProtoMessage()               {}
-func (*ShardGroupResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{6} }
+func (*ShardGroupResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{6} }
 
 func (m *ShardGroupResponse) GetSubGroups() []*GroupedSourceIds {
 	if m != nil {
@@ -354,9 +354,9 @@ var _ShardGroupReader_serviceDesc = grpc.ServiceDesc{
 	Metadata: "shard_group_reader.proto",
 }
 
-func init() { proto.RegisterFile("shard_group_reader.proto", fileDescriptor3) }
+func init() { proto.RegisterFile("shard_group_reader.proto", fileDescriptor4) }
 
-var fileDescriptor3 = []byte{
+var fileDescriptor4 = []byte{
 	// 552 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x54, 0xc1, 0x6e, 0xd3, 0x40,
 	0x10, 0x95, 0x93, 0xb4, 0x8d, 0x27, 0x49, 0xd5, 0xae, 0xda, 0xe2, 0x06, 0x52, 0x5c, 0xe7, 0x62,

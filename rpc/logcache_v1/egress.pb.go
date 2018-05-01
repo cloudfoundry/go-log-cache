@@ -8,6 +8,7 @@ It is generated from these files:
 	egress.proto
 	ingress.proto
 	orchestration.proto
+	promql.proto
 	shard_group_reader.proto
 
 It has these top-level messages:
@@ -28,6 +29,7 @@ It has these top-level messages:
 	ListRangesResponse
 	SetRangesRequest
 	SetRangesResponse
+	PromQL
 	SetShardGroupRequest
 	GroupedSourceIds
 	SetShardGroupResponse
