@@ -436,11 +436,11 @@ func TestClientGroupMeta(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(resp.SubGroups[0].SourceIDs, []string{"a", "b"}) {
-		t.Fatalf(`expected SourceIds to equal: ["a", "b"]: %s`, resp.SubGroups[0].SourceIDs)
+		t.Fatalf(`expected SourceIds to equal: ["a", "b"]: %v`, resp.SubGroups[0].SourceIDs)
 	}
 
 	if !reflect.DeepEqual(resp.RequesterIDs, []uint64{1, 2}) {
-		t.Fatalf(`expected RequesterIds to equal: [1, 2]: %s`, resp.RequesterIDs)
+		t.Fatalf(`expected RequesterIds to equal: [1, 2]: %v`, resp.RequesterIDs)
 	}
 }
 
@@ -531,11 +531,11 @@ func TestGrpcClientGroup(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(resp.SubGroups[0].SourceIDs, []string{"a", "b"}) {
-		t.Fatalf(`expected SourceIds to equal: ["a", "b"]: %s`, resp.SubGroups[0].SourceIDs)
+		t.Fatalf(`expected SourceIds to equal: ["a", "b"]: %v`, resp.SubGroups[0].SourceIDs)
 	}
 
 	if !reflect.DeepEqual(resp.RequesterIDs, []uint64{1, 2}) {
-		t.Fatalf(`expected RequesterIds to equal: [1, 2]: %s`, resp.RequesterIDs)
+		t.Fatalf(`expected RequesterIds to equal: [1, 2]: %v`, resp.RequesterIDs)
 	}
 
 	logCache.groupErr = errors.New("some-error")
