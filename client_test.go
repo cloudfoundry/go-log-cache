@@ -360,6 +360,191 @@ func TestGrpcClientMetaCancelling(t *testing.T) {
 	}
 }
 
+func TestClientPromQL(t *testing.T) {
+	t.Parallel()
+	logCache := newStubLogCache()
+	client := logcache.NewClient(logCache.addr())
+
+	result, err := client.PromQL(
+		context.Background(),
+		`some-query`,
+	)
+
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	samples := result.GetVector().GetSamples()
+	if len(samples) != 1 {
+		t.Fatalf("expected to receive 1 sample, got %d", len(samples))
+	}
+
+	if samples[0].Point.Value != 99 || samples[0].Point.Time != 1234 {
+		t.Fatal("wrong samples")
+	}
+
+	if len(logCache.reqs) != 1 {
+		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
+	}
+
+	if logCache.reqs[0].URL.Path != "/v1/promql" {
+		t.Fatalf("expected Path '/v1/promql' but got '%s'", logCache.reqs[0].URL.Path)
+	}
+
+	assertQueryParam(t, logCache.reqs[0].URL, "query", "some-query")
+
+	if len(logCache.reqs[0].URL.Query()) != 1 {
+		t.Fatalf("expected only a single query parameter, but got %d", len(logCache.reqs[0].URL.Query()))
+	}
+}
+
+func TestClientPromQLWithOptions(t *testing.T) {
+	t.Parallel()
+	logCache := newStubLogCache()
+	client := logcache.NewClient(logCache.addr())
+
+	_, err := client.PromQL(
+		context.Background(),
+		"some-query",
+		logcache.WithPromQLTime(time.Unix(0, 101)),
+	)
+
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	if len(logCache.reqs) != 1 {
+		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
+	}
+
+	if logCache.reqs[0].URL.Path != "/v1/promql" {
+		t.Fatalf("expected Path '/v1/promql' but got '%s'", logCache.reqs[0].URL.Path)
+	}
+
+	assertQueryParam(t, logCache.reqs[0].URL, "time", "101")
+
+	if len(logCache.reqs[0].URL.Query()) != 2 {
+		t.Fatalf("expected 2 query parameters, but got %d", len(logCache.reqs[0].URL.Query()))
+	}
+}
+
+func TestClientPromQLNon200(t *testing.T) {
+	t.Parallel()
+	logCache := newStubLogCache()
+	logCache.statusCode = 500
+	client := logcache.NewClient(logCache.addr())
+
+	_, err := client.PromQL(context.Background(), "some-query")
+
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
+func TestClientPromQLInvalidResponse(t *testing.T) {
+	t.Parallel()
+	logCache := newStubLogCache()
+	logCache.result["GET/v1/promql"] = []byte("invalid")
+	client := logcache.NewClient(logCache.addr())
+
+	_, err := client.PromQL(context.Background(), "some-query")
+
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
+func TestClientPromQLUnknownAddr(t *testing.T) {
+	t.Parallel()
+	client := logcache.NewClient("http://invalid.url")
+
+	_, err := client.PromQL(context.Background(), "some-query")
+
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
+func TestClientPromQLInvalidAddr(t *testing.T) {
+	t.Parallel()
+	client := logcache.NewClient("-:-invalid")
+
+	_, err := client.PromQL(context.Background(), "some-query")
+
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
+func TestClientPromQLCancelling(t *testing.T) {
+	t.Parallel()
+	logCache := newStubLogCache()
+	logCache.block = true
+	client := logcache.NewClient(logCache.addr())
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := client.PromQL(
+		ctx,
+		"some-query",
+	)
+
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
+func TestGrpcClientPromQL(t *testing.T) {
+	t.Parallel()
+	logCache := newStubGrpcLogCache()
+	client := logcache.NewClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
+
+	result, err := client.PromQL(context.Background(), "some-query",
+		logcache.WithPromQLTime(time.Unix(0, 99)),
+	)
+
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	scalar := result.GetScalar()
+	if scalar.Time != 99 || scalar.Value != 101 {
+		t.Fatalf("wrong scalar")
+	}
+
+	if len(logCache.promReqs) != 1 {
+		t.Fatalf("expected have 1 request, have %d", len(logCache.promReqs))
+	}
+
+	if logCache.promReqs[0].Query != "some-query" {
+		t.Fatalf("expected Query (%s) to equal %s", logCache.promReqs[0].Query, "some-query")
+	}
+
+	if logCache.promReqs[0].Time != 99 {
+		t.Fatalf("expected Time (%d) to equal %d", logCache.promReqs[0].Time, 99)
+	}
+}
+
+func TestGrpcClientPromQLCancelling(t *testing.T) {
+	t.Parallel()
+	logCache := newStubGrpcLogCache()
+	logCache.block = true
+	client := logcache.NewClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := client.PromQL(
+		ctx,
+		"some-query",
+	)
+
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
 type stubLogCache struct {
 	statusCode int
 	server     *httptest.Server
@@ -387,6 +572,23 @@ func newStubLogCache() *stubLogCache {
 			]
 		}
 	}`),
+			"GET/v1/promql": []byte(`
+    {
+      "vector": {
+        "samples": [
+          {
+            "metric": {
+              "deployment": "cf"
+            },
+            "point": {
+              "time": "1234",
+              "value": 99
+            }
+          }
+        ]
+      }
+    }
+			`),
 		},
 	}
 	s.server = httptest.NewServer(s)
@@ -432,10 +634,11 @@ func assertQueryParam(t *testing.T, u *url.URL, name string, values ...string) {
 }
 
 type stubGrpcLogCache struct {
-	mu    sync.Mutex
-	reqs  []*rpc.ReadRequest
-	lis   net.Listener
-	block bool
+	mu       sync.Mutex
+	reqs     []*rpc.ReadRequest
+	promReqs []*rpc.PromQL_InstantQueryRequest
+	lis      net.Listener
+	block    bool
 }
 
 func newStubGrpcLogCache() *stubGrpcLogCache {
@@ -447,6 +650,7 @@ func newStubGrpcLogCache() *stubGrpcLogCache {
 	s.lis = lis
 	srv := grpc.NewServer()
 	rpc.RegisterEgressServer(srv, s)
+	rpc.RegisterPromQLQuerierServer(srv, s)
 	go srv.Serve(lis)
 
 	return s
@@ -476,6 +680,26 @@ func (s *stubGrpcLogCache) Read(c context.Context, r *rpc.ReadRequest) (*rpc.Rea
 	}, nil
 }
 
+func (s *stubGrpcLogCache) InstantQuery(c context.Context, r *rpc.PromQL_InstantQueryRequest) (*rpc.PromQL_QueryResult, error) {
+	if s.block {
+		var block chan struct{}
+		<-block
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.promReqs = append(s.promReqs, r)
+
+	return &rpc.PromQL_QueryResult{
+		Result: &rpc.PromQL_QueryResult_Scalar{
+			Scalar: &rpc.PromQL_Scalar{
+				Time:  99,
+				Value: 101,
+			},
+		},
+	}, nil
+}
+
 func (s *stubGrpcLogCache) Meta(context.Context, *rpc.MetaRequest) (*rpc.MetaResponse, error) {
 	return &rpc.MetaResponse{
 		Meta: map[string]*rpc.MetaInfo{
@@ -491,5 +715,14 @@ func (s *stubGrpcLogCache) requests() []*rpc.ReadRequest {
 
 	r := make([]*rpc.ReadRequest, len(s.reqs))
 	copy(r, s.reqs)
+	return r
+}
+
+func (s *stubGrpcLogCache) promQLRequests() []*rpc.PromQL_InstantQueryRequest {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	r := make([]*rpc.PromQL_InstantQueryRequest, len(s.promReqs))
+	copy(r, s.promReqs)
 	return r
 }

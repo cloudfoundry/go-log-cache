@@ -18,8 +18,9 @@ import (
 type Client struct {
 	addr string
 
-	httpClient HTTPClient
-	grpcClient logcache_v1.EgressClient
+	httpClient       HTTPClient
+	grpcClient       logcache_v1.EgressClient
+	promqlGrpcClient logcache_v1.PromQLQuerierClient
 }
 
 // NewIngressClient creates a Client.
@@ -82,6 +83,7 @@ func WithViaGRPC(opts ...grpc.DialOption) ClientOption {
 			}
 
 			c.grpcClient = logcache_v1.NewEgressClient(conn)
+			c.promqlGrpcClient = logcache_v1.NewPromQLQuerierClient(conn)
 		case *ShardGroupReaderClient:
 			conn, err := grpc.Dial(c.addr, opts...)
 			if err != nil {
@@ -264,4 +266,87 @@ func (c *Client) grpcMeta(ctx context.Context) (map[string]*logcache_v1.MetaInfo
 	}
 
 	return resp.Meta, nil
+}
+
+// PromQLOption configures the URL that is used to submit the query. The
+// RawQuery is set to the decoded query parameters after each option is
+// invoked.
+type PromQLOption func(u *url.URL, q url.Values)
+
+// WithPromQLTime returns a PromQLOption that configures the 'time' query
+// parameter for a PromQL query.
+func WithPromQLTime(t time.Time) PromQLOption {
+	return func(u *url.URL, q url.Values) {
+		q.Set("time", strconv.FormatInt(t.UnixNano(), 10))
+	}
+}
+
+// PromQL issues a PromQL query against Log Cache data.
+func (c *Client) PromQL(
+	ctx context.Context,
+	query string,
+	opts ...PromQLOption,
+) (*logcache_v1.PromQL_QueryResult, error) {
+	if c.promqlGrpcClient != nil {
+		return c.grpcPromQL(ctx, query, opts)
+	}
+
+	u, err := url.Parse(c.addr)
+	if err != nil {
+		return nil, err
+	}
+	u.Path = "/v1/promql"
+	q := u.Query()
+	q.Set("query", query)
+
+	// allow the given options to configure the URL.
+	for _, o := range opts {
+		o(u, q)
+	}
+	u.RawQuery = q.Encode()
+
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
+	}
+
+	var promQLResponse logcache_v1.PromQL_QueryResult
+	if err := jsonpb.Unmarshal(resp.Body, &promQLResponse); err != nil {
+		return nil, err
+	}
+
+	return &promQLResponse, nil
+}
+
+func (c *Client) grpcPromQL(ctx context.Context, query string, opts []PromQLOption) (*logcache_v1.PromQL_QueryResult, error) {
+	u := &url.URL{}
+	q := u.Query()
+	// allow the given options to configure the URL.
+	for _, o := range opts {
+		o(u, q)
+	}
+
+	req := &logcache_v1.PromQL_InstantQueryRequest{
+		Query: query,
+	}
+
+	if v, ok := q["time"]; ok {
+		req.Time, _ = strconv.ParseInt(v[0], 10, 64)
+	}
+
+	resp, err := c.promqlGrpcClient.InstantQuery(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
