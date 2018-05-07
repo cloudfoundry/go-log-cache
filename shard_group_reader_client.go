@@ -21,8 +21,9 @@ import (
 type ShardGroupReaderClient struct {
 	addr string
 
-	httpClient HTTPClient
-	grpcClient logcache_v1.ShardGroupReaderClient
+	unmarshaler *jsonpb.Unmarshaler
+	httpClient  HTTPClient
+	grpcClient  logcache_v1.ShardGroupReaderClient
 }
 
 // NewShardGroupReaderClient creates a ShardGroupReaderClient.
@@ -31,6 +32,9 @@ func NewShardGroupReaderClient(addr string, opts ...ClientOption) *ShardGroupRea
 		addr: addr,
 		httpClient: &http.Client{
 			Timeout: 5 * time.Second,
+		},
+		unmarshaler: &jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
 		},
 	}
 
@@ -97,8 +101,8 @@ func (c *ShardGroupReaderClient) Read(
 		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
 	}
 
-	var r logcache_v1.ReadResponse
-	if err := jsonpb.Unmarshal(resp.Body, &r); err != nil {
+	var r logcache_v1.ShardGroupReadResponse
+	if err := c.unmarshaler.Unmarshal(resp.Body, &r); err != nil {
 		return nil, err
 	}
 

@@ -25,6 +25,8 @@ func TestClientGroupRead(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 	logCache.result["GET/v1/shard_group/some-name"] = []byte(`{
+		"extraJunk":"should-be-ok",
+		"args": ["some-arg"],
 		"envelopes": {
 			"batch": [
 			    {
