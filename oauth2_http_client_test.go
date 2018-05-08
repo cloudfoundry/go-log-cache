@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"sync"
 	"testing"
 
@@ -56,6 +57,19 @@ func TestOauth2HTTPClient(t *testing.T) {
 		t.Fatalf("expected two requests: %d", len(stubClient.reqs))
 	}
 
+	if len(stubClient.reqs[0].URL.Query()) != 0 {
+		t.Fatalf("expected all parameters in body and not URL query for security")
+	}
+
+	if len(stubClient.bodies) != 1 {
+		t.Fatalf("expected a single body from a request")
+	}
+
+	query, err := url.ParseQuery(string(stubClient.bodies[0]))
+	if err != nil {
+		t.Fatalf("failed to parse body: %s", err)
+	}
+
 	if stubClient.reqs[0].Method != "POST" {
 		t.Fatalf("expected method to equal POST: %s", stubClient.reqs[0].Method)
 	}
@@ -72,12 +86,12 @@ func TestOauth2HTTPClient(t *testing.T) {
 		t.Fatalf("expected Header Content-Type to equal application/x-www-form-urlencoded: %s", stubClient.reqs[0].Header.Get("Content-Type"))
 	}
 
-	if stubClient.reqs[0].URL.Query().Get("client_id") != "my-user" {
-		t.Fatalf("expected client_id to equal my-user: %s", stubClient.reqs[0].URL.Query().Get("client_id"))
+	if query.Get("client_id") != "my-user" {
+		t.Fatalf("expected client_id to equal my-user: %s", query.Get("client_id"))
 	}
 
-	if stubClient.reqs[0].URL.Query().Get("grant_type") != "client_credentials" {
-		t.Fatalf("expected grant_type to equal client_credentials: %s", stubClient.reqs[0].URL.Query().Get("grant_type"))
+	if query.Get("grant_type") != "client_credentials" {
+		t.Fatalf("expected grant_type to equal client_credentials: %s", query.Get("grant_type"))
 	}
 
 	if stubClient.reqs[0].URL.User == nil {
@@ -154,24 +168,37 @@ func TestOauth2HTTPClientWithPasswordGrant(t *testing.T) {
 		t.Fatalf("expected Header Content-Type to equal application/x-www-form-urlencoded: %s", stubClient.reqs[0].Header.Get("Content-Type"))
 	}
 
-	if stubClient.reqs[0].URL.Query().Get("client_id") != "client" {
-		t.Fatalf("expected client_id to equal client: %s", stubClient.reqs[0].URL.Query().Get("client_id"))
+	if len(stubClient.reqs[0].URL.Query()) != 0 {
+		t.Fatalf("expected all parameters in body and not URL query for security")
 	}
 
-	if stubClient.reqs[0].URL.Query().Get("client_secret") != "client-secret" {
-		t.Fatalf("expected client_secret to equal client-secret: %s", stubClient.reqs[0].URL.Query().Get("client_secret"))
+	if len(stubClient.bodies) != 1 {
+		t.Fatalf("expected a single body from a request")
 	}
 
-	if stubClient.reqs[0].URL.Query().Get("grant_type") != "password" {
-		t.Fatalf("expected grant_type to equal password: %s", stubClient.reqs[0].URL.Query().Get("grant_type"))
+	query, err := url.ParseQuery(string(stubClient.bodies[0]))
+	if err != nil {
+		t.Fatalf("failed to parse body: %s", err)
 	}
 
-	if stubClient.reqs[0].URL.Query().Get("username") != "user" {
-		t.Fatalf("expected username to equal user: %s", stubClient.reqs[0].URL.Query().Get("username"))
+	if query.Get("client_id") != "client" {
+		t.Fatalf("expected client_id to equal client: %s", query.Get("client_id"))
 	}
 
-	if stubClient.reqs[0].URL.Query().Get("password") != "user-password" {
-		t.Fatalf("expected password to equal user-password: %s", stubClient.reqs[0].URL.Query().Get("password"))
+	if query.Get("client_secret") != "client-secret" {
+		t.Fatalf("expected client_secret to equal client-secret: %s", query.Get("client_secret"))
+	}
+
+	if query.Get("grant_type") != "password" {
+		t.Fatalf("expected grant_type to equal password: %s", query.Get("grant_type"))
+	}
+
+	if query.Get("username") != "user" {
+		t.Fatalf("expected username to equal user: %s", query.Get("username"))
+	}
+
+	if query.Get("password") != "user-password" {
+		t.Fatalf("expected password to equal user-password: %s", query.Get("password"))
 	}
 }
 
@@ -344,10 +371,11 @@ func TestOauth2HTTPClientSurvivesRaceDetector(t *testing.T) {
 }
 
 type stubHTTPClient struct {
-	mu    sync.Mutex
-	reqs  []*http.Request
-	resps []*http.Response
-	errs  []error
+	mu     sync.Mutex
+	reqs   []*http.Request
+	resps  []*http.Response
+	bodies [][]byte
+	errs   []error
 }
 
 func newStubHTTPClient() *stubHTTPClient {
@@ -359,6 +387,14 @@ func (s *stubHTTPClient) Do(r *http.Request) (*http.Response, error) {
 	defer s.mu.Unlock()
 
 	s.reqs = append(s.reqs, r)
+
+	if r.Body != nil {
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			panic(err)
+		}
+		s.bodies = append(s.bodies, body)
+	}
 
 	if len(s.resps) != len(s.errs) {
 		panic("resps and errs have to always have the same length")

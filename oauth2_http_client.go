@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 )
@@ -122,18 +123,21 @@ func (c *Oauth2HTTPClient) getClientToken() (string, error) {
 		return c.token, nil
 	}
 
-	req, err := http.NewRequest("POST", c.oauth2Addr, nil)
+	v := make(url.Values)
+	v.Set("client_id", c.client)
+	v.Set("grant_type", "client_credentials")
+
+	req, err := http.NewRequest(
+		"POST",
+		c.oauth2Addr,
+		strings.NewReader(v.Encode()),
+	)
 	if err != nil {
 		return "", err
 	}
 	req.URL.Path = "/oauth/token"
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	v := make(url.Values)
-	v.Set("client_id", c.client)
-	v.Set("grant_type", "client_credentials")
-	req.URL.RawQuery = v.Encode()
 
 	req.URL.User = url.UserPassword(c.client, c.clientSecret)
 
@@ -148,14 +152,6 @@ func (c *Oauth2HTTPClient) getUserToken() (string, error) {
 		return c.token, nil
 	}
 
-	req, err := http.NewRequest("POST", c.oauth2Addr, nil)
-	if err != nil {
-		return "", err
-	}
-	req.URL.Path = "/oauth/token"
-
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
 	v := make(url.Values)
 	v.Set("client_id", c.client)
 	v.Set("client_secret", c.clientSecret)
@@ -163,7 +159,18 @@ func (c *Oauth2HTTPClient) getUserToken() (string, error) {
 	v.Set("username", c.username)
 	v.Set("password", c.userPassword)
 
-	req.URL.RawQuery = v.Encode()
+	req, err := http.NewRequest(
+		"POST",
+		c.oauth2Addr,
+		strings.NewReader(v.Encode()),
+	)
+	if err != nil {
+		return "", err
+	}
+	req.URL.Path = "/oauth/token"
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
 	return c.doTokenRequest(req)
 }
 
