@@ -45,8 +45,8 @@ func TestWalkRejectsTooNewData(t *testing.T) {
 		envelopes: [][]*loggregator_v2.Envelope{
 			{
 				{Timestamp: 1},
-				// Give future value. It should not take this value
-				{Timestamp: time.Now().Add(time.Minute).UnixNano()},
+				// Give too new of a value.
+				{Timestamp: time.Now().Add(-5 * time.Second).UnixNano()},
 			},
 		},
 		errs: []error{nil},
@@ -57,7 +57,9 @@ func TestWalkRejectsTooNewData(t *testing.T) {
 		defer func() { called++ }()
 		es += len(e)
 		return called == 0
-	}, r.read)
+	}, r.read,
+		logcache.WithWalkDelay(6*time.Second),
+	)
 
 	if len(r.starts) != 2 {
 		t.Fatalf("expected starts to have 2 entries: %d", len(r.starts))

@@ -29,6 +29,7 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 	c := &walkConfig{
 		log:     log.New(ioutil.Discard, "", 0),
 		backoff: AlwaysDoneBackoff{},
+		delay:   time.Second,
 	}
 
 	for _, o := range opts {
@@ -65,9 +66,9 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 
 		if c.end.IsZero() {
 			// Prune envelopes for any that are too new or from the future.
-			secondAgo := time.Now().Add(-time.Second).UnixNano()
+			withDelay := time.Now().Add(-c.delay).UnixNano()
 			for i := len(es) - 1; i >= 0; i-- {
-				if es[i].GetTimestamp() <= secondAgo {
+				if es[i].GetTimestamp() <= withDelay {
 					// The rest of the envelopes aren't too new.
 					break
 				}
@@ -77,7 +78,7 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 			}
 
 			for i, e := range es {
-				if e.GetTimestamp() < secondAgo {
+				if e.GetTimestamp() < withDelay {
 					continue
 				}
 				es = append(es[:i], es[i+1:]...)
@@ -150,6 +151,17 @@ func WithWalkEnvelopeTypes(t ...logcache_v1.EnvelopeType) WalkOption {
 func WithWalkBackoff(b Backoff) WalkOption {
 	return walkOptionFunc(func(c *walkConfig) {
 		c.backoff = b
+	})
+}
+
+// WithWalkDelay sets the value that the walk algorithm will consider "old"
+// enough. If an envelope has a timestamp that has a value that is greater
+// than time.Now().Add(-delay), it will be considered too "new", and not
+// included. This protects from distributed clocks causing data to be skipped.
+// Defaults to 1 second.
+func WithWalkDelay(delay time.Duration) WalkOption {
+	return walkOptionFunc(func(c *walkConfig) {
+		c.delay = delay
 	})
 }
 
@@ -279,4 +291,5 @@ type walkConfig struct {
 	end           time.Time
 	limit         *int
 	envelopeTypes []logcache_v1.EnvelopeType
+	delay         time.Duration
 }
