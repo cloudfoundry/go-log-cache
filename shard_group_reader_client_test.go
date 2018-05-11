@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net"
+	"net/http"
 	"reflect"
 	"sync"
 	"testing"
@@ -545,6 +546,67 @@ func TestGrpcClientGroup(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected err")
 	}
+}
+
+func TestClientGroupAlwaysClosesBody(t *testing.T) {
+	t.Parallel()
+
+	// Read
+	spyHTTPClient := newSpyHTTPClient()
+	client := logcache.NewShardGroupReaderClient("", logcache.WithHTTPClient(spyHTTPClient))
+	client.Read(context.Background(), "some-name", time.Now(), 0)
+
+	if !spyHTTPClient.body.closed {
+		t.Fatal("expected body to be closed")
+	}
+
+	// SetShardGroup
+	spyHTTPClient = newSpyHTTPClient()
+	client = logcache.NewShardGroupReaderClient("", logcache.WithHTTPClient(spyHTTPClient))
+	client.SetShardGroup(context.Background(), "some-name", "some-id")
+
+	if !spyHTTPClient.body.closed {
+		t.Fatal("expected body to be closed")
+	}
+
+	// ShardGroup
+	spyHTTPClient = newSpyHTTPClient()
+	client = logcache.NewShardGroupReaderClient("", logcache.WithHTTPClient(spyHTTPClient))
+	client.ShardGroup(context.Background(), "some-name")
+
+	if !spyHTTPClient.body.closed {
+		t.Fatal("expected body to be closed")
+	}
+}
+
+type stubBufferCloser struct {
+	*bytes.Buffer
+	closed bool
+}
+
+func newStubBufferCloser() *stubBufferCloser {
+	return &stubBufferCloser{}
+}
+
+func (s *stubBufferCloser) Close() error {
+	s.closed = true
+	return nil
+}
+
+type spyHTTPClient struct {
+	body *stubBufferCloser
+}
+
+func newSpyHTTPClient() *spyHTTPClient {
+	return &spyHTTPClient{
+		body: newStubBufferCloser(),
+	}
+}
+
+func (s *spyHTTPClient) Do(req *http.Request) (*http.Response, error) {
+	return &http.Response{
+		Body: s.body,
+	}, nil
 }
 
 type stubGrpcGroupReader struct {

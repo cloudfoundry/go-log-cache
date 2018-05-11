@@ -545,6 +545,37 @@ func TestGrpcClientPromQLCancelling(t *testing.T) {
 	}
 }
 
+func TestClientAlwaysClosesBody(t *testing.T) {
+	t.Parallel()
+
+	// Read
+	spyHTTPClient := newSpyHTTPClient()
+	client := logcache.NewClient("", logcache.WithHTTPClient(spyHTTPClient))
+	client.Read(context.Background(), "some-name", time.Now())
+
+	if !spyHTTPClient.body.closed {
+		t.Fatal("expected body to be closed")
+	}
+
+	// Meta
+	spyHTTPClient = newSpyHTTPClient()
+	client = logcache.NewClient("", logcache.WithHTTPClient(spyHTTPClient))
+	client.Meta(context.Background())
+
+	if !spyHTTPClient.body.closed {
+		t.Fatal("expected body to be closed")
+	}
+
+	// PromQL
+	spyHTTPClient = newSpyHTTPClient()
+	client = logcache.NewClient("", logcache.WithHTTPClient(spyHTTPClient))
+	client.PromQL(context.Background(), "some-query")
+
+	if !spyHTTPClient.body.closed {
+		t.Fatal("expected body to be closed")
+	}
+}
+
 type stubLogCache struct {
 	statusCode int
 	server     *httptest.Server
