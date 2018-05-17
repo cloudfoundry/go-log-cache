@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+	log := log.New(os.Stderr, "", 0)
 	cfg := loadConfig()
 
 	httpClient := newHTTPClient(cfg)
@@ -31,10 +32,11 @@ func main() {
 
 	opts := []logcache.WalkOption{
 		logcache.WithWalkBackoff(logcache.NewAlwaysRetryBackoff(time.Second)),
-		logcache.WithWalkLogger(log.New(os.Stderr, "", 0)),
+		logcache.WithWalkLogger(log),
 	}
 
 	if cfg.Duration != 0 {
+		log.Printf("Have duration (%v). Walking finite window...", cfg.Duration)
 		opts = append(opts,
 			logcache.WithWalkStartTime(now.Add(-cfg.Duration)),
 			logcache.WithWalkEndTime(now),
@@ -46,10 +48,7 @@ func main() {
 		cfg.SourceID,
 		visitor,
 		client.Read,
-		logcache.WithWalkBackoff(logcache.NewAlwaysRetryBackoff(time.Second)),
-		logcache.WithWalkLogger(log.New(os.Stderr, "", 0)),
-		logcache.WithWalkStartTime(now.Add(-cfg.Duration)),
-		logcache.WithWalkEndTime(now),
+		opts...,
 	)
 }
 
