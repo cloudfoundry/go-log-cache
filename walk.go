@@ -78,13 +78,6 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 				// Envelope is too new. Throw it away.
 				es = es[:i]
 			}
-
-			for i, e := range es {
-				if e.GetTimestamp() < withDelay {
-					continue
-				}
-				es = append(es[:i], es[i+1:]...)
-			}
 		}
 
 		if !c.end.IsZero() {
