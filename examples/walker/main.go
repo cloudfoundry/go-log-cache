@@ -1,0 +1,85 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"time"
+
+	envstruct "code.cloudfoundry.org/go-envstruct"
+	logcache "code.cloudfoundry.org/go-log-cache"
+	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
+)
+
+func main() {
+	cfg := loadConfig()
+
+	httpClient := newHTTPClient(cfg)
+
+	client := logcache.NewClient(cfg.Addr, logcache.WithHTTPClient(httpClient))
+
+	visitor := func(es []*loggregator_v2.Envelope) bool {
+		for _, e := range es {
+			fmt.Printf("%+v\n", e)
+		}
+		return true
+	}
+
+	now := time.Now()
+
+	opts := []logcache.WalkOption{
+		logcache.WithWalkBackoff(logcache.NewAlwaysRetryBackoff(time.Second)),
+		logcache.WithWalkLogger(log.New(os.Stderr, "", 0)),
+	}
+
+	if cfg.Duration != 0 {
+		opts = append(opts,
+			logcache.WithWalkStartTime(now.Add(-cfg.Duration)),
+			logcache.WithWalkEndTime(now),
+		)
+	}
+
+	logcache.Walk(
+		context.Background(),
+		cfg.SourceID,
+		visitor,
+		client.Read,
+		logcache.WithWalkBackoff(logcache.NewAlwaysRetryBackoff(time.Second)),
+		logcache.WithWalkLogger(log.New(os.Stderr, "", 0)),
+		logcache.WithWalkStartTime(now.Add(-cfg.Duration)),
+		logcache.WithWalkEndTime(now),
+	)
+}
+
+type config struct {
+	Addr      string        `env:"ADDR, required"`
+	AuthToken string        `env:"AUTH_TOKEN, required"`
+	SourceID  string        `env:"SOURCE_ID, required"`
+	Duration  time.Duration `env:"DURATION"`
+}
+
+func loadConfig() config {
+	c := config{}
+
+	if err := envstruct.Load(&c); err != nil {
+		log.Fatal(err)
+	}
+
+	return c
+}
+
+type HTTPClient struct {
+	cfg    config
+	client *http.Client
+}
+
+func newHTTPClient(c config) *HTTPClient {
+	return &HTTPClient{cfg: c, client: http.DefaultClient}
+}
+
+func (h *HTTPClient) Do(req *http.Request) (*http.Response, error) {
+	req.Header.Set("Authorization", h.cfg.AuthToken)
+	return h.client.Do(req)
+}
