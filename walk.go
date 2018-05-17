@@ -49,6 +49,8 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 		readOpts = append(readOpts, WithEnvelopeTypes(c.envelopeTypes...))
 	}
 
+	var receivedEmpty bool
+
 	for {
 		es, err := r(ctx, sourceID, time.Unix(0, c.start), readOpts...)
 		if err != nil && ctx.Err() != nil {
@@ -64,7 +66,7 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 			continue
 		}
 
-		if c.end.IsZero() {
+		if c.end.IsZero() || !receivedEmpty {
 			// Prune envelopes for any that are too new or from the future.
 			withDelay := time.Now().Add(-c.delay).UnixNano()
 			for i := len(es) - 1; i >= 0; i-- {
@@ -85,7 +87,22 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 			}
 		}
 
+		if !c.end.IsZero() {
+			for i := len(es) - 1; i >= 0; i-- {
+				if es[i].GetTimestamp() < c.end.UnixNano() {
+					break
+				}
+
+				es = es[:i]
+			}
+		}
+
 		if len(es) == 0 {
+			if receivedEmpty && !c.end.IsZero() {
+				return
+			}
+
+			receivedEmpty = true
 			if !c.backoff.OnEmpty() {
 				return
 			}

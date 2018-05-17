@@ -74,6 +74,53 @@ func TestWalkRejectsTooNewData(t *testing.T) {
 	}
 }
 
+func TestWalkRejectsTooNewDataWithEndTime(t *testing.T) {
+	t.Parallel()
+
+	r := &stubReader{
+		envelopes: [][]*loggregator_v2.Envelope{
+			{
+				{Timestamp: 1},
+				{Timestamp: 2},
+				// Give too new of a value.
+				{Timestamp: time.Now().Add(-5 * time.Second).UnixNano()},
+			},
+			{
+				// Give too new of a value.
+				{Timestamp: time.Now().Add(-5 * time.Second).UnixNano()},
+			},
+			{
+				// Give too new of a value.
+				{Timestamp: time.Now().Add(-5 * time.Second).UnixNano()},
+			},
+		},
+		errs: []error{nil, nil, nil},
+	}
+
+	var called, es int
+	logcache.Walk(context.Background(), "some-id", func(e []*loggregator_v2.Envelope) bool {
+		defer func() { called++ }()
+		es += len(e)
+		return called == 0
+	}, r.read,
+		logcache.WithWalkDelay(6*time.Second),
+		logcache.WithWalkEndTime(time.Unix(0, 4)),
+		logcache.WithWalkBackoff(logcache.NewAlwaysRetryBackoff(time.Nanosecond)),
+	)
+
+	if len(r.starts) != 3 {
+		t.Fatalf("expected starts to have 3 entries: %d", len(r.starts))
+	}
+
+	if r.starts[1] != 3 {
+		t.Fatalf("expected to reject future/too new envelopes: %d", r.starts[1])
+	}
+
+	if es != 2 {
+		t.Fatal("expected future/too new envelopes to be rejected")
+	}
+}
+
 func TestWalkUsesEndTime(t *testing.T) {
 	t.Parallel()
 
@@ -153,6 +200,7 @@ func TestWalkWithinWindow(t *testing.T) {
 		r.read,
 		logcache.WithWalkStartTime(time.Unix(0, times[0])),
 		logcache.WithWalkEndTime(time.Unix(0, times[3])),
+		logcache.WithWalkDelay(0),
 	)
 
 	if len(r.sourceIDs) != 2 {
