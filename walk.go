@@ -91,10 +91,6 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 		}
 
 		if len(es) == 0 {
-			if receivedEmpty && !c.end.IsZero() {
-				return
-			}
-
 			receivedEmpty = true
 			if !c.backoff.OnEmpty() {
 				return
@@ -103,6 +99,7 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 		}
 
 		c.backoff.Reset()
+		receivedEmpty = false
 
 		// If visitor is done or the next timestamp would be outside of our
 		// window (only when end is set), then be done.

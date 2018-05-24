@@ -105,7 +105,7 @@ func TestWalkRejectsTooNewDataWithEndTime(t *testing.T) {
 	}, r.read,
 		logcache.WithWalkDelay(6*time.Second),
 		logcache.WithWalkEndTime(time.Unix(0, 4)),
-		logcache.WithWalkBackoff(logcache.NewAlwaysRetryBackoff(time.Nanosecond)),
+		logcache.WithWalkBackoff(logcache.NewRetryBackoff(time.Nanosecond, 2)),
 	)
 
 	if len(r.starts) != 3 {
