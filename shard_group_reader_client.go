@@ -2,9 +2,7 @@ package logcache
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -257,13 +255,8 @@ func (c *ShardGroupReaderClient) ShardGroup(ctx context.Context, name string) (G
 		return GroupMeta{}, fmt.Errorf("unexpected status code %d", resp.StatusCode)
 	}
 
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return GroupMeta{}, err
-	}
-
-	gresp := logcache_v1.ShardGroupResponse{}
-	if err := json.Unmarshal(data, &gresp); err != nil {
+	var gresp logcache_v1.ShardGroupResponse
+	if err := jsonpb.Unmarshal(resp.Body, &gresp); err != nil {
 		return GroupMeta{}, err
 	}
 
