@@ -18,15 +18,43 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 type SendRequest struct {
-	Envelopes *loggregator_v2.EnvelopeBatch `protobuf:"bytes,1,opt,name=envelopes" json:"envelopes,omitempty"`
-	LocalOnly bool                          `protobuf:"varint,2,opt,name=local_only,json=localOnly" json:"local_only,omitempty"`
+	Envelopes            *loggregator_v2.EnvelopeBatch `protobuf:"bytes,1,opt,name=envelopes,proto3" json:"envelopes,omitempty"`
+	LocalOnly            bool                          `protobuf:"varint,2,opt,name=local_only,json=localOnly,proto3" json:"local_only,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                      `json:"-"`
+	XXX_unrecognized     []byte                        `json:"-"`
+	XXX_sizecache        int32                         `json:"-"`
 }
 
-func (m *SendRequest) Reset()                    { *m = SendRequest{} }
-func (m *SendRequest) String() string            { return proto.CompactTextString(m) }
-func (*SendRequest) ProtoMessage()               {}
-func (*SendRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (m *SendRequest) Reset()         { *m = SendRequest{} }
+func (m *SendRequest) String() string { return proto.CompactTextString(m) }
+func (*SendRequest) ProtoMessage()    {}
+func (*SendRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ingress_6fba016e37eb22dc, []int{0}
+}
+func (m *SendRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SendRequest.Unmarshal(m, b)
+}
+func (m *SendRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SendRequest.Marshal(b, m, deterministic)
+}
+func (dst *SendRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SendRequest.Merge(dst, src)
+}
+func (m *SendRequest) XXX_Size() int {
+	return xxx_messageInfo_SendRequest.Size(m)
+}
+func (m *SendRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SendRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SendRequest proto.InternalMessageInfo
 
 func (m *SendRequest) GetEnvelopes() *loggregator_v2.EnvelopeBatch {
 	if m != nil {
@@ -43,12 +71,34 @@ func (m *SendRequest) GetLocalOnly() bool {
 }
 
 type SendResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SendResponse) Reset()                    { *m = SendResponse{} }
-func (m *SendResponse) String() string            { return proto.CompactTextString(m) }
-func (*SendResponse) ProtoMessage()               {}
-func (*SendResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
+func (m *SendResponse) Reset()         { *m = SendResponse{} }
+func (m *SendResponse) String() string { return proto.CompactTextString(m) }
+func (*SendResponse) ProtoMessage()    {}
+func (*SendResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ingress_6fba016e37eb22dc, []int{1}
+}
+func (m *SendResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SendResponse.Unmarshal(m, b)
+}
+func (m *SendResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SendResponse.Marshal(b, m, deterministic)
+}
+func (dst *SendResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SendResponse.Merge(dst, src)
+}
+func (m *SendResponse) XXX_Size() int {
+	return xxx_messageInfo_SendResponse.Size(m)
+}
+func (m *SendResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_SendResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SendResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*SendRequest)(nil), "logcache.v1.SendRequest")
@@ -63,8 +113,9 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// Client API for Ingress service
-
+// IngressClient is the client API for Ingress service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type IngressClient interface {
 	// Send is used to emit Envelopes batches into LogCache. The RPC function
 	// will not return until the data has been stored.
@@ -81,15 +132,14 @@ func NewIngressClient(cc *grpc.ClientConn) IngressClient {
 
 func (c *ingressClient) Send(ctx context.Context, in *SendRequest, opts ...grpc.CallOption) (*SendResponse, error) {
 	out := new(SendResponse)
-	err := grpc.Invoke(ctx, "/logcache.v1.Ingress/Send", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/logcache.v1.Ingress/Send", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// Server API for Ingress service
-
+// IngressServer is the server API for Ingress service.
 type IngressServer interface {
 	// Send is used to emit Envelopes batches into LogCache. The RPC function
 	// will not return until the data has been stored.
@@ -131,9 +181,9 @@ var _Ingress_serviceDesc = grpc.ServiceDesc{
 	Metadata: "ingress.proto",
 }
 
-func init() { proto.RegisterFile("ingress.proto", fileDescriptor1) }
+func init() { proto.RegisterFile("ingress.proto", fileDescriptor_ingress_6fba016e37eb22dc) }
 
-var fileDescriptor1 = []byte{
+var fileDescriptor_ingress_6fba016e37eb22dc = []byte{
 	// 199 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0xcd, 0xcc, 0x4b, 0x2f,
 	0x4a, 0x2d, 0x2e, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0xce, 0xc9, 0x4f, 0x4f, 0x4e,

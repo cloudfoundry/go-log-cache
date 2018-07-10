@@ -18,23 +18,73 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 type PromQL struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *PromQL) Reset()                    { *m = PromQL{} }
-func (m *PromQL) String() string            { return proto.CompactTextString(m) }
-func (*PromQL) ProtoMessage()               {}
-func (*PromQL) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
+func (m *PromQL) Reset()         { *m = PromQL{} }
+func (m *PromQL) String() string { return proto.CompactTextString(m) }
+func (*PromQL) ProtoMessage()    {}
+func (*PromQL) Descriptor() ([]byte, []int) {
+	return fileDescriptor_promql_1f58c74da82de889, []int{0}
+}
+func (m *PromQL) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PromQL.Unmarshal(m, b)
+}
+func (m *PromQL) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PromQL.Marshal(b, m, deterministic)
+}
+func (dst *PromQL) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PromQL.Merge(dst, src)
+}
+func (m *PromQL) XXX_Size() int {
+	return xxx_messageInfo_PromQL.Size(m)
+}
+func (m *PromQL) XXX_DiscardUnknown() {
+	xxx_messageInfo_PromQL.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PromQL proto.InternalMessageInfo
 
 type PromQL_InstantQueryRequest struct {
-	Query string `protobuf:"bytes,1,opt,name=query" json:"query,omitempty"`
-	Time  int64  `protobuf:"varint,2,opt,name=time" json:"time,omitempty"`
+	Query                string   `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	Time                 int64    `protobuf:"varint,2,opt,name=time,proto3" json:"time,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *PromQL_InstantQueryRequest) Reset()                    { *m = PromQL_InstantQueryRequest{} }
-func (m *PromQL_InstantQueryRequest) String() string            { return proto.CompactTextString(m) }
-func (*PromQL_InstantQueryRequest) ProtoMessage()               {}
-func (*PromQL_InstantQueryRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 0} }
+func (m *PromQL_InstantQueryRequest) Reset()         { *m = PromQL_InstantQueryRequest{} }
+func (m *PromQL_InstantQueryRequest) String() string { return proto.CompactTextString(m) }
+func (*PromQL_InstantQueryRequest) ProtoMessage()    {}
+func (*PromQL_InstantQueryRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_promql_1f58c74da82de889, []int{0, 0}
+}
+func (m *PromQL_InstantQueryRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PromQL_InstantQueryRequest.Unmarshal(m, b)
+}
+func (m *PromQL_InstantQueryRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PromQL_InstantQueryRequest.Marshal(b, m, deterministic)
+}
+func (dst *PromQL_InstantQueryRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PromQL_InstantQueryRequest.Merge(dst, src)
+}
+func (m *PromQL_InstantQueryRequest) XXX_Size() int {
+	return xxx_messageInfo_PromQL_InstantQueryRequest.Size(m)
+}
+func (m *PromQL_InstantQueryRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_PromQL_InstantQueryRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PromQL_InstantQueryRequest proto.InternalMessageInfo
 
 func (m *PromQL_InstantQueryRequest) GetQuery() string {
 	if m != nil {
@@ -55,26 +105,48 @@ type PromQL_QueryResult struct {
 	//	*PromQL_QueryResult_Scalar
 	//	*PromQL_QueryResult_Vector
 	//	*PromQL_QueryResult_Matrix
-	Result isPromQL_QueryResult_Result `protobuf_oneof:"Result"`
+	Result               isPromQL_QueryResult_Result `protobuf_oneof:"Result"`
+	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
+	XXX_unrecognized     []byte                      `json:"-"`
+	XXX_sizecache        int32                       `json:"-"`
 }
 
-func (m *PromQL_QueryResult) Reset()                    { *m = PromQL_QueryResult{} }
-func (m *PromQL_QueryResult) String() string            { return proto.CompactTextString(m) }
-func (*PromQL_QueryResult) ProtoMessage()               {}
-func (*PromQL_QueryResult) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 1} }
+func (m *PromQL_QueryResult) Reset()         { *m = PromQL_QueryResult{} }
+func (m *PromQL_QueryResult) String() string { return proto.CompactTextString(m) }
+func (*PromQL_QueryResult) ProtoMessage()    {}
+func (*PromQL_QueryResult) Descriptor() ([]byte, []int) {
+	return fileDescriptor_promql_1f58c74da82de889, []int{0, 1}
+}
+func (m *PromQL_QueryResult) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PromQL_QueryResult.Unmarshal(m, b)
+}
+func (m *PromQL_QueryResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PromQL_QueryResult.Marshal(b, m, deterministic)
+}
+func (dst *PromQL_QueryResult) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PromQL_QueryResult.Merge(dst, src)
+}
+func (m *PromQL_QueryResult) XXX_Size() int {
+	return xxx_messageInfo_PromQL_QueryResult.Size(m)
+}
+func (m *PromQL_QueryResult) XXX_DiscardUnknown() {
+	xxx_messageInfo_PromQL_QueryResult.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PromQL_QueryResult proto.InternalMessageInfo
 
 type isPromQL_QueryResult_Result interface {
 	isPromQL_QueryResult_Result()
 }
 
 type PromQL_QueryResult_Scalar struct {
-	Scalar *PromQL_Scalar `protobuf:"bytes,1,opt,name=scalar,oneof"`
+	Scalar *PromQL_Scalar `protobuf:"bytes,1,opt,name=scalar,proto3,oneof"`
 }
 type PromQL_QueryResult_Vector struct {
-	Vector *PromQL_Vector `protobuf:"bytes,2,opt,name=vector,oneof"`
+	Vector *PromQL_Vector `protobuf:"bytes,2,opt,name=vector,proto3,oneof"`
 }
 type PromQL_QueryResult_Matrix struct {
-	Matrix *PromQL_Matrix `protobuf:"bytes,3,opt,name=matrix,oneof"`
+	Matrix *PromQL_Matrix `protobuf:"bytes,3,opt,name=matrix,proto3,oneof"`
 }
 
 func (*PromQL_QueryResult_Scalar) isPromQL_QueryResult_Result() {}
@@ -182,17 +254,17 @@ func _PromQL_QueryResult_OneofSizer(msg proto.Message) (n int) {
 	switch x := m.Result.(type) {
 	case *PromQL_QueryResult_Scalar:
 		s := proto.Size(x.Scalar)
-		n += proto.SizeVarint(1<<3 | proto.WireBytes)
+		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
 	case *PromQL_QueryResult_Vector:
 		s := proto.Size(x.Vector)
-		n += proto.SizeVarint(2<<3 | proto.WireBytes)
+		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
 	case *PromQL_QueryResult_Matrix:
 		s := proto.Size(x.Matrix)
-		n += proto.SizeVarint(3<<3 | proto.WireBytes)
+		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
 	case nil:
@@ -203,14 +275,36 @@ func _PromQL_QueryResult_OneofSizer(msg proto.Message) (n int) {
 }
 
 type PromQL_Scalar struct {
-	Time  int64   `protobuf:"varint,1,opt,name=time" json:"time,omitempty"`
-	Value float64 `protobuf:"fixed64,2,opt,name=value" json:"value,omitempty"`
+	Time                 int64    `protobuf:"varint,1,opt,name=time,proto3" json:"time,omitempty"`
+	Value                float64  `protobuf:"fixed64,2,opt,name=value,proto3" json:"value,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *PromQL_Scalar) Reset()                    { *m = PromQL_Scalar{} }
-func (m *PromQL_Scalar) String() string            { return proto.CompactTextString(m) }
-func (*PromQL_Scalar) ProtoMessage()               {}
-func (*PromQL_Scalar) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 2} }
+func (m *PromQL_Scalar) Reset()         { *m = PromQL_Scalar{} }
+func (m *PromQL_Scalar) String() string { return proto.CompactTextString(m) }
+func (*PromQL_Scalar) ProtoMessage()    {}
+func (*PromQL_Scalar) Descriptor() ([]byte, []int) {
+	return fileDescriptor_promql_1f58c74da82de889, []int{0, 2}
+}
+func (m *PromQL_Scalar) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PromQL_Scalar.Unmarshal(m, b)
+}
+func (m *PromQL_Scalar) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PromQL_Scalar.Marshal(b, m, deterministic)
+}
+func (dst *PromQL_Scalar) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PromQL_Scalar.Merge(dst, src)
+}
+func (m *PromQL_Scalar) XXX_Size() int {
+	return xxx_messageInfo_PromQL_Scalar.Size(m)
+}
+func (m *PromQL_Scalar) XXX_DiscardUnknown() {
+	xxx_messageInfo_PromQL_Scalar.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PromQL_Scalar proto.InternalMessageInfo
 
 func (m *PromQL_Scalar) GetTime() int64 {
 	if m != nil {
@@ -227,13 +321,35 @@ func (m *PromQL_Scalar) GetValue() float64 {
 }
 
 type PromQL_Vector struct {
-	Samples []*PromQL_Sample `protobuf:"bytes,1,rep,name=samples" json:"samples,omitempty"`
+	Samples              []*PromQL_Sample `protobuf:"bytes,1,rep,name=samples,proto3" json:"samples,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
 }
 
-func (m *PromQL_Vector) Reset()                    { *m = PromQL_Vector{} }
-func (m *PromQL_Vector) String() string            { return proto.CompactTextString(m) }
-func (*PromQL_Vector) ProtoMessage()               {}
-func (*PromQL_Vector) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 3} }
+func (m *PromQL_Vector) Reset()         { *m = PromQL_Vector{} }
+func (m *PromQL_Vector) String() string { return proto.CompactTextString(m) }
+func (*PromQL_Vector) ProtoMessage()    {}
+func (*PromQL_Vector) Descriptor() ([]byte, []int) {
+	return fileDescriptor_promql_1f58c74da82de889, []int{0, 3}
+}
+func (m *PromQL_Vector) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PromQL_Vector.Unmarshal(m, b)
+}
+func (m *PromQL_Vector) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PromQL_Vector.Marshal(b, m, deterministic)
+}
+func (dst *PromQL_Vector) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PromQL_Vector.Merge(dst, src)
+}
+func (m *PromQL_Vector) XXX_Size() int {
+	return xxx_messageInfo_PromQL_Vector.Size(m)
+}
+func (m *PromQL_Vector) XXX_DiscardUnknown() {
+	xxx_messageInfo_PromQL_Vector.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PromQL_Vector proto.InternalMessageInfo
 
 func (m *PromQL_Vector) GetSamples() []*PromQL_Sample {
 	if m != nil {
@@ -243,14 +359,36 @@ func (m *PromQL_Vector) GetSamples() []*PromQL_Sample {
 }
 
 type PromQL_Point struct {
-	Time  int64   `protobuf:"varint,1,opt,name=time" json:"time,omitempty"`
-	Value float64 `protobuf:"fixed64,2,opt,name=value" json:"value,omitempty"`
+	Time                 int64    `protobuf:"varint,1,opt,name=time,proto3" json:"time,omitempty"`
+	Value                float64  `protobuf:"fixed64,2,opt,name=value,proto3" json:"value,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *PromQL_Point) Reset()                    { *m = PromQL_Point{} }
-func (m *PromQL_Point) String() string            { return proto.CompactTextString(m) }
-func (*PromQL_Point) ProtoMessage()               {}
-func (*PromQL_Point) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 4} }
+func (m *PromQL_Point) Reset()         { *m = PromQL_Point{} }
+func (m *PromQL_Point) String() string { return proto.CompactTextString(m) }
+func (*PromQL_Point) ProtoMessage()    {}
+func (*PromQL_Point) Descriptor() ([]byte, []int) {
+	return fileDescriptor_promql_1f58c74da82de889, []int{0, 4}
+}
+func (m *PromQL_Point) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PromQL_Point.Unmarshal(m, b)
+}
+func (m *PromQL_Point) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PromQL_Point.Marshal(b, m, deterministic)
+}
+func (dst *PromQL_Point) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PromQL_Point.Merge(dst, src)
+}
+func (m *PromQL_Point) XXX_Size() int {
+	return xxx_messageInfo_PromQL_Point.Size(m)
+}
+func (m *PromQL_Point) XXX_DiscardUnknown() {
+	xxx_messageInfo_PromQL_Point.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PromQL_Point proto.InternalMessageInfo
 
 func (m *PromQL_Point) GetTime() int64 {
 	if m != nil {
@@ -267,14 +405,36 @@ func (m *PromQL_Point) GetValue() float64 {
 }
 
 type PromQL_Sample struct {
-	Metric map[string]string `protobuf:"bytes,1,rep,name=metric" json:"metric,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Point  *PromQL_Point     `protobuf:"bytes,2,opt,name=point" json:"point,omitempty"`
+	Metric               map[string]string `protobuf:"bytes,1,rep,name=metric,proto3" json:"metric,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Point                *PromQL_Point     `protobuf:"bytes,2,opt,name=point,proto3" json:"point,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_unrecognized     []byte            `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
 }
 
-func (m *PromQL_Sample) Reset()                    { *m = PromQL_Sample{} }
-func (m *PromQL_Sample) String() string            { return proto.CompactTextString(m) }
-func (*PromQL_Sample) ProtoMessage()               {}
-func (*PromQL_Sample) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 5} }
+func (m *PromQL_Sample) Reset()         { *m = PromQL_Sample{} }
+func (m *PromQL_Sample) String() string { return proto.CompactTextString(m) }
+func (*PromQL_Sample) ProtoMessage()    {}
+func (*PromQL_Sample) Descriptor() ([]byte, []int) {
+	return fileDescriptor_promql_1f58c74da82de889, []int{0, 5}
+}
+func (m *PromQL_Sample) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PromQL_Sample.Unmarshal(m, b)
+}
+func (m *PromQL_Sample) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PromQL_Sample.Marshal(b, m, deterministic)
+}
+func (dst *PromQL_Sample) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PromQL_Sample.Merge(dst, src)
+}
+func (m *PromQL_Sample) XXX_Size() int {
+	return xxx_messageInfo_PromQL_Sample.Size(m)
+}
+func (m *PromQL_Sample) XXX_DiscardUnknown() {
+	xxx_messageInfo_PromQL_Sample.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PromQL_Sample proto.InternalMessageInfo
 
 func (m *PromQL_Sample) GetMetric() map[string]string {
 	if m != nil {
@@ -291,13 +451,35 @@ func (m *PromQL_Sample) GetPoint() *PromQL_Point {
 }
 
 type PromQL_Matrix struct {
-	Series []*PromQL_Series `protobuf:"bytes,1,rep,name=series" json:"series,omitempty"`
+	Series               []*PromQL_Series `protobuf:"bytes,1,rep,name=series,proto3" json:"series,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
 }
 
-func (m *PromQL_Matrix) Reset()                    { *m = PromQL_Matrix{} }
-func (m *PromQL_Matrix) String() string            { return proto.CompactTextString(m) }
-func (*PromQL_Matrix) ProtoMessage()               {}
-func (*PromQL_Matrix) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 6} }
+func (m *PromQL_Matrix) Reset()         { *m = PromQL_Matrix{} }
+func (m *PromQL_Matrix) String() string { return proto.CompactTextString(m) }
+func (*PromQL_Matrix) ProtoMessage()    {}
+func (*PromQL_Matrix) Descriptor() ([]byte, []int) {
+	return fileDescriptor_promql_1f58c74da82de889, []int{0, 6}
+}
+func (m *PromQL_Matrix) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PromQL_Matrix.Unmarshal(m, b)
+}
+func (m *PromQL_Matrix) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PromQL_Matrix.Marshal(b, m, deterministic)
+}
+func (dst *PromQL_Matrix) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PromQL_Matrix.Merge(dst, src)
+}
+func (m *PromQL_Matrix) XXX_Size() int {
+	return xxx_messageInfo_PromQL_Matrix.Size(m)
+}
+func (m *PromQL_Matrix) XXX_DiscardUnknown() {
+	xxx_messageInfo_PromQL_Matrix.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PromQL_Matrix proto.InternalMessageInfo
 
 func (m *PromQL_Matrix) GetSeries() []*PromQL_Series {
 	if m != nil {
@@ -307,14 +489,36 @@ func (m *PromQL_Matrix) GetSeries() []*PromQL_Series {
 }
 
 type PromQL_Series struct {
-	Metric map[string]string `protobuf:"bytes,1,rep,name=metric" json:"metric,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Points []*PromQL_Point   `protobuf:"bytes,2,rep,name=points" json:"points,omitempty"`
+	Metric               map[string]string `protobuf:"bytes,1,rep,name=metric,proto3" json:"metric,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Points               []*PromQL_Point   `protobuf:"bytes,2,rep,name=points,proto3" json:"points,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_unrecognized     []byte            `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
 }
 
-func (m *PromQL_Series) Reset()                    { *m = PromQL_Series{} }
-func (m *PromQL_Series) String() string            { return proto.CompactTextString(m) }
-func (*PromQL_Series) ProtoMessage()               {}
-func (*PromQL_Series) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 7} }
+func (m *PromQL_Series) Reset()         { *m = PromQL_Series{} }
+func (m *PromQL_Series) String() string { return proto.CompactTextString(m) }
+func (*PromQL_Series) ProtoMessage()    {}
+func (*PromQL_Series) Descriptor() ([]byte, []int) {
+	return fileDescriptor_promql_1f58c74da82de889, []int{0, 7}
+}
+func (m *PromQL_Series) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PromQL_Series.Unmarshal(m, b)
+}
+func (m *PromQL_Series) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PromQL_Series.Marshal(b, m, deterministic)
+}
+func (dst *PromQL_Series) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PromQL_Series.Merge(dst, src)
+}
+func (m *PromQL_Series) XXX_Size() int {
+	return xxx_messageInfo_PromQL_Series.Size(m)
+}
+func (m *PromQL_Series) XXX_DiscardUnknown() {
+	xxx_messageInfo_PromQL_Series.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PromQL_Series proto.InternalMessageInfo
 
 func (m *PromQL_Series) GetMetric() map[string]string {
 	if m != nil {
@@ -338,8 +542,10 @@ func init() {
 	proto.RegisterType((*PromQL_Vector)(nil), "logcache.v1.PromQL.Vector")
 	proto.RegisterType((*PromQL_Point)(nil), "logcache.v1.PromQL.Point")
 	proto.RegisterType((*PromQL_Sample)(nil), "logcache.v1.PromQL.Sample")
+	proto.RegisterMapType((map[string]string)(nil), "logcache.v1.PromQL.Sample.MetricEntry")
 	proto.RegisterType((*PromQL_Matrix)(nil), "logcache.v1.PromQL.Matrix")
 	proto.RegisterType((*PromQL_Series)(nil), "logcache.v1.PromQL.Series")
+	proto.RegisterMapType((map[string]string)(nil), "logcache.v1.PromQL.Series.MetricEntry")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -350,8 +556,9 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// Client API for PromQLQuerier service
-
+// PromQLQuerierClient is the client API for PromQLQuerier service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type PromQLQuerierClient interface {
 	InstantQuery(ctx context.Context, in *PromQL_InstantQueryRequest, opts ...grpc.CallOption) (*PromQL_QueryResult, error)
 }
@@ -366,15 +573,14 @@ func NewPromQLQuerierClient(cc *grpc.ClientConn) PromQLQuerierClient {
 
 func (c *promQLQuerierClient) InstantQuery(ctx context.Context, in *PromQL_InstantQueryRequest, opts ...grpc.CallOption) (*PromQL_QueryResult, error) {
 	out := new(PromQL_QueryResult)
-	err := grpc.Invoke(ctx, "/logcache.v1.PromQLQuerier/InstantQuery", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/logcache.v1.PromQLQuerier/InstantQuery", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// Server API for PromQLQuerier service
-
+// PromQLQuerierServer is the server API for PromQLQuerier service.
 type PromQLQuerierServer interface {
 	InstantQuery(context.Context, *PromQL_InstantQueryRequest) (*PromQL_QueryResult, error)
 }
@@ -414,9 +620,9 @@ var _PromQLQuerier_serviceDesc = grpc.ServiceDesc{
 	Metadata: "promql.proto",
 }
 
-func init() { proto.RegisterFile("promql.proto", fileDescriptor3) }
+func init() { proto.RegisterFile("promql.proto", fileDescriptor_promql_1f58c74da82de889) }
 
-var fileDescriptor3 = []byte{
+var fileDescriptor_promql_1f58c74da82de889 = []byte{
 	// 450 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x94, 0xcf, 0xaa, 0xd4, 0x30,
 	0x14, 0xc6, 0xcd, 0x8c, 0x13, 0xbd, 0x67, 0x46, 0x90, 0xe8, 0xa2, 0x06, 0xc1, 0xe1, 0x2e, 0xf4,

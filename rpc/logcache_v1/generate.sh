@@ -27,6 +27,7 @@ protoc \
     --proto_path=$tmp_dir/log-cache \
     --grpc-gateway_out=logtostderr=true:. \
     -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+    -I=/usr/local/include \
     -I=$tmp_dir/log-cache \
     -I=$GOPATH/src/code.cloudfoundry.org/loggregator-api/.
 

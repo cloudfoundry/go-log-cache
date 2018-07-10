@@ -36,7 +36,7 @@ func request_ShardGroupReader_SetShardGroup_0(ctx context.Context, marshaler run
 	var protoReq SetShardGroupRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.SubGroup); err != nil {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.SubGroup); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -147,14 +147,14 @@ func RegisterShardGroupReaderHandlerFromEndpoint(ctx context.Context, mux *runti
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Printf("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Printf("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()
@@ -168,8 +168,8 @@ func RegisterShardGroupReaderHandler(ctx context.Context, mux *runtime.ServeMux,
 	return RegisterShardGroupReaderHandlerClient(ctx, mux, NewShardGroupReaderClient(conn))
 }
 
-// RegisterShardGroupReaderHandler registers the http handlers for service ShardGroupReader to "mux".
-// The handlers forward requests to the grpc endpoint over the given implementation of "ShardGroupReaderClient".
+// RegisterShardGroupReaderHandlerClient registers the http handlers for service ShardGroupReader
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ShardGroupReaderClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ShardGroupReaderClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ShardGroupReaderClient" to call the correct interceptors.
@@ -266,11 +266,11 @@ func RegisterShardGroupReaderHandlerClient(ctx context.Context, mux *runtime.Ser
 }
 
 var (
-	pattern_ShardGroupReader_SetShardGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "shard_group", "name"}, ""))
+	pattern_ShardGroupReader_SetShardGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "experimental", "shard_group", "name"}, ""))
 
-	pattern_ShardGroupReader_Read_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "shard_group", "name"}, ""))
+	pattern_ShardGroupReader_Read_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "experimental", "shard_group", "name"}, ""))
 
-	pattern_ShardGroupReader_ShardGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "shard_group", "name", "meta"}, ""))
+	pattern_ShardGroupReader_ShardGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "experimental", "shard_group", "name", "meta"}, ""))
 )
 
 var (

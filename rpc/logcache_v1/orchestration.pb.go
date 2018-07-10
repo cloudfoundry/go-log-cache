@@ -17,17 +17,45 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 type Range struct {
 	// start is the first hash within the given range. [start..end]
-	Start uint64 `protobuf:"varint,1,opt,name=start" json:"start,omitempty"`
+	Start uint64 `protobuf:"varint,1,opt,name=start,proto3" json:"start,omitempty"`
 	// end is the last hash within the given range. [start..end]
-	End uint64 `protobuf:"varint,2,opt,name=end" json:"end,omitempty"`
+	End                  uint64   `protobuf:"varint,2,opt,name=end,proto3" json:"end,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Range) Reset()                    { *m = Range{} }
-func (m *Range) String() string            { return proto.CompactTextString(m) }
-func (*Range) ProtoMessage()               {}
-func (*Range) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
+func (m *Range) Reset()         { *m = Range{} }
+func (m *Range) String() string { return proto.CompactTextString(m) }
+func (*Range) ProtoMessage()    {}
+func (*Range) Descriptor() ([]byte, []int) {
+	return fileDescriptor_orchestration_08848b63d402f2dc, []int{0}
+}
+func (m *Range) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Range.Unmarshal(m, b)
+}
+func (m *Range) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Range.Marshal(b, m, deterministic)
+}
+func (dst *Range) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Range.Merge(dst, src)
+}
+func (m *Range) XXX_Size() int {
+	return xxx_messageInfo_Range.Size(m)
+}
+func (m *Range) XXX_DiscardUnknown() {
+	xxx_messageInfo_Range.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Range proto.InternalMessageInfo
 
 func (m *Range) GetStart() uint64 {
 	if m != nil {
@@ -44,13 +72,35 @@ func (m *Range) GetEnd() uint64 {
 }
 
 type Ranges struct {
-	Ranges []*Range `protobuf:"bytes,1,rep,name=ranges" json:"ranges,omitempty"`
+	Ranges               []*Range `protobuf:"bytes,1,rep,name=ranges,proto3" json:"ranges,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Ranges) Reset()                    { *m = Ranges{} }
-func (m *Ranges) String() string            { return proto.CompactTextString(m) }
-func (*Ranges) ProtoMessage()               {}
-func (*Ranges) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
+func (m *Ranges) Reset()         { *m = Ranges{} }
+func (m *Ranges) String() string { return proto.CompactTextString(m) }
+func (*Ranges) ProtoMessage()    {}
+func (*Ranges) Descriptor() ([]byte, []int) {
+	return fileDescriptor_orchestration_08848b63d402f2dc, []int{1}
+}
+func (m *Ranges) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Ranges.Unmarshal(m, b)
+}
+func (m *Ranges) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Ranges.Marshal(b, m, deterministic)
+}
+func (dst *Ranges) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ranges.Merge(dst, src)
+}
+func (m *Ranges) XXX_Size() int {
+	return xxx_messageInfo_Ranges.Size(m)
+}
+func (m *Ranges) XXX_DiscardUnknown() {
+	xxx_messageInfo_Ranges.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Ranges proto.InternalMessageInfo
 
 func (m *Ranges) GetRanges() []*Range {
 	if m != nil {
@@ -60,13 +110,35 @@ func (m *Ranges) GetRanges() []*Range {
 }
 
 type AddRangeRequest struct {
-	Range *Range `protobuf:"bytes,1,opt,name=range" json:"range,omitempty"`
+	Range                *Range   `protobuf:"bytes,1,opt,name=range,proto3" json:"range,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *AddRangeRequest) Reset()                    { *m = AddRangeRequest{} }
-func (m *AddRangeRequest) String() string            { return proto.CompactTextString(m) }
-func (*AddRangeRequest) ProtoMessage()               {}
-func (*AddRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
+func (m *AddRangeRequest) Reset()         { *m = AddRangeRequest{} }
+func (m *AddRangeRequest) String() string { return proto.CompactTextString(m) }
+func (*AddRangeRequest) ProtoMessage()    {}
+func (*AddRangeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_orchestration_08848b63d402f2dc, []int{2}
+}
+func (m *AddRangeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddRangeRequest.Unmarshal(m, b)
+}
+func (m *AddRangeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddRangeRequest.Marshal(b, m, deterministic)
+}
+func (dst *AddRangeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddRangeRequest.Merge(dst, src)
+}
+func (m *AddRangeRequest) XXX_Size() int {
+	return xxx_messageInfo_AddRangeRequest.Size(m)
+}
+func (m *AddRangeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddRangeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddRangeRequest proto.InternalMessageInfo
 
 func (m *AddRangeRequest) GetRange() *Range {
 	if m != nil {
@@ -76,21 +148,65 @@ func (m *AddRangeRequest) GetRange() *Range {
 }
 
 type AddRangeResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *AddRangeResponse) Reset()                    { *m = AddRangeResponse{} }
-func (m *AddRangeResponse) String() string            { return proto.CompactTextString(m) }
-func (*AddRangeResponse) ProtoMessage()               {}
-func (*AddRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3} }
+func (m *AddRangeResponse) Reset()         { *m = AddRangeResponse{} }
+func (m *AddRangeResponse) String() string { return proto.CompactTextString(m) }
+func (*AddRangeResponse) ProtoMessage()    {}
+func (*AddRangeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_orchestration_08848b63d402f2dc, []int{3}
+}
+func (m *AddRangeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddRangeResponse.Unmarshal(m, b)
+}
+func (m *AddRangeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddRangeResponse.Marshal(b, m, deterministic)
+}
+func (dst *AddRangeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddRangeResponse.Merge(dst, src)
+}
+func (m *AddRangeResponse) XXX_Size() int {
+	return xxx_messageInfo_AddRangeResponse.Size(m)
+}
+func (m *AddRangeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddRangeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddRangeResponse proto.InternalMessageInfo
 
 type RemoveRangeRequest struct {
-	Range *Range `protobuf:"bytes,1,opt,name=range" json:"range,omitempty"`
+	Range                *Range   `protobuf:"bytes,1,opt,name=range,proto3" json:"range,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RemoveRangeRequest) Reset()                    { *m = RemoveRangeRequest{} }
-func (m *RemoveRangeRequest) String() string            { return proto.CompactTextString(m) }
-func (*RemoveRangeRequest) ProtoMessage()               {}
-func (*RemoveRangeRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{4} }
+func (m *RemoveRangeRequest) Reset()         { *m = RemoveRangeRequest{} }
+func (m *RemoveRangeRequest) String() string { return proto.CompactTextString(m) }
+func (*RemoveRangeRequest) ProtoMessage()    {}
+func (*RemoveRangeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_orchestration_08848b63d402f2dc, []int{4}
+}
+func (m *RemoveRangeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RemoveRangeRequest.Unmarshal(m, b)
+}
+func (m *RemoveRangeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RemoveRangeRequest.Marshal(b, m, deterministic)
+}
+func (dst *RemoveRangeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RemoveRangeRequest.Merge(dst, src)
+}
+func (m *RemoveRangeRequest) XXX_Size() int {
+	return xxx_messageInfo_RemoveRangeRequest.Size(m)
+}
+func (m *RemoveRangeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RemoveRangeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RemoveRangeRequest proto.InternalMessageInfo
 
 func (m *RemoveRangeRequest) GetRange() *Range {
 	if m != nil {
@@ -100,29 +216,95 @@ func (m *RemoveRangeRequest) GetRange() *Range {
 }
 
 type RemoveRangeResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RemoveRangeResponse) Reset()                    { *m = RemoveRangeResponse{} }
-func (m *RemoveRangeResponse) String() string            { return proto.CompactTextString(m) }
-func (*RemoveRangeResponse) ProtoMessage()               {}
-func (*RemoveRangeResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{5} }
+func (m *RemoveRangeResponse) Reset()         { *m = RemoveRangeResponse{} }
+func (m *RemoveRangeResponse) String() string { return proto.CompactTextString(m) }
+func (*RemoveRangeResponse) ProtoMessage()    {}
+func (*RemoveRangeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_orchestration_08848b63d402f2dc, []int{5}
+}
+func (m *RemoveRangeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RemoveRangeResponse.Unmarshal(m, b)
+}
+func (m *RemoveRangeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RemoveRangeResponse.Marshal(b, m, deterministic)
+}
+func (dst *RemoveRangeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RemoveRangeResponse.Merge(dst, src)
+}
+func (m *RemoveRangeResponse) XXX_Size() int {
+	return xxx_messageInfo_RemoveRangeResponse.Size(m)
+}
+func (m *RemoveRangeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RemoveRangeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RemoveRangeResponse proto.InternalMessageInfo
 
 type ListRangesRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ListRangesRequest) Reset()                    { *m = ListRangesRequest{} }
-func (m *ListRangesRequest) String() string            { return proto.CompactTextString(m) }
-func (*ListRangesRequest) ProtoMessage()               {}
-func (*ListRangesRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{6} }
+func (m *ListRangesRequest) Reset()         { *m = ListRangesRequest{} }
+func (m *ListRangesRequest) String() string { return proto.CompactTextString(m) }
+func (*ListRangesRequest) ProtoMessage()    {}
+func (*ListRangesRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_orchestration_08848b63d402f2dc, []int{6}
+}
+func (m *ListRangesRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListRangesRequest.Unmarshal(m, b)
+}
+func (m *ListRangesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListRangesRequest.Marshal(b, m, deterministic)
+}
+func (dst *ListRangesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListRangesRequest.Merge(dst, src)
+}
+func (m *ListRangesRequest) XXX_Size() int {
+	return xxx_messageInfo_ListRangesRequest.Size(m)
+}
+func (m *ListRangesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListRangesRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListRangesRequest proto.InternalMessageInfo
 
 type ListRangesResponse struct {
-	Ranges []*Range `protobuf:"bytes,1,rep,name=ranges" json:"ranges,omitempty"`
+	Ranges               []*Range `protobuf:"bytes,1,rep,name=ranges,proto3" json:"ranges,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ListRangesResponse) Reset()                    { *m = ListRangesResponse{} }
-func (m *ListRangesResponse) String() string            { return proto.CompactTextString(m) }
-func (*ListRangesResponse) ProtoMessage()               {}
-func (*ListRangesResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{7} }
+func (m *ListRangesResponse) Reset()         { *m = ListRangesResponse{} }
+func (m *ListRangesResponse) String() string { return proto.CompactTextString(m) }
+func (*ListRangesResponse) ProtoMessage()    {}
+func (*ListRangesResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_orchestration_08848b63d402f2dc, []int{7}
+}
+func (m *ListRangesResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListRangesResponse.Unmarshal(m, b)
+}
+func (m *ListRangesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListRangesResponse.Marshal(b, m, deterministic)
+}
+func (dst *ListRangesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListRangesResponse.Merge(dst, src)
+}
+func (m *ListRangesResponse) XXX_Size() int {
+	return xxx_messageInfo_ListRangesResponse.Size(m)
+}
+func (m *ListRangesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListRangesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListRangesResponse proto.InternalMessageInfo
 
 func (m *ListRangesResponse) GetRanges() []*Range {
 	if m != nil {
@@ -133,13 +315,35 @@ func (m *ListRangesResponse) GetRanges() []*Range {
 
 type SetRangesRequest struct {
 	// The key is the address of the Log Cache node.
-	Ranges map[string]*Ranges `protobuf:"bytes,1,rep,name=ranges" json:"ranges,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Ranges               map[string]*Ranges `protobuf:"bytes,1,rep,name=ranges,proto3" json:"ranges,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
+	XXX_unrecognized     []byte             `json:"-"`
+	XXX_sizecache        int32              `json:"-"`
 }
 
-func (m *SetRangesRequest) Reset()                    { *m = SetRangesRequest{} }
-func (m *SetRangesRequest) String() string            { return proto.CompactTextString(m) }
-func (*SetRangesRequest) ProtoMessage()               {}
-func (*SetRangesRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{8} }
+func (m *SetRangesRequest) Reset()         { *m = SetRangesRequest{} }
+func (m *SetRangesRequest) String() string { return proto.CompactTextString(m) }
+func (*SetRangesRequest) ProtoMessage()    {}
+func (*SetRangesRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_orchestration_08848b63d402f2dc, []int{8}
+}
+func (m *SetRangesRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SetRangesRequest.Unmarshal(m, b)
+}
+func (m *SetRangesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SetRangesRequest.Marshal(b, m, deterministic)
+}
+func (dst *SetRangesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SetRangesRequest.Merge(dst, src)
+}
+func (m *SetRangesRequest) XXX_Size() int {
+	return xxx_messageInfo_SetRangesRequest.Size(m)
+}
+func (m *SetRangesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SetRangesRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SetRangesRequest proto.InternalMessageInfo
 
 func (m *SetRangesRequest) GetRanges() map[string]*Ranges {
 	if m != nil {
@@ -149,12 +353,34 @@ func (m *SetRangesRequest) GetRanges() map[string]*Ranges {
 }
 
 type SetRangesResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SetRangesResponse) Reset()                    { *m = SetRangesResponse{} }
-func (m *SetRangesResponse) String() string            { return proto.CompactTextString(m) }
-func (*SetRangesResponse) ProtoMessage()               {}
-func (*SetRangesResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{9} }
+func (m *SetRangesResponse) Reset()         { *m = SetRangesResponse{} }
+func (m *SetRangesResponse) String() string { return proto.CompactTextString(m) }
+func (*SetRangesResponse) ProtoMessage()    {}
+func (*SetRangesResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_orchestration_08848b63d402f2dc, []int{9}
+}
+func (m *SetRangesResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SetRangesResponse.Unmarshal(m, b)
+}
+func (m *SetRangesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SetRangesResponse.Marshal(b, m, deterministic)
+}
+func (dst *SetRangesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SetRangesResponse.Merge(dst, src)
+}
+func (m *SetRangesResponse) XXX_Size() int {
+	return xxx_messageInfo_SetRangesResponse.Size(m)
+}
+func (m *SetRangesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_SetRangesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SetRangesResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*Range)(nil), "logcache.v1.Range")
@@ -166,6 +392,7 @@ func init() {
 	proto.RegisterType((*ListRangesRequest)(nil), "logcache.v1.ListRangesRequest")
 	proto.RegisterType((*ListRangesResponse)(nil), "logcache.v1.ListRangesResponse")
 	proto.RegisterType((*SetRangesRequest)(nil), "logcache.v1.SetRangesRequest")
+	proto.RegisterMapType((map[string]*Ranges)(nil), "logcache.v1.SetRangesRequest.RangesEntry")
 	proto.RegisterType((*SetRangesResponse)(nil), "logcache.v1.SetRangesResponse")
 }
 
@@ -177,8 +404,9 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// Client API for Orchestration service
-
+// OrchestrationClient is the client API for Orchestration service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type OrchestrationClient interface {
 	AddRange(ctx context.Context, in *AddRangeRequest, opts ...grpc.CallOption) (*AddRangeResponse, error)
 	RemoveRange(ctx context.Context, in *RemoveRangeRequest, opts ...grpc.CallOption) (*RemoveRangeResponse, error)
@@ -196,7 +424,7 @@ func NewOrchestrationClient(cc *grpc.ClientConn) OrchestrationClient {
 
 func (c *orchestrationClient) AddRange(ctx context.Context, in *AddRangeRequest, opts ...grpc.CallOption) (*AddRangeResponse, error) {
 	out := new(AddRangeResponse)
-	err := grpc.Invoke(ctx, "/logcache.v1.Orchestration/AddRange", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/logcache.v1.Orchestration/AddRange", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +433,7 @@ func (c *orchestrationClient) AddRange(ctx context.Context, in *AddRangeRequest,
 
 func (c *orchestrationClient) RemoveRange(ctx context.Context, in *RemoveRangeRequest, opts ...grpc.CallOption) (*RemoveRangeResponse, error) {
 	out := new(RemoveRangeResponse)
-	err := grpc.Invoke(ctx, "/logcache.v1.Orchestration/RemoveRange", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/logcache.v1.Orchestration/RemoveRange", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +442,7 @@ func (c *orchestrationClient) RemoveRange(ctx context.Context, in *RemoveRangeRe
 
 func (c *orchestrationClient) ListRanges(ctx context.Context, in *ListRangesRequest, opts ...grpc.CallOption) (*ListRangesResponse, error) {
 	out := new(ListRangesResponse)
-	err := grpc.Invoke(ctx, "/logcache.v1.Orchestration/ListRanges", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/logcache.v1.Orchestration/ListRanges", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -223,15 +451,14 @@ func (c *orchestrationClient) ListRanges(ctx context.Context, in *ListRangesRequ
 
 func (c *orchestrationClient) SetRanges(ctx context.Context, in *SetRangesRequest, opts ...grpc.CallOption) (*SetRangesResponse, error) {
 	out := new(SetRangesResponse)
-	err := grpc.Invoke(ctx, "/logcache.v1.Orchestration/SetRanges", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/logcache.v1.Orchestration/SetRanges", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// Server API for Orchestration service
-
+// OrchestrationServer is the server API for Orchestration service.
 type OrchestrationServer interface {
 	AddRange(context.Context, *AddRangeRequest) (*AddRangeResponse, error)
 	RemoveRange(context.Context, *RemoveRangeRequest) (*RemoveRangeResponse, error)
@@ -340,9 +567,9 @@ var _Orchestration_serviceDesc = grpc.ServiceDesc{
 	Metadata: "orchestration.proto",
 }
 
-func init() { proto.RegisterFile("orchestration.proto", fileDescriptor2) }
+func init() { proto.RegisterFile("orchestration.proto", fileDescriptor_orchestration_08848b63d402f2dc) }
 
-var fileDescriptor2 = []byte{
+var fileDescriptor_orchestration_08848b63d402f2dc = []byte{
 	// 362 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0xcf, 0x4e, 0xc2, 0x40,
 	0x10, 0xc6, 0x2d, 0x58, 0x22, 0xd3, 0x18, 0x71, 0xaa, 0x09, 0x69, 0xe4, 0x4f, 0x7a, 0x02, 0x0f,

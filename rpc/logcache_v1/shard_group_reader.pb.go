@@ -6,8 +6,8 @@ package logcache_v1
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import _ "google.golang.org/genproto/googleapis/api/annotations"
 import loggregator_v2 "code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
+import _ "google.golang.org/genproto/googleapis/api/annotations"
 
 import (
 	context "golang.org/x/net/context"
@@ -19,17 +19,45 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 type SetShardGroupRequest struct {
-	Name     string            `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
-	SubGroup *GroupedSourceIds `protobuf:"bytes,2,opt,name=sub_group,json=subGroup" json:"sub_group,omitempty"`
+	Name     string            `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	SubGroup *GroupedSourceIds `protobuf:"bytes,2,opt,name=sub_group,json=subGroup,proto3" json:"sub_group,omitempty"`
 	// local_only is used for internals only. A client should not set this.
-	LocalOnly bool `protobuf:"varint,3,opt,name=local_only,json=localOnly" json:"local_only,omitempty"`
+	LocalOnly            bool     `protobuf:"varint,3,opt,name=local_only,json=localOnly,proto3" json:"local_only,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SetShardGroupRequest) Reset()                    { *m = SetShardGroupRequest{} }
-func (m *SetShardGroupRequest) String() string            { return proto.CompactTextString(m) }
-func (*SetShardGroupRequest) ProtoMessage()               {}
-func (*SetShardGroupRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{0} }
+func (m *SetShardGroupRequest) Reset()         { *m = SetShardGroupRequest{} }
+func (m *SetShardGroupRequest) String() string { return proto.CompactTextString(m) }
+func (*SetShardGroupRequest) ProtoMessage()    {}
+func (*SetShardGroupRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_shard_group_reader_5255d963d3556ebb, []int{0}
+}
+func (m *SetShardGroupRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SetShardGroupRequest.Unmarshal(m, b)
+}
+func (m *SetShardGroupRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SetShardGroupRequest.Marshal(b, m, deterministic)
+}
+func (dst *SetShardGroupRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SetShardGroupRequest.Merge(dst, src)
+}
+func (m *SetShardGroupRequest) XXX_Size() int {
+	return xxx_messageInfo_SetShardGroupRequest.Size(m)
+}
+func (m *SetShardGroupRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SetShardGroupRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SetShardGroupRequest proto.InternalMessageInfo
 
 func (m *SetShardGroupRequest) GetName() string {
 	if m != nil {
@@ -53,16 +81,38 @@ func (m *SetShardGroupRequest) GetLocalOnly() bool {
 }
 
 type GroupedSourceIds struct {
-	SourceIds []string `protobuf:"bytes,1,rep,name=source_ids,json=sourceIds" json:"source_ids,omitempty"`
-	// arg are given back to the requester when they recieve the given
+	SourceIds []string `protobuf:"bytes,1,rep,name=source_ids,json=sourceIds,proto3" json:"source_ids,omitempty"`
+	// arg are given back to the requester when they receive the given
 	// sub_group.
-	Arg string `protobuf:"bytes,2,opt,name=arg" json:"arg,omitempty"`
+	Arg                  string   `protobuf:"bytes,2,opt,name=arg,proto3" json:"arg,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GroupedSourceIds) Reset()                    { *m = GroupedSourceIds{} }
-func (m *GroupedSourceIds) String() string            { return proto.CompactTextString(m) }
-func (*GroupedSourceIds) ProtoMessage()               {}
-func (*GroupedSourceIds) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{1} }
+func (m *GroupedSourceIds) Reset()         { *m = GroupedSourceIds{} }
+func (m *GroupedSourceIds) String() string { return proto.CompactTextString(m) }
+func (*GroupedSourceIds) ProtoMessage()    {}
+func (*GroupedSourceIds) Descriptor() ([]byte, []int) {
+	return fileDescriptor_shard_group_reader_5255d963d3556ebb, []int{1}
+}
+func (m *GroupedSourceIds) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GroupedSourceIds.Unmarshal(m, b)
+}
+func (m *GroupedSourceIds) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GroupedSourceIds.Marshal(b, m, deterministic)
+}
+func (dst *GroupedSourceIds) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GroupedSourceIds.Merge(dst, src)
+}
+func (m *GroupedSourceIds) XXX_Size() int {
+	return xxx_messageInfo_GroupedSourceIds.Size(m)
+}
+func (m *GroupedSourceIds) XXX_DiscardUnknown() {
+	xxx_messageInfo_GroupedSourceIds.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GroupedSourceIds proto.InternalMessageInfo
 
 func (m *GroupedSourceIds) GetSourceIds() []string {
 	if m != nil {
@@ -79,28 +129,72 @@ func (m *GroupedSourceIds) GetArg() string {
 }
 
 type SetShardGroupResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SetShardGroupResponse) Reset()                    { *m = SetShardGroupResponse{} }
-func (m *SetShardGroupResponse) String() string            { return proto.CompactTextString(m) }
-func (*SetShardGroupResponse) ProtoMessage()               {}
-func (*SetShardGroupResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{2} }
+func (m *SetShardGroupResponse) Reset()         { *m = SetShardGroupResponse{} }
+func (m *SetShardGroupResponse) String() string { return proto.CompactTextString(m) }
+func (*SetShardGroupResponse) ProtoMessage()    {}
+func (*SetShardGroupResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_shard_group_reader_5255d963d3556ebb, []int{2}
+}
+func (m *SetShardGroupResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SetShardGroupResponse.Unmarshal(m, b)
+}
+func (m *SetShardGroupResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SetShardGroupResponse.Marshal(b, m, deterministic)
+}
+func (dst *SetShardGroupResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SetShardGroupResponse.Merge(dst, src)
+}
+func (m *SetShardGroupResponse) XXX_Size() int {
+	return xxx_messageInfo_SetShardGroupResponse.Size(m)
+}
+func (m *SetShardGroupResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_SetShardGroupResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SetShardGroupResponse proto.InternalMessageInfo
 
 type ShardGroupReadRequest struct {
-	Name          string         `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
-	RequesterId   uint64         `protobuf:"varint,2,opt,name=requester_id,json=requesterId" json:"requester_id,omitempty"`
-	StartTime     int64          `protobuf:"varint,3,opt,name=start_time,json=startTime" json:"start_time,omitempty"`
-	EndTime       int64          `protobuf:"varint,4,opt,name=end_time,json=endTime" json:"end_time,omitempty"`
-	Limit         int64          `protobuf:"varint,5,opt,name=limit" json:"limit,omitempty"`
-	EnvelopeTypes []EnvelopeType `protobuf:"varint,6,rep,packed,name=envelope_types,json=envelopeTypes,enum=logcache.v1.EnvelopeType" json:"envelope_types,omitempty"`
+	Name          string         `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	RequesterId   uint64         `protobuf:"varint,2,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	StartTime     int64          `protobuf:"varint,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime       int64          `protobuf:"varint,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	Limit         int64          `protobuf:"varint,5,opt,name=limit,proto3" json:"limit,omitempty"`
+	EnvelopeTypes []EnvelopeType `protobuf:"varint,6,rep,packed,name=envelope_types,json=envelopeTypes,proto3,enum=logcache.v1.EnvelopeType" json:"envelope_types,omitempty"`
 	// local_only is used for internals only. A client should not set this.
-	LocalOnly bool `protobuf:"varint,7,opt,name=local_only,json=localOnly" json:"local_only,omitempty"`
+	LocalOnly            bool     `protobuf:"varint,7,opt,name=local_only,json=localOnly,proto3" json:"local_only,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ShardGroupReadRequest) Reset()                    { *m = ShardGroupReadRequest{} }
-func (m *ShardGroupReadRequest) String() string            { return proto.CompactTextString(m) }
-func (*ShardGroupReadRequest) ProtoMessage()               {}
-func (*ShardGroupReadRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{3} }
+func (m *ShardGroupReadRequest) Reset()         { *m = ShardGroupReadRequest{} }
+func (m *ShardGroupReadRequest) String() string { return proto.CompactTextString(m) }
+func (*ShardGroupReadRequest) ProtoMessage()    {}
+func (*ShardGroupReadRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_shard_group_reader_5255d963d3556ebb, []int{3}
+}
+func (m *ShardGroupReadRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ShardGroupReadRequest.Unmarshal(m, b)
+}
+func (m *ShardGroupReadRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ShardGroupReadRequest.Marshal(b, m, deterministic)
+}
+func (dst *ShardGroupReadRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ShardGroupReadRequest.Merge(dst, src)
+}
+func (m *ShardGroupReadRequest) XXX_Size() int {
+	return xxx_messageInfo_ShardGroupReadRequest.Size(m)
+}
+func (m *ShardGroupReadRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ShardGroupReadRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ShardGroupReadRequest proto.InternalMessageInfo
 
 func (m *ShardGroupReadRequest) GetName() string {
 	if m != nil {
@@ -152,16 +246,38 @@ func (m *ShardGroupReadRequest) GetLocalOnly() bool {
 }
 
 type ShardGroupReadResponse struct {
-	Envelopes *loggregator_v2.EnvelopeBatch `protobuf:"bytes,1,opt,name=envelopes" json:"envelopes,omitempty"`
-	// args are given back to the requester when they recieve the given
+	Envelopes *loggregator_v2.EnvelopeBatch `protobuf:"bytes,1,opt,name=envelopes,proto3" json:"envelopes,omitempty"`
+	// args are given back to the requester when they receive the given
 	// sub_group.
-	Args []string `protobuf:"bytes,2,rep,name=args" json:"args,omitempty"`
+	Args                 []string `protobuf:"bytes,2,rep,name=args,proto3" json:"args,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ShardGroupReadResponse) Reset()                    { *m = ShardGroupReadResponse{} }
-func (m *ShardGroupReadResponse) String() string            { return proto.CompactTextString(m) }
-func (*ShardGroupReadResponse) ProtoMessage()               {}
-func (*ShardGroupReadResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{4} }
+func (m *ShardGroupReadResponse) Reset()         { *m = ShardGroupReadResponse{} }
+func (m *ShardGroupReadResponse) String() string { return proto.CompactTextString(m) }
+func (*ShardGroupReadResponse) ProtoMessage()    {}
+func (*ShardGroupReadResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_shard_group_reader_5255d963d3556ebb, []int{4}
+}
+func (m *ShardGroupReadResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ShardGroupReadResponse.Unmarshal(m, b)
+}
+func (m *ShardGroupReadResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ShardGroupReadResponse.Marshal(b, m, deterministic)
+}
+func (dst *ShardGroupReadResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ShardGroupReadResponse.Merge(dst, src)
+}
+func (m *ShardGroupReadResponse) XXX_Size() int {
+	return xxx_messageInfo_ShardGroupReadResponse.Size(m)
+}
+func (m *ShardGroupReadResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ShardGroupReadResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ShardGroupReadResponse proto.InternalMessageInfo
 
 func (m *ShardGroupReadResponse) GetEnvelopes() *loggregator_v2.EnvelopeBatch {
 	if m != nil {
@@ -178,15 +294,37 @@ func (m *ShardGroupReadResponse) GetArgs() []string {
 }
 
 type ShardGroupRequest struct {
-	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// local_only is used for internals only. A client should not set this.
-	LocalOnly bool `protobuf:"varint,2,opt,name=local_only,json=localOnly" json:"local_only,omitempty"`
+	LocalOnly            bool     `protobuf:"varint,2,opt,name=local_only,json=localOnly,proto3" json:"local_only,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ShardGroupRequest) Reset()                    { *m = ShardGroupRequest{} }
-func (m *ShardGroupRequest) String() string            { return proto.CompactTextString(m) }
-func (*ShardGroupRequest) ProtoMessage()               {}
-func (*ShardGroupRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{5} }
+func (m *ShardGroupRequest) Reset()         { *m = ShardGroupRequest{} }
+func (m *ShardGroupRequest) String() string { return proto.CompactTextString(m) }
+func (*ShardGroupRequest) ProtoMessage()    {}
+func (*ShardGroupRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_shard_group_reader_5255d963d3556ebb, []int{5}
+}
+func (m *ShardGroupRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ShardGroupRequest.Unmarshal(m, b)
+}
+func (m *ShardGroupRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ShardGroupRequest.Marshal(b, m, deterministic)
+}
+func (dst *ShardGroupRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ShardGroupRequest.Merge(dst, src)
+}
+func (m *ShardGroupRequest) XXX_Size() int {
+	return xxx_messageInfo_ShardGroupRequest.Size(m)
+}
+func (m *ShardGroupRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ShardGroupRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ShardGroupRequest proto.InternalMessageInfo
 
 func (m *ShardGroupRequest) GetName() string {
 	if m != nil {
@@ -203,15 +341,37 @@ func (m *ShardGroupRequest) GetLocalOnly() bool {
 }
 
 type ShardGroupResponse struct {
-	SubGroups    []*GroupedSourceIds `protobuf:"bytes,1,rep,name=sub_groups,json=subGroups" json:"sub_groups,omitempty"`
-	RequesterIds []uint64            `protobuf:"varint,2,rep,packed,name=requester_ids,json=requesterIds" json:"requester_ids,omitempty"`
-	Args         []string            `protobuf:"bytes,3,rep,name=args" json:"args,omitempty"`
+	SubGroups            []*GroupedSourceIds `protobuf:"bytes,1,rep,name=sub_groups,json=subGroups,proto3" json:"sub_groups,omitempty"`
+	RequesterIds         []uint64            `protobuf:"varint,2,rep,packed,name=requester_ids,json=requesterIds,proto3" json:"requester_ids,omitempty"`
+	Args                 []string            `protobuf:"bytes,3,rep,name=args,proto3" json:"args,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
+	XXX_unrecognized     []byte              `json:"-"`
+	XXX_sizecache        int32               `json:"-"`
 }
 
-func (m *ShardGroupResponse) Reset()                    { *m = ShardGroupResponse{} }
-func (m *ShardGroupResponse) String() string            { return proto.CompactTextString(m) }
-func (*ShardGroupResponse) ProtoMessage()               {}
-func (*ShardGroupResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{6} }
+func (m *ShardGroupResponse) Reset()         { *m = ShardGroupResponse{} }
+func (m *ShardGroupResponse) String() string { return proto.CompactTextString(m) }
+func (*ShardGroupResponse) ProtoMessage()    {}
+func (*ShardGroupResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_shard_group_reader_5255d963d3556ebb, []int{6}
+}
+func (m *ShardGroupResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ShardGroupResponse.Unmarshal(m, b)
+}
+func (m *ShardGroupResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ShardGroupResponse.Marshal(b, m, deterministic)
+}
+func (dst *ShardGroupResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ShardGroupResponse.Merge(dst, src)
+}
+func (m *ShardGroupResponse) XXX_Size() int {
+	return xxx_messageInfo_ShardGroupResponse.Size(m)
+}
+func (m *ShardGroupResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ShardGroupResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ShardGroupResponse proto.InternalMessageInfo
 
 func (m *ShardGroupResponse) GetSubGroups() []*GroupedSourceIds {
 	if m != nil {
@@ -252,8 +412,9 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// Client API for ShardGroupReader service
-
+// ShardGroupReaderClient is the client API for ShardGroupReader service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ShardGroupReaderClient interface {
 	SetShardGroup(ctx context.Context, in *SetShardGroupRequest, opts ...grpc.CallOption) (*SetShardGroupResponse, error)
 	Read(ctx context.Context, in *ShardGroupReadRequest, opts ...grpc.CallOption) (*ShardGroupReadResponse, error)
@@ -270,7 +431,7 @@ func NewShardGroupReaderClient(cc *grpc.ClientConn) ShardGroupReaderClient {
 
 func (c *shardGroupReaderClient) SetShardGroup(ctx context.Context, in *SetShardGroupRequest, opts ...grpc.CallOption) (*SetShardGroupResponse, error) {
 	out := new(SetShardGroupResponse)
-	err := grpc.Invoke(ctx, "/logcache.v1.ShardGroupReader/SetShardGroup", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/logcache.v1.ShardGroupReader/SetShardGroup", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -279,7 +440,7 @@ func (c *shardGroupReaderClient) SetShardGroup(ctx context.Context, in *SetShard
 
 func (c *shardGroupReaderClient) Read(ctx context.Context, in *ShardGroupReadRequest, opts ...grpc.CallOption) (*ShardGroupReadResponse, error) {
 	out := new(ShardGroupReadResponse)
-	err := grpc.Invoke(ctx, "/logcache.v1.ShardGroupReader/Read", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/logcache.v1.ShardGroupReader/Read", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -288,15 +449,14 @@ func (c *shardGroupReaderClient) Read(ctx context.Context, in *ShardGroupReadReq
 
 func (c *shardGroupReaderClient) ShardGroup(ctx context.Context, in *ShardGroupRequest, opts ...grpc.CallOption) (*ShardGroupResponse, error) {
 	out := new(ShardGroupResponse)
-	err := grpc.Invoke(ctx, "/logcache.v1.ShardGroupReader/ShardGroup", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/logcache.v1.ShardGroupReader/ShardGroup", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// Server API for ShardGroupReader service
-
+// ShardGroupReaderServer is the server API for ShardGroupReader service.
 type ShardGroupReaderServer interface {
 	SetShardGroup(context.Context, *SetShardGroupRequest) (*SetShardGroupResponse, error)
 	Read(context.Context, *ShardGroupReadRequest) (*ShardGroupReadResponse, error)
@@ -382,44 +542,47 @@ var _ShardGroupReader_serviceDesc = grpc.ServiceDesc{
 	Metadata: "shard_group_reader.proto",
 }
 
-func init() { proto.RegisterFile("shard_group_reader.proto", fileDescriptor4) }
+func init() {
+	proto.RegisterFile("shard_group_reader.proto", fileDescriptor_shard_group_reader_5255d963d3556ebb)
+}
 
-var fileDescriptor4 = []byte{
-	// 575 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x54, 0x41, 0x6f, 0xd3, 0x4c,
-	0x10, 0x95, 0xe3, 0xb4, 0x8d, 0x27, 0x49, 0x95, 0xae, 0xda, 0x7e, 0x6e, 0x3e, 0x52, 0x52, 0xe7,
-	0x12, 0x2e, 0xb1, 0x1a, 0x6e, 0x85, 0x03, 0x02, 0x01, 0xea, 0x09, 0x69, 0xd3, 0xbb, 0xb5, 0x89,
-	0x47, 0x8e, 0x25, 0xc7, 0x6b, 0x76, 0x37, 0x91, 0x22, 0xc4, 0x01, 0x24, 0x4e, 0x1c, 0xf9, 0x69,
-	0xfc, 0x05, 0xfe, 0x05, 0x07, 0x90, 0xd7, 0x4e, 0xe2, 0x98, 0x24, 0x70, 0xdb, 0x9d, 0x19, 0xcf,
-	0x7b, 0xf3, 0xe6, 0x79, 0xc1, 0x96, 0x53, 0x26, 0x7c, 0x2f, 0x10, 0x7c, 0x9e, 0x78, 0x02, 0x99,
-	0x8f, 0x62, 0x90, 0x08, 0xae, 0x38, 0xa9, 0x47, 0x3c, 0x98, 0xb0, 0xc9, 0x14, 0x07, 0x8b, 0xdb,
-	0xf6, 0xa3, 0x80, 0xf3, 0x20, 0x42, 0x97, 0x25, 0xa1, 0xcb, 0xe2, 0x98, 0x2b, 0xa6, 0x42, 0x1e,
-	0xcb, 0xac, 0xb4, 0x7d, 0xb6, 0x18, 0xba, 0x18, 0x2f, 0x30, 0xe2, 0x09, 0xe6, 0xa1, 0x06, 0x06,
-	0x02, 0x65, 0x5e, 0xe0, 0x7c, 0x31, 0xe0, 0x7c, 0x84, 0x6a, 0x94, 0x62, 0xbd, 0x4d, 0xa1, 0x28,
-	0xbe, 0x9f, 0xa3, 0x54, 0x84, 0x40, 0x35, 0x66, 0x33, 0xb4, 0x8d, 0xae, 0xd1, 0xb7, 0xa8, 0x3e,
-	0x93, 0x3b, 0xb0, 0xe4, 0x7c, 0x9c, 0x51, 0xb2, 0x2b, 0x5d, 0xa3, 0x5f, 0x1f, 0x76, 0x06, 0x05,
-	0x32, 0x03, 0xdd, 0x01, 0xfd, 0x11, 0x9f, 0x8b, 0x09, 0xde, 0xfb, 0x92, 0xd6, 0xe4, 0x7c, 0xac,
-	0x83, 0xa4, 0x03, 0x10, 0xf1, 0x09, 0x8b, 0x3c, 0x1e, 0x47, 0x4b, 0xdb, 0xec, 0x1a, 0xfd, 0x1a,
-	0xb5, 0x74, 0xe4, 0x5d, 0x1c, 0x2d, 0x9d, 0x57, 0xd0, 0x2a, 0x7f, 0x9c, 0x7e, 0x22, 0xf5, 0xc5,
-	0x0b, 0x7d, 0x69, 0x1b, 0x5d, 0xb3, 0x6f, 0x51, 0x4b, 0xae, 0xd3, 0x2d, 0x30, 0x99, 0x08, 0x34,
-	0x0f, 0x8b, 0xa6, 0x47, 0xe7, 0x3f, 0xb8, 0x28, 0xcd, 0x22, 0x13, 0x1e, 0x4b, 0x74, 0x7e, 0x19,
-	0x70, 0x51, 0x0c, 0x33, 0xff, 0xd0, 0x98, 0x37, 0xd0, 0x10, 0x59, 0x1a, 0x85, 0x17, 0xfa, 0x1a,
-	0xa1, 0x4a, 0xeb, 0xeb, 0xd8, 0xbd, 0xaf, 0xa9, 0x29, 0x26, 0x94, 0xa7, 0xc2, 0x19, 0xea, 0x69,
-	0x4c, 0x6a, 0xe9, 0xc8, 0x43, 0x38, 0x43, 0x72, 0x05, 0x35, 0x8c, 0xfd, 0x2c, 0x59, 0xd5, 0xc9,
-	0x13, 0x8c, 0x7d, 0x9d, 0x3a, 0x87, 0xa3, 0x28, 0x9c, 0x85, 0xca, 0x3e, 0xd2, 0xf1, 0xec, 0x42,
-	0x5e, 0xc0, 0xe9, 0x6a, 0x4d, 0x9e, 0x5a, 0x26, 0x28, 0xed, 0xe3, 0xae, 0xd9, 0x3f, 0x1d, 0x5e,
-	0x6d, 0xc9, 0xfb, 0x3a, 0x2f, 0x79, 0x58, 0x26, 0x48, 0x9b, 0x58, 0xb8, 0xc9, 0x92, 0xbe, 0x27,
-	0x65, 0x7d, 0x43, 0xb8, 0x2c, 0x0b, 0x90, 0x69, 0x43, 0x9e, 0x81, 0xb5, 0xea, 0x24, 0xb5, 0x0c,
-	0xf9, 0x52, 0x03, 0x81, 0x01, 0x53, 0x5c, 0x0c, 0x16, 0xc3, 0x35, 0xf0, 0x4b, 0xa6, 0x26, 0x53,
-	0xba, 0xa9, 0x4f, 0xe5, 0x63, 0x22, 0x90, 0x76, 0x45, 0x2f, 0x47, 0x9f, 0x9d, 0x37, 0x70, 0xf6,
-	0x6f, 0x76, 0xda, 0xa6, 0x5c, 0x29, 0x53, 0xfe, 0x6a, 0x00, 0xf9, 0x73, 0x97, 0xe4, 0x39, 0xc0,
-	0xda, 0x84, 0x99, 0x2b, 0xfe, 0xea, 0x42, 0x6b, 0xe5, 0x42, 0x49, 0x7a, 0xd0, 0x2c, 0xee, 0x36,
-	0x63, 0x5e, 0xa5, 0x8d, 0xc2, 0x72, 0x37, 0x53, 0x99, 0x9b, 0xa9, 0x86, 0x3f, 0x2b, 0xd0, 0xda,
-	0x56, 0x10, 0x05, 0xf9, 0x64, 0x40, 0x73, 0xcb, 0x71, 0xe4, 0x66, 0x8b, 0xc9, 0xae, 0x3f, 0xab,
-	0xed, 0x1c, 0x2a, 0xc9, 0x0d, 0xfb, 0xe4, 0xf3, 0xf7, 0x1f, 0xdf, 0x2a, 0xbd, 0xf6, 0xa5, 0xbb,
-	0xb8, 0x75, 0x0b, 0x0f, 0x81, 0xfb, 0x21, 0x55, 0xee, 0xe3, 0xdd, 0xe6, 0x3f, 0x24, 0x1c, 0xaa,
-	0x29, 0x1b, 0x52, 0x6a, 0xbb, 0xcb, 0xed, 0xed, 0xde, 0xc1, 0x9a, 0x1c, 0xfb, 0x5a, 0x63, 0xdb,
-	0x64, 0x0f, 0x36, 0x11, 0x00, 0x85, 0x81, 0xaf, 0xf7, 0xb6, 0xcc, 0x20, 0x1f, 0xef, 0xcd, 0xe7,
-	0x70, 0x3d, 0x0d, 0xd7, 0x21, 0xff, 0xef, 0x86, 0x73, 0x67, 0xa8, 0xd8, 0xf8, 0x58, 0xbf, 0x56,
-	0x4f, 0x7f, 0x07, 0x00, 0x00, 0xff, 0xff, 0x2f, 0x98, 0xca, 0x78, 0x15, 0x05, 0x00, 0x00,
+var fileDescriptor_shard_group_reader_5255d963d3556ebb = []byte{
+	// 591 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x54, 0xdf, 0x8a, 0xd3, 0x4e,
+	0x14, 0x26, 0x4d, 0xf7, 0x4f, 0x4e, 0xdb, 0xa5, 0x3b, 0xec, 0xfe, 0x7e, 0xd9, 0xe2, 0x6a, 0x37,
+	0x45, 0x08, 0x0a, 0xcd, 0x6e, 0x05, 0x2f, 0x56, 0x2f, 0x44, 0x51, 0xd9, 0x2b, 0x21, 0xdd, 0xfb,
+	0x30, 0x6d, 0x0e, 0x69, 0x20, 0xc9, 0xc4, 0x99, 0x69, 0xb1, 0xa8, 0x08, 0x82, 0x57, 0x82, 0x37,
+	0xbe, 0x81, 0xaf, 0xe4, 0x2b, 0xf8, 0x1e, 0x4a, 0x26, 0x69, 0x9b, 0xc6, 0xdd, 0xda, 0xbb, 0x99,
+	0x73, 0xce, 0xcc, 0xf7, 0x9d, 0xef, 0x7c, 0x33, 0x60, 0x8a, 0x09, 0xe5, 0xbe, 0x17, 0x70, 0x36,
+	0x4d, 0x3d, 0x8e, 0xd4, 0x47, 0xde, 0x4f, 0x39, 0x93, 0x8c, 0x34, 0x22, 0x16, 0x8c, 0xe9, 0x78,
+	0x82, 0xfd, 0xd9, 0x45, 0xe7, 0x4e, 0xc0, 0x58, 0x10, 0xa1, 0x43, 0xd3, 0xd0, 0xa1, 0x49, 0xc2,
+	0x24, 0x95, 0x21, 0x4b, 0x44, 0x5e, 0xda, 0x39, 0x9c, 0x0d, 0x1c, 0x4c, 0x66, 0x18, 0xb1, 0x14,
+	0x8b, 0x50, 0x13, 0x03, 0x8e, 0xa2, 0x28, 0xb0, 0xbe, 0x68, 0x70, 0x34, 0x44, 0x39, 0xcc, 0xb0,
+	0x5e, 0x67, 0x50, 0x2e, 0xbe, 0x9d, 0xa2, 0x90, 0x84, 0x40, 0x3d, 0xa1, 0x31, 0x9a, 0x5a, 0x57,
+	0xb3, 0x0d, 0x57, 0xad, 0xc9, 0x25, 0x18, 0x62, 0x3a, 0xca, 0x29, 0x99, 0xb5, 0xae, 0x66, 0x37,
+	0x06, 0xa7, 0xfd, 0x12, 0x99, 0xbe, 0xba, 0x01, 0xfd, 0x21, 0x9b, 0xf2, 0x31, 0x5e, 0xf9, 0xc2,
+	0xdd, 0x17, 0xd3, 0x91, 0x0a, 0x92, 0x53, 0x80, 0x88, 0x8d, 0x69, 0xe4, 0xb1, 0x24, 0x9a, 0x9b,
+	0x7a, 0x57, 0xb3, 0xf7, 0x5d, 0x43, 0x45, 0xde, 0x24, 0xd1, 0xdc, 0x7a, 0x01, 0xed, 0xea, 0xe1,
+	0xec, 0x88, 0x50, 0x1b, 0x2f, 0xf4, 0x85, 0xa9, 0x75, 0x75, 0xdb, 0x70, 0x0d, 0xb1, 0x4c, 0xb7,
+	0x41, 0xa7, 0x3c, 0x50, 0x3c, 0x0c, 0x37, 0x5b, 0x5a, 0xff, 0xc3, 0x71, 0xa5, 0x17, 0x91, 0xb2,
+	0x44, 0xa0, 0xf5, 0x5b, 0x83, 0xe3, 0x72, 0x98, 0xfa, 0x9b, 0xda, 0x3c, 0x83, 0x26, 0xcf, 0xd3,
+	0xc8, 0xbd, 0xd0, 0x57, 0x08, 0x75, 0xb7, 0xb1, 0x8c, 0x5d, 0xf9, 0x8a, 0x9a, 0xa4, 0x5c, 0x7a,
+	0x32, 0x8c, 0x51, 0x75, 0xa3, 0xbb, 0x86, 0x8a, 0x5c, 0x87, 0x31, 0x92, 0x13, 0xd8, 0xc7, 0xc4,
+	0xcf, 0x93, 0x75, 0x95, 0xdc, 0xc3, 0xc4, 0x57, 0xa9, 0x23, 0xd8, 0x89, 0xc2, 0x38, 0x94, 0xe6,
+	0x8e, 0x8a, 0xe7, 0x1b, 0xf2, 0x0c, 0x0e, 0x16, 0x63, 0xf2, 0xe4, 0x3c, 0x45, 0x61, 0xee, 0x76,
+	0x75, 0xfb, 0x60, 0x70, 0xb2, 0x26, 0xef, 0xcb, 0xa2, 0xe4, 0x7a, 0x9e, 0xa2, 0xdb, 0xc2, 0xd2,
+	0x4e, 0x54, 0xf4, 0xdd, 0xab, 0xea, 0x1b, 0xc2, 0x7f, 0x55, 0x01, 0x72, 0x6d, 0xc8, 0x13, 0x30,
+	0x16, 0x37, 0x09, 0x25, 0x43, 0x31, 0xd4, 0x80, 0x63, 0x40, 0x25, 0xe3, 0xfd, 0xd9, 0x60, 0x09,
+	0xfc, 0x9c, 0xca, 0xf1, 0xc4, 0x5d, 0xd5, 0x67, 0xf2, 0x51, 0x1e, 0x08, 0xb3, 0xa6, 0x86, 0xa3,
+	0xd6, 0xd6, 0x2b, 0x38, 0xdc, 0xce, 0x4e, 0xeb, 0x94, 0x6b, 0x55, 0xca, 0x5f, 0x35, 0x20, 0x7f,
+	0xcf, 0x92, 0x3c, 0x05, 0x58, 0x9a, 0x30, 0x77, 0xc5, 0x3f, 0x5d, 0x68, 0x2c, 0x5c, 0x28, 0x48,
+	0x0f, 0x5a, 0xe5, 0xd9, 0xe6, 0xcc, 0xeb, 0x6e, 0xb3, 0x34, 0xdc, 0x55, 0x57, 0xfa, 0xaa, 0xab,
+	0xc1, 0x0f, 0x1d, 0xda, 0xeb, 0x0a, 0x22, 0x27, 0xdf, 0x34, 0x68, 0xad, 0x39, 0x8e, 0x9c, 0xad,
+	0x31, 0xb9, 0xe9, 0x65, 0x75, 0xac, 0x4d, 0x25, 0x85, 0x61, 0x1f, 0x7f, 0xfe, 0xf9, 0xeb, 0x7b,
+	0xed, 0xbc, 0xd3, 0x73, 0x66, 0x17, 0x0e, 0xbe, 0x4b, 0x91, 0x87, 0x31, 0x26, 0x92, 0x46, 0x4e,
+	0xe9, 0x57, 0x70, 0xde, 0x67, 0x32, 0x7e, 0xbc, 0x5c, 0x3d, 0x4a, 0xf2, 0x01, 0xea, 0x19, 0x35,
+	0x52, 0xc1, 0xb8, 0xc9, 0xfa, 0x9d, 0xde, 0xc6, 0x9a, 0x82, 0xc8, 0x43, 0x45, 0xe4, 0x3e, 0xd9,
+	0x86, 0x08, 0xf9, 0x04, 0x50, 0x92, 0xe2, 0xee, 0xad, 0xf7, 0xe7, 0xf8, 0xf7, 0x6e, 0xcd, 0x17,
+	0xd8, 0xe7, 0x0a, 0xfb, 0x01, 0xb1, 0xb7, 0xc0, 0x76, 0x62, 0x94, 0x74, 0xb4, 0xab, 0x3e, 0xb5,
+	0x47, 0x7f, 0x02, 0x00, 0x00, 0xff, 0xff, 0x91, 0x58, 0x74, 0x5b, 0x3c, 0x05, 0x00, 0x00,
 }
