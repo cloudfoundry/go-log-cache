@@ -266,11 +266,11 @@ func RegisterShardGroupReaderHandlerClient(ctx context.Context, mux *runtime.Ser
 }
 
 var (
-	pattern_ShardGroupReader_SetShardGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "shard_group", "name"}, ""))
+	pattern_ShardGroupReader_SetShardGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "experimental", "shard_group", "name"}, ""))
 
-	pattern_ShardGroupReader_Read_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "shard_group", "name"}, ""))
+	pattern_ShardGroupReader_Read_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "experimental", "shard_group", "name"}, ""))
 
-	pattern_ShardGroupReader_ShardGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "shard_group", "name", "meta"}, ""))
+	pattern_ShardGroupReader_ShardGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "experimental", "shard_group", "name", "meta"}, ""))
 )
 
 var (
