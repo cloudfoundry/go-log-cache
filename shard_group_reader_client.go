@@ -73,7 +73,7 @@ func (c *ShardGroupReaderClient) Read(
 	if err != nil {
 		return nil, err
 	}
-	u.Path = "v1/shard_group/" + name
+	u.Path = "v1/experimental/shard_group/" + name
 	q := u.Query()
 	q.Set("start_time", strconv.FormatInt(start.UnixNano(), 10))
 	q.Set("requester_id", strconv.FormatUint(requesterID, 10))
@@ -165,7 +165,7 @@ func (c *ShardGroupReaderClient) SetShardGroup(
 	if err != nil {
 		return err
 	}
-	u.Path = fmt.Sprintf("v1/shard_group/%s", name)
+	u.Path = fmt.Sprintf("v1/experimental/shard_group/%s", name)
 
 	marshalled, err := (&jsonpb.Marshaler{}).MarshalToString(
 		&logcache_v1.GroupedSourceIds{
@@ -237,7 +237,7 @@ func (c *ShardGroupReaderClient) ShardGroup(ctx context.Context, name string) (G
 	if err != nil {
 		return GroupMeta{}, err
 	}
-	u.Path = fmt.Sprintf("v1/shard_group/%s/meta", name)
+	u.Path = fmt.Sprintf("v1/experimental/shard_group/%s/meta", name)
 
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {

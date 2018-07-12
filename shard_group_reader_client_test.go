@@ -25,7 +25,7 @@ var _ logcache.Reader = logcache.Reader(logcache.NewShardGroupReaderClient("").B
 func TestClientGroupRead(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
-	logCache.result["GET/v1/shard_group/some-name"] = []byte(`{
+	logCache.result["GET/v1/experimental/shard_group/some-name"] = []byte(`{
 		"extraJunk":"should-be-ok",
 		"args": ["some-arg"],
 		"envelopes": {
@@ -63,8 +63,8 @@ func TestClientGroupRead(t *testing.T) {
 		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
 	}
 
-	if logCache.reqs[0].URL.Path != "/v1/shard_group/some-name" {
-		t.Fatalf("expected Path '/v1/shard_group/some-name' but got '%s'", logCache.reqs[0].URL.Path)
+	if logCache.reqs[0].URL.Path != "/v1/experimental/shard_group/some-name" {
+		t.Fatalf("expected Path '/v1/experimental/shard_group/some-name' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
 	assertQueryParam(t, logCache.reqs[0].URL, "start_time", "99")
@@ -78,7 +78,7 @@ func TestClientGroupRead(t *testing.T) {
 func TestClientGroupReadWithOptions(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
-	logCache.result["GET/v1/shard_group/some-name"] = []byte(`{
+	logCache.result["GET/v1/experimental/shard_group/some-name"] = []byte(`{
 		"envelopes": {
 			"batch": [
 			    {
@@ -112,8 +112,8 @@ func TestClientGroupReadWithOptions(t *testing.T) {
 		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
 	}
 
-	if logCache.reqs[0].URL.Path != "/v1/shard_group/some-name" {
-		t.Fatalf("expected Path '/v1/shard_group/some-name' but got '%s'", logCache.reqs[0].URL.Path)
+	if logCache.reqs[0].URL.Path != "/v1/experimental/shard_group/some-name" {
+		t.Fatalf("expected Path '/v1/experimental/shard_group/some-name' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
 	assertQueryParam(t, logCache.reqs[0].URL, "start_time", "99")
@@ -280,7 +280,7 @@ func TestGrpcClientGroupReadCancelling(t *testing.T) {
 func TestClientSetGroup(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
-	logCache.result["PUT/v1/shard_group/some-name"] = []byte("{}")
+	logCache.result["PUT/v1/experimental/shard_group/some-name"] = []byte("{}")
 	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
 	err := client.SetShardGroup(
@@ -297,8 +297,8 @@ func TestClientSetGroup(t *testing.T) {
 		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
 	}
 
-	if logCache.reqs[0].URL.Path != "/v1/shard_group/some-name" {
-		t.Fatalf("expected Path '/v1/shard_group/some-name' but got '%s'", logCache.reqs[0].URL.Path)
+	if logCache.reqs[0].URL.Path != "/v1/experimental/shard_group/some-name" {
+		t.Fatalf("expected Path '/v1/experimental/shard_group/some-name' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
 	if logCache.reqs[0].Method != "PUT" {
@@ -414,7 +414,7 @@ func TestClientGroupMeta(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	logCache.result["GET/v1/shard_group/some-name/meta"] = data
+	logCache.result["GET/v1/experimental/shard_group/some-name/meta"] = data
 	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
 	resp, err := client.ShardGroup(context.Background(), "some-name")
@@ -426,8 +426,8 @@ func TestClientGroupMeta(t *testing.T) {
 		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
 	}
 
-	if logCache.reqs[0].URL.Path != "/v1/shard_group/some-name/meta" {
-		t.Fatalf("expected Path '/v1/shard_group/some-name/meta' but got '%s'", logCache.reqs[0].URL.Path)
+	if logCache.reqs[0].URL.Path != "/v1/experimental/shard_group/some-name/meta" {
+		t.Fatalf("expected Path '/v1/experimental/shard_group/some-name/meta' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
 	if logCache.reqs[0].Method != "GET" {
@@ -485,7 +485,7 @@ func TestClientGroupNon200(t *testing.T) {
 func TestClientGroupInvalidResponse(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
-	logCache.result["GET/v1/shard_group/some-name/meta"] = []byte("invalid")
+	logCache.result["GET/v1/experimental/shard_group/some-name/meta"] = []byte("invalid")
 	client := logcache.NewShardGroupReaderClient(logCache.addr())
 
 	_, err := client.ShardGroup(context.Background(), "some-name")
