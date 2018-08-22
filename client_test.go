@@ -594,11 +594,11 @@ func newStubLogCache() *stubLogCache {
 			"batch": [
 			    {
 					"timestamp": 99,
-					"sourceId": "some-id"
+					"source_id": "some-id"
 				},
 			    {
 					"timestamp": 100,
-					"sourceId": "some-id"
+					"source_id": "some-id"
 				}
 			]
 		}
