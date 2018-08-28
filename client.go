@@ -288,7 +288,7 @@ func (c *Client) PromQL(
 	ctx context.Context,
 	query string,
 	opts ...PromQLOption,
-) (*logcache_v1.PromQL_QueryResult, error) {
+) (*logcache_v1.PromQL_InstantQueryResult, error) {
 	if c.promqlGrpcClient != nil {
 		return c.grpcPromQL(ctx, query, opts)
 	}
@@ -323,7 +323,7 @@ func (c *Client) PromQL(
 		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
 	}
 
-	var promQLResponse logcache_v1.PromQL_QueryResult
+	var promQLResponse logcache_v1.PromQL_InstantQueryResult
 	if err := jsonpb.Unmarshal(resp.Body, &promQLResponse); err != nil {
 		return nil, err
 	}
@@ -331,7 +331,7 @@ func (c *Client) PromQL(
 	return &promQLResponse, nil
 }
 
-func (c *Client) grpcPromQL(ctx context.Context, query string, opts []PromQLOption) (*logcache_v1.PromQL_QueryResult, error) {
+func (c *Client) grpcPromQL(ctx context.Context, query string, opts []PromQLOption) (*logcache_v1.PromQL_InstantQueryResult, error) {
 	u := &url.URL{}
 	q := u.Query()
 	// allow the given options to configure the URL.

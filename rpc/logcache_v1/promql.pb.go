@@ -50,102 +50,140 @@ func (m *PromQL_InstantQueryRequest) GetTime() int64 {
 	return 0
 }
 
-type PromQL_QueryResult struct {
+type PromQL_RangeQueryRequest struct {
+	Query string `protobuf:"bytes,1,opt,name=query" json:"query,omitempty"`
+	Start int64  `protobuf:"varint,2,opt,name=start" json:"start,omitempty"`
+	End   int64  `protobuf:"varint,3,opt,name=end" json:"end,omitempty"`
+	Step  string `protobuf:"bytes,4,opt,name=step" json:"step,omitempty"`
+}
+
+func (m *PromQL_RangeQueryRequest) Reset()                    { *m = PromQL_RangeQueryRequest{} }
+func (m *PromQL_RangeQueryRequest) String() string            { return proto.CompactTextString(m) }
+func (*PromQL_RangeQueryRequest) ProtoMessage()               {}
+func (*PromQL_RangeQueryRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 1} }
+
+func (m *PromQL_RangeQueryRequest) GetQuery() string {
+	if m != nil {
+		return m.Query
+	}
+	return ""
+}
+
+func (m *PromQL_RangeQueryRequest) GetStart() int64 {
+	if m != nil {
+		return m.Start
+	}
+	return 0
+}
+
+func (m *PromQL_RangeQueryRequest) GetEnd() int64 {
+	if m != nil {
+		return m.End
+	}
+	return 0
+}
+
+func (m *PromQL_RangeQueryRequest) GetStep() string {
+	if m != nil {
+		return m.Step
+	}
+	return ""
+}
+
+type PromQL_InstantQueryResult struct {
 	// Types that are valid to be assigned to Result:
-	//	*PromQL_QueryResult_Scalar
-	//	*PromQL_QueryResult_Vector
-	//	*PromQL_QueryResult_Matrix
-	Result isPromQL_QueryResult_Result `protobuf_oneof:"Result"`
+	//	*PromQL_InstantQueryResult_Scalar
+	//	*PromQL_InstantQueryResult_Vector
+	//	*PromQL_InstantQueryResult_Matrix
+	Result isPromQL_InstantQueryResult_Result `protobuf_oneof:"Result"`
 }
 
-func (m *PromQL_QueryResult) Reset()                    { *m = PromQL_QueryResult{} }
-func (m *PromQL_QueryResult) String() string            { return proto.CompactTextString(m) }
-func (*PromQL_QueryResult) ProtoMessage()               {}
-func (*PromQL_QueryResult) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 1} }
+func (m *PromQL_InstantQueryResult) Reset()                    { *m = PromQL_InstantQueryResult{} }
+func (m *PromQL_InstantQueryResult) String() string            { return proto.CompactTextString(m) }
+func (*PromQL_InstantQueryResult) ProtoMessage()               {}
+func (*PromQL_InstantQueryResult) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 2} }
 
-type isPromQL_QueryResult_Result interface {
-	isPromQL_QueryResult_Result()
-}
+type isPromQL_InstantQueryResult_Result interface{ isPromQL_InstantQueryResult_Result() }
 
-type PromQL_QueryResult_Scalar struct {
+type PromQL_InstantQueryResult_Scalar struct {
 	Scalar *PromQL_Scalar `protobuf:"bytes,1,opt,name=scalar,oneof"`
 }
-type PromQL_QueryResult_Vector struct {
+type PromQL_InstantQueryResult_Vector struct {
 	Vector *PromQL_Vector `protobuf:"bytes,2,opt,name=vector,oneof"`
 }
-type PromQL_QueryResult_Matrix struct {
+type PromQL_InstantQueryResult_Matrix struct {
 	Matrix *PromQL_Matrix `protobuf:"bytes,3,opt,name=matrix,oneof"`
 }
 
-func (*PromQL_QueryResult_Scalar) isPromQL_QueryResult_Result() {}
-func (*PromQL_QueryResult_Vector) isPromQL_QueryResult_Result() {}
-func (*PromQL_QueryResult_Matrix) isPromQL_QueryResult_Result() {}
+func (*PromQL_InstantQueryResult_Scalar) isPromQL_InstantQueryResult_Result() {}
+func (*PromQL_InstantQueryResult_Vector) isPromQL_InstantQueryResult_Result() {}
+func (*PromQL_InstantQueryResult_Matrix) isPromQL_InstantQueryResult_Result() {}
 
-func (m *PromQL_QueryResult) GetResult() isPromQL_QueryResult_Result {
+func (m *PromQL_InstantQueryResult) GetResult() isPromQL_InstantQueryResult_Result {
 	if m != nil {
 		return m.Result
 	}
 	return nil
 }
 
-func (m *PromQL_QueryResult) GetScalar() *PromQL_Scalar {
-	if x, ok := m.GetResult().(*PromQL_QueryResult_Scalar); ok {
+func (m *PromQL_InstantQueryResult) GetScalar() *PromQL_Scalar {
+	if x, ok := m.GetResult().(*PromQL_InstantQueryResult_Scalar); ok {
 		return x.Scalar
 	}
 	return nil
 }
 
-func (m *PromQL_QueryResult) GetVector() *PromQL_Vector {
-	if x, ok := m.GetResult().(*PromQL_QueryResult_Vector); ok {
+func (m *PromQL_InstantQueryResult) GetVector() *PromQL_Vector {
+	if x, ok := m.GetResult().(*PromQL_InstantQueryResult_Vector); ok {
 		return x.Vector
 	}
 	return nil
 }
 
-func (m *PromQL_QueryResult) GetMatrix() *PromQL_Matrix {
-	if x, ok := m.GetResult().(*PromQL_QueryResult_Matrix); ok {
+func (m *PromQL_InstantQueryResult) GetMatrix() *PromQL_Matrix {
+	if x, ok := m.GetResult().(*PromQL_InstantQueryResult_Matrix); ok {
 		return x.Matrix
 	}
 	return nil
 }
 
 // XXX_OneofFuncs is for the internal use of the proto package.
-func (*PromQL_QueryResult) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _PromQL_QueryResult_OneofMarshaler, _PromQL_QueryResult_OneofUnmarshaler, _PromQL_QueryResult_OneofSizer, []interface{}{
-		(*PromQL_QueryResult_Scalar)(nil),
-		(*PromQL_QueryResult_Vector)(nil),
-		(*PromQL_QueryResult_Matrix)(nil),
+func (*PromQL_InstantQueryResult) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _PromQL_InstantQueryResult_OneofMarshaler, _PromQL_InstantQueryResult_OneofUnmarshaler, _PromQL_InstantQueryResult_OneofSizer, []interface{}{
+		(*PromQL_InstantQueryResult_Scalar)(nil),
+		(*PromQL_InstantQueryResult_Vector)(nil),
+		(*PromQL_InstantQueryResult_Matrix)(nil),
 	}
 }
 
-func _PromQL_QueryResult_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*PromQL_QueryResult)
+func _PromQL_InstantQueryResult_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*PromQL_InstantQueryResult)
 	// Result
 	switch x := m.Result.(type) {
-	case *PromQL_QueryResult_Scalar:
+	case *PromQL_InstantQueryResult_Scalar:
 		b.EncodeVarint(1<<3 | proto.WireBytes)
 		if err := b.EncodeMessage(x.Scalar); err != nil {
 			return err
 		}
-	case *PromQL_QueryResult_Vector:
+	case *PromQL_InstantQueryResult_Vector:
 		b.EncodeVarint(2<<3 | proto.WireBytes)
 		if err := b.EncodeMessage(x.Vector); err != nil {
 			return err
 		}
-	case *PromQL_QueryResult_Matrix:
+	case *PromQL_InstantQueryResult_Matrix:
 		b.EncodeVarint(3<<3 | proto.WireBytes)
 		if err := b.EncodeMessage(x.Matrix); err != nil {
 			return err
 		}
 	case nil:
 	default:
-		return fmt.Errorf("PromQL_QueryResult.Result has unexpected type %T", x)
+		return fmt.Errorf("PromQL_InstantQueryResult.Result has unexpected type %T", x)
 	}
 	return nil
 }
 
-func _PromQL_QueryResult_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*PromQL_QueryResult)
+func _PromQL_InstantQueryResult_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*PromQL_InstantQueryResult)
 	switch tag {
 	case 1: // Result.scalar
 		if wire != proto.WireBytes {
@@ -153,7 +191,7 @@ func _PromQL_QueryResult_OneofUnmarshaler(msg proto.Message, tag, wire int, b *p
 		}
 		msg := new(PromQL_Scalar)
 		err := b.DecodeMessage(msg)
-		m.Result = &PromQL_QueryResult_Scalar{msg}
+		m.Result = &PromQL_InstantQueryResult_Scalar{msg}
 		return true, err
 	case 2: // Result.vector
 		if wire != proto.WireBytes {
@@ -161,7 +199,7 @@ func _PromQL_QueryResult_OneofUnmarshaler(msg proto.Message, tag, wire int, b *p
 		}
 		msg := new(PromQL_Vector)
 		err := b.DecodeMessage(msg)
-		m.Result = &PromQL_QueryResult_Vector{msg}
+		m.Result = &PromQL_InstantQueryResult_Vector{msg}
 		return true, err
 	case 3: // Result.matrix
 		if wire != proto.WireBytes {
@@ -169,30 +207,118 @@ func _PromQL_QueryResult_OneofUnmarshaler(msg proto.Message, tag, wire int, b *p
 		}
 		msg := new(PromQL_Matrix)
 		err := b.DecodeMessage(msg)
-		m.Result = &PromQL_QueryResult_Matrix{msg}
+		m.Result = &PromQL_InstantQueryResult_Matrix{msg}
 		return true, err
 	default:
 		return false, nil
 	}
 }
 
-func _PromQL_QueryResult_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*PromQL_QueryResult)
+func _PromQL_InstantQueryResult_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*PromQL_InstantQueryResult)
 	// Result
 	switch x := m.Result.(type) {
-	case *PromQL_QueryResult_Scalar:
+	case *PromQL_InstantQueryResult_Scalar:
 		s := proto.Size(x.Scalar)
 		n += proto.SizeVarint(1<<3 | proto.WireBytes)
 		n += proto.SizeVarint(uint64(s))
 		n += s
-	case *PromQL_QueryResult_Vector:
+	case *PromQL_InstantQueryResult_Vector:
 		s := proto.Size(x.Vector)
 		n += proto.SizeVarint(2<<3 | proto.WireBytes)
 		n += proto.SizeVarint(uint64(s))
 		n += s
-	case *PromQL_QueryResult_Matrix:
+	case *PromQL_InstantQueryResult_Matrix:
 		s := proto.Size(x.Matrix)
 		n += proto.SizeVarint(3<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case nil:
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
+	}
+	return n
+}
+
+type PromQL_RangeQueryResult struct {
+	// Types that are valid to be assigned to Result:
+	//	*PromQL_RangeQueryResult_Matrix
+	Result isPromQL_RangeQueryResult_Result `protobuf_oneof:"Result"`
+}
+
+func (m *PromQL_RangeQueryResult) Reset()                    { *m = PromQL_RangeQueryResult{} }
+func (m *PromQL_RangeQueryResult) String() string            { return proto.CompactTextString(m) }
+func (*PromQL_RangeQueryResult) ProtoMessage()               {}
+func (*PromQL_RangeQueryResult) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 3} }
+
+type isPromQL_RangeQueryResult_Result interface{ isPromQL_RangeQueryResult_Result() }
+
+type PromQL_RangeQueryResult_Matrix struct {
+	Matrix *PromQL_Matrix `protobuf:"bytes,1,opt,name=matrix,oneof"`
+}
+
+func (*PromQL_RangeQueryResult_Matrix) isPromQL_RangeQueryResult_Result() {}
+
+func (m *PromQL_RangeQueryResult) GetResult() isPromQL_RangeQueryResult_Result {
+	if m != nil {
+		return m.Result
+	}
+	return nil
+}
+
+func (m *PromQL_RangeQueryResult) GetMatrix() *PromQL_Matrix {
+	if x, ok := m.GetResult().(*PromQL_RangeQueryResult_Matrix); ok {
+		return x.Matrix
+	}
+	return nil
+}
+
+// XXX_OneofFuncs is for the internal use of the proto package.
+func (*PromQL_RangeQueryResult) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _PromQL_RangeQueryResult_OneofMarshaler, _PromQL_RangeQueryResult_OneofUnmarshaler, _PromQL_RangeQueryResult_OneofSizer, []interface{}{
+		(*PromQL_RangeQueryResult_Matrix)(nil),
+	}
+}
+
+func _PromQL_RangeQueryResult_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*PromQL_RangeQueryResult)
+	// Result
+	switch x := m.Result.(type) {
+	case *PromQL_RangeQueryResult_Matrix:
+		b.EncodeVarint(1<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.Matrix); err != nil {
+			return err
+		}
+	case nil:
+	default:
+		return fmt.Errorf("PromQL_RangeQueryResult.Result has unexpected type %T", x)
+	}
+	return nil
+}
+
+func _PromQL_RangeQueryResult_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*PromQL_RangeQueryResult)
+	switch tag {
+	case 1: // Result.matrix
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(PromQL_Matrix)
+		err := b.DecodeMessage(msg)
+		m.Result = &PromQL_RangeQueryResult_Matrix{msg}
+		return true, err
+	default:
+		return false, nil
+	}
+}
+
+func _PromQL_RangeQueryResult_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*PromQL_RangeQueryResult)
+	// Result
+	switch x := m.Result.(type) {
+	case *PromQL_RangeQueryResult_Matrix:
+		s := proto.Size(x.Matrix)
+		n += proto.SizeVarint(1<<3 | proto.WireBytes)
 		n += proto.SizeVarint(uint64(s))
 		n += s
 	case nil:
@@ -210,7 +336,7 @@ type PromQL_Scalar struct {
 func (m *PromQL_Scalar) Reset()                    { *m = PromQL_Scalar{} }
 func (m *PromQL_Scalar) String() string            { return proto.CompactTextString(m) }
 func (*PromQL_Scalar) ProtoMessage()               {}
-func (*PromQL_Scalar) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 2} }
+func (*PromQL_Scalar) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 4} }
 
 func (m *PromQL_Scalar) GetTime() int64 {
 	if m != nil {
@@ -233,7 +359,7 @@ type PromQL_Vector struct {
 func (m *PromQL_Vector) Reset()                    { *m = PromQL_Vector{} }
 func (m *PromQL_Vector) String() string            { return proto.CompactTextString(m) }
 func (*PromQL_Vector) ProtoMessage()               {}
-func (*PromQL_Vector) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 3} }
+func (*PromQL_Vector) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 5} }
 
 func (m *PromQL_Vector) GetSamples() []*PromQL_Sample {
 	if m != nil {
@@ -250,7 +376,7 @@ type PromQL_Point struct {
 func (m *PromQL_Point) Reset()                    { *m = PromQL_Point{} }
 func (m *PromQL_Point) String() string            { return proto.CompactTextString(m) }
 func (*PromQL_Point) ProtoMessage()               {}
-func (*PromQL_Point) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 4} }
+func (*PromQL_Point) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 6} }
 
 func (m *PromQL_Point) GetTime() int64 {
 	if m != nil {
@@ -274,7 +400,7 @@ type PromQL_Sample struct {
 func (m *PromQL_Sample) Reset()                    { *m = PromQL_Sample{} }
 func (m *PromQL_Sample) String() string            { return proto.CompactTextString(m) }
 func (*PromQL_Sample) ProtoMessage()               {}
-func (*PromQL_Sample) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 5} }
+func (*PromQL_Sample) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 7} }
 
 func (m *PromQL_Sample) GetMetric() map[string]string {
 	if m != nil {
@@ -297,7 +423,7 @@ type PromQL_Matrix struct {
 func (m *PromQL_Matrix) Reset()                    { *m = PromQL_Matrix{} }
 func (m *PromQL_Matrix) String() string            { return proto.CompactTextString(m) }
 func (*PromQL_Matrix) ProtoMessage()               {}
-func (*PromQL_Matrix) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 6} }
+func (*PromQL_Matrix) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 8} }
 
 func (m *PromQL_Matrix) GetSeries() []*PromQL_Series {
 	if m != nil {
@@ -314,7 +440,7 @@ type PromQL_Series struct {
 func (m *PromQL_Series) Reset()                    { *m = PromQL_Series{} }
 func (m *PromQL_Series) String() string            { return proto.CompactTextString(m) }
 func (*PromQL_Series) ProtoMessage()               {}
-func (*PromQL_Series) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 7} }
+func (*PromQL_Series) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 9} }
 
 func (m *PromQL_Series) GetMetric() map[string]string {
 	if m != nil {
@@ -333,7 +459,9 @@ func (m *PromQL_Series) GetPoints() []*PromQL_Point {
 func init() {
 	proto.RegisterType((*PromQL)(nil), "logcache.v1.PromQL")
 	proto.RegisterType((*PromQL_InstantQueryRequest)(nil), "logcache.v1.PromQL.InstantQueryRequest")
-	proto.RegisterType((*PromQL_QueryResult)(nil), "logcache.v1.PromQL.QueryResult")
+	proto.RegisterType((*PromQL_RangeQueryRequest)(nil), "logcache.v1.PromQL.RangeQueryRequest")
+	proto.RegisterType((*PromQL_InstantQueryResult)(nil), "logcache.v1.PromQL.InstantQueryResult")
+	proto.RegisterType((*PromQL_RangeQueryResult)(nil), "logcache.v1.PromQL.RangeQueryResult")
 	proto.RegisterType((*PromQL_Scalar)(nil), "logcache.v1.PromQL.Scalar")
 	proto.RegisterType((*PromQL_Vector)(nil), "logcache.v1.PromQL.Vector")
 	proto.RegisterType((*PromQL_Point)(nil), "logcache.v1.PromQL.Point")
@@ -353,7 +481,8 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for PromQLQuerier service
 
 type PromQLQuerierClient interface {
-	InstantQuery(ctx context.Context, in *PromQL_InstantQueryRequest, opts ...grpc.CallOption) (*PromQL_QueryResult, error)
+	InstantQuery(ctx context.Context, in *PromQL_InstantQueryRequest, opts ...grpc.CallOption) (*PromQL_InstantQueryResult, error)
+	RangeQuery(ctx context.Context, in *PromQL_RangeQueryRequest, opts ...grpc.CallOption) (*PromQL_RangeQueryResult, error)
 }
 
 type promQLQuerierClient struct {
@@ -364,9 +493,18 @@ func NewPromQLQuerierClient(cc *grpc.ClientConn) PromQLQuerierClient {
 	return &promQLQuerierClient{cc}
 }
 
-func (c *promQLQuerierClient) InstantQuery(ctx context.Context, in *PromQL_InstantQueryRequest, opts ...grpc.CallOption) (*PromQL_QueryResult, error) {
-	out := new(PromQL_QueryResult)
+func (c *promQLQuerierClient) InstantQuery(ctx context.Context, in *PromQL_InstantQueryRequest, opts ...grpc.CallOption) (*PromQL_InstantQueryResult, error) {
+	out := new(PromQL_InstantQueryResult)
 	err := grpc.Invoke(ctx, "/logcache.v1.PromQLQuerier/InstantQuery", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *promQLQuerierClient) RangeQuery(ctx context.Context, in *PromQL_RangeQueryRequest, opts ...grpc.CallOption) (*PromQL_RangeQueryResult, error) {
+	out := new(PromQL_RangeQueryResult)
+	err := grpc.Invoke(ctx, "/logcache.v1.PromQLQuerier/RangeQuery", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -376,7 +514,8 @@ func (c *promQLQuerierClient) InstantQuery(ctx context.Context, in *PromQL_Insta
 // Server API for PromQLQuerier service
 
 type PromQLQuerierServer interface {
-	InstantQuery(context.Context, *PromQL_InstantQueryRequest) (*PromQL_QueryResult, error)
+	InstantQuery(context.Context, *PromQL_InstantQueryRequest) (*PromQL_InstantQueryResult, error)
+	RangeQuery(context.Context, *PromQL_RangeQueryRequest) (*PromQL_RangeQueryResult, error)
 }
 
 func RegisterPromQLQuerierServer(s *grpc.Server, srv PromQLQuerierServer) {
@@ -401,6 +540,24 @@ func _PromQLQuerier_InstantQuery_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PromQLQuerier_RangeQuery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PromQL_RangeQueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PromQLQuerierServer).RangeQuery(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/logcache.v1.PromQLQuerier/RangeQuery",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PromQLQuerierServer).RangeQuery(ctx, req.(*PromQL_RangeQueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _PromQLQuerier_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "logcache.v1.PromQLQuerier",
 	HandlerType: (*PromQLQuerierServer)(nil),
@@ -408,6 +565,10 @@ var _PromQLQuerier_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "InstantQuery",
 			Handler:    _PromQLQuerier_InstantQuery_Handler,
+		},
+		{
+			MethodName: "RangeQuery",
+			Handler:    _PromQLQuerier_RangeQuery_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -417,34 +578,39 @@ var _PromQLQuerier_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("promql.proto", fileDescriptor3) }
 
 var fileDescriptor3 = []byte{
-	// 450 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x94, 0xcf, 0xaa, 0xd4, 0x30,
-	0x14, 0xc6, 0xcd, 0x8c, 0x13, 0xbd, 0x67, 0x46, 0x90, 0xe8, 0xa2, 0x06, 0xc1, 0xe1, 0x2e, 0xf4,
-	0xae, 0x5a, 0x66, 0x74, 0xa1, 0x22, 0x57, 0x10, 0x04, 0x05, 0x2f, 0xdc, 0x1b, 0xe1, 0xee, 0x63,
-	0x09, 0x63, 0x30, 0x6d, 0x3a, 0x49, 0x5a, 0x9c, 0x85, 0x1b, 0x5f, 0xc1, 0x57, 0x11, 0xc1, 0xe7,
-	0x70, 0xe7, 0xda, 0x07, 0x91, 0xfc, 0x19, 0xad, 0xd0, 0xfa, 0x07, 0x77, 0x39, 0xf0, 0xfb, 0xce,
-	0x77, 0xbe, 0x43, 0x4f, 0x61, 0xd1, 0x18, 0x5d, 0x6d, 0x55, 0xde, 0x18, 0xed, 0x34, 0x99, 0x2b,
-	0xbd, 0x29, 0x79, 0xf9, 0x5a, 0xe4, 0xdd, 0x8a, 0xde, 0xdc, 0x68, 0xbd, 0x51, 0xa2, 0xe0, 0x8d,
-	0x2c, 0x78, 0x5d, 0x6b, 0xc7, 0x9d, 0xd4, 0xb5, 0x8d, 0xe8, 0xe1, 0x57, 0x0c, 0xf8, 0xd4, 0xe8,
-	0xea, 0xec, 0x05, 0x7d, 0x0c, 0xd7, 0x9e, 0xd7, 0xd6, 0xf1, 0xda, 0x9d, 0xb5, 0xc2, 0xec, 0x98,
-	0xd8, 0xb6, 0xc2, 0x3a, 0x72, 0x1d, 0x66, 0x5b, 0x5f, 0x67, 0x68, 0x89, 0x8e, 0x0e, 0x58, 0x2c,
-	0x08, 0x81, 0x8b, 0x4e, 0x56, 0x22, 0x9b, 0x2c, 0xd1, 0xd1, 0x94, 0x85, 0x37, 0xfd, 0x8c, 0x60,
-	0x9e, 0xa4, 0xb6, 0x55, 0x8e, 0xdc, 0x03, 0x6c, 0x4b, 0xae, 0xb8, 0x09, 0xd2, 0xf9, 0x9a, 0xe6,
-	0xbd, 0xb9, 0xf2, 0xe8, 0x9a, 0xbf, 0x0c, 0xc4, 0xb3, 0x0b, 0x2c, 0xb1, 0x5e, 0xd5, 0x89, 0xd2,
-	0x69, 0x13, 0x7a, 0x8f, 0xa8, 0xce, 0x03, 0xe1, 0x55, 0x91, 0xf5, 0xaa, 0x8a, 0x3b, 0x23, 0xdf,
-	0x66, 0xd3, 0x71, 0xd5, 0x49, 0x20, 0xbc, 0x2a, 0xb2, 0x4f, 0x2e, 0x03, 0x8e, 0xb3, 0xd2, 0x35,
-	0xe0, 0x38, 0xc9, 0x8f, 0x64, 0xe8, 0x67, 0x32, 0xbf, 0x83, 0x8e, 0xab, 0x36, 0xc6, 0x45, 0x2c,
-	0x16, 0xf4, 0x18, 0xf0, 0xf9, 0xde, 0xfd, 0x92, 0xe5, 0x55, 0xa3, 0x84, 0xcd, 0xd0, 0x72, 0x3a,
-	0x1a, 0x35, 0x20, 0x6c, 0x8f, 0xd2, 0x15, 0xcc, 0x4e, 0xb5, 0xac, 0xdd, 0x3f, 0x58, 0x7e, 0x44,
-	0x80, 0x63, 0x1b, 0x72, 0x0c, 0xb8, 0x12, 0xce, 0xc8, 0x32, 0x59, 0xde, 0x1e, 0xb7, 0xcc, 0x4f,
-	0x02, 0xf8, 0xb4, 0x76, 0x66, 0xc7, 0x92, 0x8a, 0x14, 0x30, 0x6b, 0xbc, 0x7b, 0x5a, 0xf3, 0x8d,
-	0x21, 0x79, 0x18, 0x8f, 0x45, 0x8e, 0x3e, 0x80, 0x79, 0xaf, 0x0f, 0xb9, 0x0a, 0xd3, 0x37, 0x62,
-	0xff, 0x55, 0xf8, 0xe7, 0xaf, 0x23, 0x1f, 0xa4, 0x91, 0x1f, 0x4e, 0xee, 0x23, 0xfa, 0x08, 0x70,
-	0xdc, 0x3d, 0x59, 0x03, 0xb6, 0xc2, 0xc8, 0x3f, 0x2c, 0x2a, 0x10, 0x2c, 0x91, 0xf4, 0x93, 0x0f,
-	0x1d, 0x9e, 0x7f, 0x19, 0x3a, 0xb0, 0x83, 0xa1, 0x57, 0x80, 0x43, 0x18, 0x9b, 0x4d, 0x82, 0xfe,
-	0x37, 0xa9, 0x13, 0xf8, 0x1f, 0xb1, 0xd7, 0xef, 0xe0, 0x4a, 0x6c, 0xe9, 0xaf, 0x42, 0x0a, 0x43,
-	0x14, 0x2c, 0xfa, 0x27, 0x46, 0xee, 0x0c, 0xd9, 0x0f, 0x1c, 0x21, 0xbd, 0x35, 0x04, 0xf6, 0x6e,
-	0xed, 0x90, 0xbc, 0xff, 0xf2, 0xed, 0xc3, 0x64, 0x41, 0xa0, 0xe8, 0x56, 0x45, 0xfc, 0x19, 0xbc,
-	0xc2, 0xe1, 0xc4, 0xef, 0x7e, 0x0f, 0x00, 0x00, 0xff, 0xff, 0x68, 0xf6, 0x12, 0xe1, 0x1d, 0x04,
-	0x00, 0x00,
+	// 532 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x94, 0x41, 0x6e, 0x13, 0x31,
+	0x14, 0x86, 0x71, 0xd2, 0x98, 0xf6, 0x25, 0x48, 0xc1, 0x74, 0x31, 0x58, 0x2c, 0xa2, 0x0a, 0x4a,
+	0x57, 0x13, 0x25, 0xb0, 0x00, 0x84, 0x8a, 0x84, 0x84, 0x04, 0x12, 0x95, 0x5a, 0x23, 0x75, 0x8b,
+	0xcc, 0x60, 0x85, 0x11, 0x33, 0xe3, 0x89, 0xed, 0x44, 0x74, 0xcb, 0x15, 0xd8, 0x72, 0x0c, 0xc4,
+	0x9a, 0x3b, 0x70, 0x05, 0x2e, 0xc1, 0x0e, 0xf9, 0xd9, 0x21, 0xa9, 0x98, 0x90, 0x42, 0x77, 0xf6,
+	0xe8, 0xfb, 0xdf, 0xff, 0xfe, 0x67, 0x8f, 0xa1, 0x57, 0x1b, 0x5d, 0x4e, 0x8b, 0xb4, 0x36, 0xda,
+	0x69, 0xd6, 0x2d, 0xf4, 0x24, 0x93, 0xd9, 0x3b, 0x95, 0xce, 0x47, 0xfc, 0xd6, 0x44, 0xeb, 0x49,
+	0xa1, 0x86, 0xb2, 0xce, 0x87, 0xb2, 0xaa, 0xb4, 0x93, 0x2e, 0xd7, 0x95, 0x0d, 0xe8, 0xde, 0xe7,
+	0x6d, 0xa0, 0xc7, 0x46, 0x97, 0x27, 0x2f, 0xf9, 0x13, 0xb8, 0xf1, 0xa2, 0xb2, 0x4e, 0x56, 0xee,
+	0x64, 0xa6, 0xcc, 0x99, 0x50, 0xd3, 0x99, 0xb2, 0x8e, 0xed, 0x42, 0x67, 0xea, 0xf7, 0x09, 0x19,
+	0x90, 0x83, 0x1d, 0x11, 0x36, 0x8c, 0xc1, 0x96, 0xcb, 0x4b, 0x95, 0xb4, 0x06, 0xe4, 0xa0, 0x2d,
+	0x70, 0xcd, 0x15, 0x5c, 0x17, 0xb2, 0x9a, 0xa8, 0x0b, 0xc8, 0x77, 0xa1, 0x63, 0x9d, 0x34, 0x2e,
+	0xea, 0xc3, 0x86, 0xf5, 0xa1, 0xad, 0xaa, 0xb7, 0x49, 0x1b, 0xbf, 0xf9, 0xa5, 0xb7, 0xb1, 0x4e,
+	0xd5, 0xc9, 0x16, 0x8a, 0x71, 0xcd, 0xbf, 0x11, 0x60, 0xe7, 0x1b, 0xb5, 0xb3, 0xc2, 0xb1, 0xfb,
+	0x40, 0x6d, 0x26, 0x0b, 0x69, 0xd0, 0xa9, 0x3b, 0xe6, 0xe9, 0xca, 0x14, 0xd2, 0x90, 0x31, 0x7d,
+	0x85, 0xc4, 0xf3, 0x2b, 0x22, 0xb2, 0x5e, 0x35, 0x57, 0x99, 0xd3, 0x06, 0x3b, 0x59, 0xa3, 0x3a,
+	0x45, 0xc2, 0xab, 0x02, 0xeb, 0x55, 0xa5, 0x74, 0x26, 0xff, 0x80, 0xbd, 0xae, 0x51, 0x1d, 0x21,
+	0xe1, 0x55, 0x81, 0x7d, 0xba, 0x0d, 0x34, 0xf4, 0xca, 0x05, 0xf4, 0x57, 0x27, 0xb5, 0xe8, 0x3f,
+	0xd6, 0x24, 0xff, 0x55, 0x73, 0x0c, 0x34, 0xa4, 0xfb, 0x7d, 0x36, 0x64, 0x79, 0x36, 0x7e, 0xe0,
+	0x73, 0x59, 0xcc, 0xc2, 0x81, 0x11, 0x11, 0x36, 0xfc, 0x10, 0xe8, 0xe9, 0x22, 0xd1, 0x55, 0x2b,
+	0xcb, 0xba, 0x50, 0x36, 0x21, 0x83, 0xf6, 0xda, 0xf1, 0x21, 0x22, 0x16, 0x28, 0x1f, 0x41, 0xe7,
+	0x58, 0xe7, 0x95, 0xfb, 0x07, 0xcb, 0x2f, 0x04, 0x68, 0x28, 0xc3, 0x0e, 0x81, 0x96, 0xca, 0x99,
+	0x3c, 0x8b, 0x96, 0xfb, 0xeb, 0x2d, 0xd3, 0x23, 0x04, 0x9f, 0x55, 0xce, 0x9c, 0x89, 0xa8, 0x62,
+	0x43, 0xe8, 0xd4, 0xde, 0x3d, 0x1e, 0xdd, 0xcd, 0x26, 0x39, 0xb6, 0x27, 0x02, 0xc7, 0x1f, 0x42,
+	0x77, 0xa5, 0x8e, 0xbf, 0x6e, 0xef, 0xd5, 0xe2, 0x62, 0xfa, 0xe5, 0xf9, 0x96, 0x77, 0x62, 0xcb,
+	0x8f, 0x5a, 0x0f, 0x08, 0x7f, 0x0c, 0x34, 0xcc, 0x9e, 0x8d, 0x81, 0x5a, 0x65, 0xf2, 0x0d, 0x83,
+	0x42, 0x42, 0x44, 0x92, 0x7f, 0xf5, 0xa1, 0x71, 0x79, 0xc1, 0xd0, 0xc8, 0x36, 0x86, 0x1e, 0x01,
+	0xc5, 0x30, 0x36, 0x69, 0xa1, 0xfe, 0x2f, 0xa9, 0x23, 0x78, 0x89, 0xd8, 0xe3, 0x9f, 0x04, 0xae,
+	0x85, 0x9a, 0xfe, 0xaa, 0xe6, 0xca, 0x30, 0x0b, 0xbd, 0xd5, 0x9f, 0x8f, 0xdd, 0x6d, 0xf2, 0x6f,
+	0x78, 0x47, 0xf8, 0xfe, 0x66, 0xd0, 0xdf, 0xe3, 0x3d, 0xf6, 0xf1, 0xfb, 0x8f, 0x4f, 0xad, 0x1e,
+	0x83, 0xe1, 0x7c, 0x34, 0x0c, 0xcf, 0x1a, 0xb3, 0x00, 0xcb, 0xff, 0x85, 0xdd, 0x69, 0xaa, 0xf4,
+	0xc7, 0xcb, 0xc3, 0x6f, 0x6f, 0xc2, 0xd0, 0x2e, 0x41, 0x3b, 0xc6, 0xfa, 0x4b, 0xbb, 0xd7, 0xc6,
+	0x43, 0x6f, 0x28, 0xbe, 0x90, 0xf7, 0x7e, 0x05, 0x00, 0x00, 0xff, 0xff, 0xcd, 0x9c, 0x5a, 0xb2,
+	0x5c, 0x05, 0x00, 0x00,
 }
