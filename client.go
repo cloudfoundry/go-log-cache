@@ -283,6 +283,105 @@ func WithPromQLTime(t time.Time) PromQLOption {
 	}
 }
 
+func WithPromQLStart(t time.Time) PromQLOption {
+	return func(u *url.URL, q url.Values) {
+		q.Set("start", strconv.FormatInt(t.UnixNano(), 10))
+	}
+}
+
+func WithPromQLEnd(t time.Time) PromQLOption {
+	return func(u *url.URL, q url.Values) {
+		q.Set("end", strconv.FormatInt(t.UnixNano(), 10))
+	}
+}
+
+func WithPromQLStep(step string) PromQLOption {
+	return func(u *url.URL, q url.Values) {
+		q.Set("step", step)
+	}
+}
+
+// PromQL issues a PromQL query against Log Cache data.
+func (c *Client) PromQLRange(
+	ctx context.Context,
+	query string,
+	opts ...PromQLOption,
+) (*logcache_v1.PromQL_RangeQueryResult, error) {
+	if c.promqlGrpcClient != nil {
+		return c.grpcPromQLRange(ctx, query, opts)
+	}
+
+	u, err := url.Parse(c.addr)
+	if err != nil {
+		return nil, err
+	}
+	u.Path = "/v1/promql_range"
+	q := u.Query()
+	q.Set("query", query)
+
+	// allow the given options to configure the URL.
+	for _, o := range opts {
+		o(u, q)
+	}
+	u.RawQuery = q.Encode()
+
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
+	}
+
+	var promQLResponse logcache_v1.PromQL_RangeQueryResult
+	// body, err := ioutil.ReadAll(resp.Body)
+	// fmt.Printf("body: %s", body)
+	if err := jsonpb.Unmarshal(resp.Body, &promQLResponse); err != nil {
+		return nil, err
+	}
+
+	return &promQLResponse, nil
+}
+
+func (c *Client) grpcPromQLRange(ctx context.Context, query string, opts []PromQLOption) (*logcache_v1.PromQL_RangeQueryResult, error) {
+	u := &url.URL{}
+	q := u.Query()
+	// allow the given options to configure the URL.
+	for _, o := range opts {
+		o(u, q)
+	}
+
+	req := &logcache_v1.PromQL_RangeQueryRequest{
+		Query: query,
+	}
+
+	if v, ok := q["start"]; ok {
+		req.Start, _ = strconv.ParseInt(v[0], 10, 64)
+	}
+
+	if v, ok := q["end"]; ok {
+		req.End, _ = strconv.ParseInt(v[0], 10, 64)
+	}
+
+	if v, ok := q["step"]; ok {
+		req.Step = v[0]
+	}
+
+	resp, err := c.promqlGrpcClient.RangeQuery(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
 // PromQL issues a PromQL query against Log Cache data.
 func (c *Client) PromQL(
 	ctx context.Context,

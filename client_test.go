@@ -360,6 +360,51 @@ func TestGrpcClientMetaCancelling(t *testing.T) {
 	}
 }
 
+func TestClientPromQLRange(t *testing.T) {
+	t.Parallel()
+	logCache := newStubLogCache()
+	client := logcache.NewClient(logCache.addr())
+	hourAgo := time.Now().Truncate(time.Hour)
+
+	result, err := client.PromQLRange(
+		context.Background(),
+		`some-query`,
+		logcache.WithPromQLStart(hourAgo),
+		logcache.WithPromQLEnd(hourAgo.Add(time.Minute)),
+		logcache.WithPromQLStep("5m"),
+	)
+
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	series := result.GetMatrix().GetSeries()
+	if len(series) != 1 {
+		t.Fatalf("expected to receive 1 series, got %d", len(series))
+	}
+
+	if series[0].GetPoints()[0].Value != 99 || series[0].GetPoints()[0].Time != 1234 {
+		t.Fatal("point[0] is incorrect")
+	}
+
+	if series[0].GetPoints()[1].Value != 100 || series[0].GetPoints()[1].Time != 5678 {
+		t.Fatal("point[1] is incorrect")
+	}
+	if len(logCache.reqs) != 1 {
+		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
+	}
+
+	if logCache.reqs[0].URL.Path != "/v1/promql_range" {
+		t.Fatalf("expected Path '/v1/promql_range' but got '%s'", logCache.reqs[0].URL.Path)
+	}
+
+	assertQueryParam(t, logCache.reqs[0].URL, "query", "some-query")
+
+	if len(logCache.reqs[0].URL.Query()) != 4 {
+		t.Fatalf("expected only a single query parameter, but got %d", len(logCache.reqs[0].URL.Query()))
+	}
+}
+
 func TestClientPromQL(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
@@ -513,16 +558,16 @@ func TestGrpcClientPromQL(t *testing.T) {
 		t.Fatalf("wrong scalar")
 	}
 
-	if len(logCache.promReqs) != 1 {
-		t.Fatalf("expected have 1 request, have %d", len(logCache.promReqs))
+	if len(logCache.promInstantReqs) != 1 {
+		t.Fatalf("expected have 1 request, have %d", len(logCache.promInstantReqs))
 	}
 
-	if logCache.promReqs[0].Query != "some-query" {
-		t.Fatalf("expected Query (%s) to equal %s", logCache.promReqs[0].Query, "some-query")
+	if logCache.promInstantReqs[0].Query != "some-query" {
+		t.Fatalf("expected Query (%s) to equal %s", logCache.promInstantReqs[0].Query, "some-query")
 	}
 
-	if logCache.promReqs[0].Time != 99 {
-		t.Fatalf("expected Time (%d) to equal %d", logCache.promReqs[0].Time, 99)
+	if logCache.promInstantReqs[0].Time != 99 {
+		t.Fatalf("expected Time (%d) to equal %d", logCache.promInstantReqs[0].Time, 99)
 	}
 }
 
@@ -620,6 +665,29 @@ func newStubLogCache() *stubLogCache {
       }
     }
 			`),
+			"GET/v1/promql_range": []byte(`
+    {
+      "matrix": {
+        "series": [
+          {
+            "metric": {
+              "deployment": "cf"
+            },
+            "points": [
+              {
+                "time": "1234",
+                "value": 99
+              },
+              {
+                "time": "5678",
+                "value": 100
+              }
+            ]
+          }
+        ]
+      }
+    }
+			`),
 		},
 	}
 	s.server = httptest.NewServer(s)
@@ -665,11 +733,12 @@ func assertQueryParam(t *testing.T, u *url.URL, name string, values ...string) {
 }
 
 type stubGrpcLogCache struct {
-	mu       sync.Mutex
-	reqs     []*rpc.ReadRequest
-	promReqs []*rpc.PromQL_InstantQueryRequest
-	lis      net.Listener
-	block    bool
+	mu              sync.Mutex
+	reqs            []*rpc.ReadRequest
+	promInstantReqs []*rpc.PromQL_InstantQueryRequest
+	promRangeReqs   []*rpc.PromQL_RangeQueryRequest
+	lis             net.Listener
+	block           bool
 }
 
 func newStubGrpcLogCache() *stubGrpcLogCache {
@@ -711,7 +780,7 @@ func (s *stubGrpcLogCache) Read(c context.Context, r *rpc.ReadRequest) (*rpc.Rea
 	}, nil
 }
 
-func (s *stubGrpcLogCache) InstantQuery(c context.Context, r *rpc.PromQL_InstantQueryRequest) (*rpc.PromQL_QueryResult, error) {
+func (s *stubGrpcLogCache) InstantQuery(c context.Context, r *rpc.PromQL_InstantQueryRequest) (*rpc.PromQL_InstantQueryResult, error) {
 	if s.block {
 		var block chan struct{}
 		<-block
@@ -719,13 +788,44 @@ func (s *stubGrpcLogCache) InstantQuery(c context.Context, r *rpc.PromQL_Instant
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.promReqs = append(s.promReqs, r)
+	s.promInstantReqs = append(s.promInstantReqs, r)
 
-	return &rpc.PromQL_QueryResult{
-		Result: &rpc.PromQL_QueryResult_Scalar{
+	return &rpc.PromQL_InstantQueryResult{
+		Result: &rpc.PromQL_InstantQueryResult_Scalar{
 			Scalar: &rpc.PromQL_Scalar{
 				Time:  99,
 				Value: 101,
+			},
+		},
+	}, nil
+}
+
+func (s *stubGrpcLogCache) RangeQuery(c context.Context, r *rpc.PromQL_RangeQueryRequest) (*rpc.PromQL_RangeQueryResult, error) {
+	if s.block {
+		var block chan struct{}
+		<-block
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.promRangeReqs = append(s.promRangeReqs, r)
+
+	return &rpc.PromQL_RangeQueryResult{
+		Result: &rpc.PromQL_RangeQueryResult_Matrix{
+			Matrix: &rpc.PromQL_Matrix{
+				Series: []*rpc.PromQL_Series{
+					&rpc.PromQL_Series{
+						Metric: map[string]string{
+							"__name__": "test",
+						},
+						Points: []*rpc.PromQL_Point{
+							&rpc.PromQL_Point{
+								Time:  99,
+								Value: 101,
+							},
+						},
+					},
+				},
 			},
 		},
 	}, nil
@@ -753,7 +853,7 @@ func (s *stubGrpcLogCache) promQLRequests() []*rpc.PromQL_InstantQueryRequest {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	r := make([]*rpc.PromQL_InstantQueryRequest, len(s.promReqs))
-	copy(r, s.promReqs)
+	r := make([]*rpc.PromQL_InstantQueryRequest, len(s.promInstantReqs))
+	copy(r, s.promInstantReqs)
 	return r
 }
