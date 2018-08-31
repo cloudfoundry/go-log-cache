@@ -162,9 +162,9 @@ func RegisterPromQLQuerierHandlerClient(ctx context.Context, mux *runtime.ServeM
 }
 
 var (
-	pattern_PromQLQuerier_InstantQuery_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "promql"}, ""))
+	pattern_PromQLQuerier_InstantQuery_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "query"}, ""))
 
-	pattern_PromQLQuerier_RangeQuery_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "promql_range"}, ""))
+	pattern_PromQLQuerier_RangeQuery_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "query_range"}, ""))
 )
 
 var (
