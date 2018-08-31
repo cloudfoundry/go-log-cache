@@ -394,8 +394,8 @@ func TestClientPromQLRange(t *testing.T) {
 		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
 	}
 
-	if logCache.reqs[0].URL.Path != "/v1/promql_range" {
-		t.Fatalf("expected Path '/v1/promql_range' but got '%s'", logCache.reqs[0].URL.Path)
+	if logCache.reqs[0].URL.Path != "/api/v1/query_range" {
+		t.Fatalf("expected Path '/api/v1/query_range' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
 	assertQueryParam(t, logCache.reqs[0].URL, "query", "some-query")
@@ -432,8 +432,8 @@ func TestClientPromQL(t *testing.T) {
 		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
 	}
 
-	if logCache.reqs[0].URL.Path != "/v1/promql" {
-		t.Fatalf("expected Path '/v1/promql' but got '%s'", logCache.reqs[0].URL.Path)
+	if logCache.reqs[0].URL.Path != "/api/v1/query" {
+		t.Fatalf("expected Path '/api/v1/query' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
 	assertQueryParam(t, logCache.reqs[0].URL, "query", "some-query")
@@ -462,8 +462,8 @@ func TestClientPromQLWithOptions(t *testing.T) {
 		t.Fatalf("expected have 1 request, have %d", len(logCache.reqs))
 	}
 
-	if logCache.reqs[0].URL.Path != "/v1/promql" {
-		t.Fatalf("expected Path '/v1/promql' but got '%s'", logCache.reqs[0].URL.Path)
+	if logCache.reqs[0].URL.Path != "/api/v1/query" {
+		t.Fatalf("expected Path '/api/v1/query' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
 	assertQueryParam(t, logCache.reqs[0].URL, "time", "101")
@@ -489,7 +489,7 @@ func TestClientPromQLNon200(t *testing.T) {
 func TestClientPromQLInvalidResponse(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
-	logCache.result["GET/v1/promql"] = []byte("invalid")
+	logCache.result["GET/api/v1/query"] = []byte("invalid")
 	client := logcache.NewClient(logCache.addr())
 
 	_, err := client.PromQL(context.Background(), "some-query")
@@ -648,7 +648,7 @@ func newStubLogCache() *stubLogCache {
 			]
 		}
 	}`),
-			"GET/v1/promql": []byte(`
+			"GET/api/v1/query": []byte(`
     {
       "vector": {
         "samples": [
@@ -665,7 +665,7 @@ func newStubLogCache() *stubLogCache {
       }
     }
 			`),
-			"GET/v1/promql_range": []byte(`
+			"GET/api/v1/query_range": []byte(`
     {
       "matrix": {
         "series": [

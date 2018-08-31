@@ -315,7 +315,7 @@ func (c *Client) PromQLRange(
 	if err != nil {
 		return nil, err
 	}
-	u.Path = "/v1/promql_range"
+	u.Path = "/api/v1/query_range"
 	q := u.Query()
 	q.Set("query", query)
 
@@ -396,7 +396,7 @@ func (c *Client) PromQL(
 	if err != nil {
 		return nil, err
 	}
-	u.Path = "/v1/promql"
+	u.Path = "/api/v1/query"
 	q := u.Query()
 	q.Set("query", query)
 
