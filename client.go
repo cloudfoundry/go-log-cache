@@ -144,7 +144,7 @@ func (c *Client) Read(
 		return nil, err
 	}
 
-	return r.Envelopes.Batch, nil
+	return r.GetEnvelopes().GetBatch(), nil
 }
 
 // ReadOption configures the URL that is used to submit the query. The

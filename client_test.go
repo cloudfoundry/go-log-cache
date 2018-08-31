@@ -177,6 +177,19 @@ func TestClientReadInvalidResponse(t *testing.T) {
 	}
 }
 
+func TestClientReadEmptyJsonResponse(t *testing.T) {
+	t.Parallel()
+	logCache := newStubLogCache()
+	logCache.result["GET/v1/read/some-id"] = []byte("{}")
+	client := logcache.NewClient(logCache.addr())
+
+	_, err := client.Read(context.Background(), "some-id", time.Unix(0, 99))
+
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+}
+
 func TestClientReadUnknownAddr(t *testing.T) {
 	t.Parallel()
 	client := logcache.NewClient("http://invalid.url")
