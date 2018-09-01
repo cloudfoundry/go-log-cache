@@ -342,8 +342,6 @@ func (c *Client) PromQLRange(
 	}
 
 	var promQLResponse logcache_v1.PromQL_RangeQueryResult
-	// body, err := ioutil.ReadAll(resp.Body)
-	// fmt.Printf("body: %s", body)
 	if err := jsonpb.Unmarshal(resp.Body, &promQLResponse); err != nil {
 		return nil, err
 	}
