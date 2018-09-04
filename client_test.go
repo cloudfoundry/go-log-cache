@@ -663,16 +663,15 @@ func newStubLogCache() *stubLogCache {
 	}`),
 			"GET/api/v1/query": []byte(`
     {
-      "vector": {
-        "samples": [
+	  "status": "success",
+	  "data": {
+		"resultType": "vector",
+		"result": [
           {
             "metric": {
               "deployment": "cf"
             },
-            "point": {
-              "time": "1234",
-              "value": 99
-            }
+            "value": [ 1234, "99" ]
           }
         ]
       }
@@ -680,21 +679,17 @@ func newStubLogCache() *stubLogCache {
 			`),
 			"GET/api/v1/query_range": []byte(`
     {
-      "matrix": {
-        "series": [
+	  "status": "success",
+	  "data": {
+		"resultType": "matrix",
+        "result": [
           {
             "metric": {
               "deployment": "cf"
             },
-            "points": [
-              {
-                "time": "1234",
-                "value": 99
-              },
-              {
-                "time": "5678",
-                "value": 100
-              }
+            "values": [
+              [ 1234, "99" ],
+              [ 5678, "100" ]
             ]
           }
         ]
