@@ -1,6 +1,7 @@
 package logcache_test
 
 import (
+	"bytes"
 	"context"
 	"io/ioutil"
 	"net"
@@ -864,4 +865,34 @@ func (s *stubGrpcLogCache) promQLRequests() []*rpc.PromQL_InstantQueryRequest {
 	r := make([]*rpc.PromQL_InstantQueryRequest, len(s.promInstantReqs))
 	copy(r, s.promInstantReqs)
 	return r
+}
+
+type stubBufferCloser struct {
+	*bytes.Buffer
+	closed bool
+}
+
+func newStubBufferCloser() *stubBufferCloser {
+	return &stubBufferCloser{}
+}
+
+func (s *stubBufferCloser) Close() error {
+	s.closed = true
+	return nil
+}
+
+type spyHTTPClient struct {
+	body *stubBufferCloser
+}
+
+func newSpyHTTPClient() *spyHTTPClient {
+	return &spyHTTPClient{
+		body: newStubBufferCloser(),
+	}
+}
+
+func (s *spyHTTPClient) Do(req *http.Request) (*http.Response, error) {
+	return &http.Response{
+		Body: s.body,
+	}, nil
 }

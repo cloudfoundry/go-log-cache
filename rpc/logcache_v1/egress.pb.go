@@ -9,7 +9,6 @@ It is generated from these files:
 	ingress.proto
 	orchestration.proto
 	promql.proto
-	shard_group_reader.proto
 
 It has these top-level messages:
 	ReadRequest
@@ -30,13 +29,6 @@ It has these top-level messages:
 	SetRangesRequest
 	SetRangesResponse
 	PromQL
-	SetShardGroupRequest
-	GroupedSourceIds
-	SetShardGroupResponse
-	ShardGroupReadRequest
-	ShardGroupReadResponse
-	ShardGroupRequest
-	ShardGroupResponse
 */
 package logcache_v1
 
