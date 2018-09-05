@@ -8,9 +8,12 @@ import (
 	"strconv"
 	"time"
 
+	"code.cloudfoundry.org/go-log-cache/internal"
+
 	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 	"github.com/golang/protobuf/jsonpb"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 )
 
@@ -342,9 +345,8 @@ func (c *Client) PromQLRange(
 	}
 
 	var promQLResponse logcache_v1.PromQL_RangeQueryResult
-	// body, err := ioutil.ReadAll(resp.Body)
-	// fmt.Printf("body: %s", body)
-	if err := jsonpb.Unmarshal(resp.Body, &promQLResponse); err != nil {
+	marshaler := internal.NewPromqlMarshaler(&runtime.JSONPb{})
+	if err := marshaler.NewDecoder(resp.Body).Decode(&promQLResponse); err != nil {
 		return nil, err
 	}
 
@@ -423,7 +425,8 @@ func (c *Client) PromQL(
 	}
 
 	var promQLResponse logcache_v1.PromQL_InstantQueryResult
-	if err := jsonpb.Unmarshal(resp.Body, &promQLResponse); err != nil {
+	marshaler := internal.NewPromqlMarshaler(&runtime.JSONPb{})
+	if err := marshaler.NewDecoder(resp.Body).Decode(&promQLResponse); err != nil {
 		return nil, err
 	}
 
