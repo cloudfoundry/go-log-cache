@@ -201,10 +201,10 @@ func (c *Client) grpcRead(ctx context.Context, sourceID string, start time.Time,
 		req.EndTime, _ = strconv.ParseInt(v[0], 10, 64)
 	}
 
-	if v, ok := q["envelope_types"]; ok {
-		req.EnvelopeTypes = []logcache_v1.EnvelopeType{
-			logcache_v1.EnvelopeType(logcache_v1.EnvelopeType_value[v[0]]),
-		}
+	for _, et := range q["envelope_types"] {
+		req.EnvelopeTypes = append(req.EnvelopeTypes,
+			logcache_v1.EnvelopeType(logcache_v1.EnvelopeType_value[et]),
+		)
 	}
 
 	if _, ok := q["descending"]; ok {
