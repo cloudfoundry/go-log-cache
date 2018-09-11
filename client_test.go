@@ -65,7 +65,7 @@ func TestGrpcClientRead(t *testing.T) {
 	envelopes, err := client.Read(context.Background(), "some-id", time.Unix(0, 99),
 		logcache.WithLimit(10),
 		logcache.WithEndTime(endTime),
-		logcache.WithEnvelopeTypes(rpc.EnvelopeType_LOG),
+		logcache.WithEnvelopeTypes(rpc.EnvelopeType_LOG, rpc.EnvelopeType_GAUGE),
 		logcache.WithDescending(),
 	)
 
@@ -101,12 +101,16 @@ func TestGrpcClientRead(t *testing.T) {
 		t.Fatalf("expected Limit (%d) to equal %d", logCache.reqs[0].Limit, 10)
 	}
 
-	if len(logCache.reqs[0].EnvelopeTypes) == 0 {
-		t.Fatalf("expected to have EnvelopeTypes")
+	if len(logCache.reqs[0].EnvelopeTypes) != 2 {
+		t.Fatalf("expected to have 2 EnvelopeTypes")
 	}
 
 	if logCache.reqs[0].EnvelopeTypes[0] != rpc.EnvelopeType_LOG {
 		t.Fatalf("expected EnvelopeType (%v) to equal %v", logCache.reqs[0].EnvelopeTypes[0], rpc.EnvelopeType_LOG)
+	}
+
+	if logCache.reqs[0].EnvelopeTypes[1] != rpc.EnvelopeType_GAUGE {
+		t.Fatalf("expected EnvelopeType (%v) to equal %v", logCache.reqs[0].EnvelopeTypes[1], rpc.EnvelopeType_GAUGE)
 	}
 
 	if !logCache.reqs[0].Descending {
