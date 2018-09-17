@@ -273,20 +273,24 @@ type PromQLOption func(u *url.URL, q url.Values)
 // parameter for a PromQL query.
 func WithPromQLTime(t time.Time) PromQLOption {
 	return func(u *url.URL, q url.Values) {
-		q.Set("time", strconv.FormatInt(t.UnixNano(), 10))
+		q.Set("time", formatDecimalTimeWithMillis(t))
 	}
 }
 
 func WithPromQLStart(t time.Time) PromQLOption {
 	return func(u *url.URL, q url.Values) {
-		q.Set("start", strconv.FormatInt(t.UnixNano(), 10))
+		q.Set("start", formatDecimalTimeWithMillis(t))
 	}
 }
 
 func WithPromQLEnd(t time.Time) PromQLOption {
 	return func(u *url.URL, q url.Values) {
-		q.Set("end", strconv.FormatInt(t.UnixNano(), 10))
+		q.Set("end", formatDecimalTimeWithMillis(t))
 	}
+}
+
+func formatDecimalTimeWithMillis(t time.Time) string {
+	return fmt.Sprintf("%.3f", float64(t.UnixNano())/1e9)
 }
 
 func WithPromQLStep(step string) PromQLOption {
@@ -357,11 +361,11 @@ func (c *Client) grpcPromQLRange(ctx context.Context, query string, opts []PromQ
 	}
 
 	if v, ok := q["start"]; ok {
-		req.Start, _ = strconv.ParseInt(v[0], 10, 64)
+		req.Start = v[0]
 	}
 
 	if v, ok := q["end"]; ok {
-		req.End, _ = strconv.ParseInt(v[0], 10, 64)
+		req.End = v[0]
 	}
 
 	if v, ok := q["step"]; ok {
@@ -437,7 +441,7 @@ func (c *Client) grpcPromQL(ctx context.Context, query string, opts []PromQLOpti
 	}
 
 	if v, ok := q["time"]; ok {
-		req.Time, _ = strconv.ParseInt(v[0], 10, 64)
+		req.Time = v[0]
 	}
 
 	resp, err := c.promqlGrpcClient.InstantQuery(ctx, req)

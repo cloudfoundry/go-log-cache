@@ -3,6 +3,7 @@ package logcache_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -382,13 +383,14 @@ func TestClientPromQLRange(t *testing.T) {
 	t.Parallel()
 	logCache := newStubLogCache()
 	client := logcache.NewClient(logCache.addr())
-	hourAgo := time.Now().Truncate(time.Hour)
+	start := time.Unix(time.Now().Unix(), 123000000)
+	end := start.Add(time.Minute)
 
 	result, err := client.PromQLRange(
 		context.Background(),
 		`some-query`,
-		logcache.WithPromQLStart(hourAgo),
-		logcache.WithPromQLEnd(hourAgo.Add(time.Minute)),
+		logcache.WithPromQLStart(start),
+		logcache.WithPromQLEnd(end),
 		logcache.WithPromQLStep("5m"),
 	)
 
@@ -401,11 +403,11 @@ func TestClientPromQLRange(t *testing.T) {
 		t.Fatalf("expected to receive 1 series, got %d", len(series))
 	}
 
-	if series[0].GetPoints()[0].Value != 99 || series[0].GetPoints()[0].Time != 1234 {
+	if series[0].GetPoints()[0].Value != 99 || series[0].GetPoints()[0].Time != "1234.000" {
 		t.Fatal("point[0] is incorrect")
 	}
 
-	if series[0].GetPoints()[1].Value != 100 || series[0].GetPoints()[1].Time != 5678 {
+	if series[0].GetPoints()[1].Value != 100 || series[0].GetPoints()[1].Time != "5678.000" {
 		t.Fatal("point[1] is incorrect")
 	}
 	if len(logCache.reqs) != 1 {
@@ -417,6 +419,9 @@ func TestClientPromQLRange(t *testing.T) {
 	}
 
 	assertQueryParam(t, logCache.reqs[0].URL, "query", "some-query")
+	assertQueryParam(t, logCache.reqs[0].URL, "start", fmt.Sprintf("%.3f", float64(start.UnixNano())/1e9))
+	assertQueryParam(t, logCache.reqs[0].URL, "end", fmt.Sprintf("%.3f", float64(end.UnixNano())/1e9))
+	assertQueryParam(t, logCache.reqs[0].URL, "step", "5m")
 
 	if len(logCache.reqs[0].URL.Query()) != 4 {
 		t.Fatalf("expected only a single query parameter, but got %d", len(logCache.reqs[0].URL.Query()))
@@ -442,7 +447,7 @@ func TestClientPromQL(t *testing.T) {
 		t.Fatalf("expected to receive 1 sample, got %d", len(samples))
 	}
 
-	if samples[0].Point.Value != 99 || samples[0].Point.Time != 1234 {
+	if samples[0].Point.Value != 99 || samples[0].Point.Time != "1234.000" {
 		t.Fatal("wrong samples")
 	}
 
@@ -469,7 +474,7 @@ func TestClientPromQLWithOptions(t *testing.T) {
 	_, err := client.PromQL(
 		context.Background(),
 		"some-query",
-		logcache.WithPromQLTime(time.Unix(0, 101)),
+		logcache.WithPromQLTime(time.Unix(101, 455700000)),
 	)
 
 	if err != nil {
@@ -484,7 +489,8 @@ func TestClientPromQLWithOptions(t *testing.T) {
 		t.Fatalf("expected Path '/api/v1/query' but got '%s'", logCache.reqs[0].URL.Path)
 	}
 
-	assertQueryParam(t, logCache.reqs[0].URL, "time", "101")
+	assertQueryParam(t, logCache.reqs[0].URL, "query", "some-query")
+	assertQueryParam(t, logCache.reqs[0].URL, "time", "101.456")
 
 	if len(logCache.reqs[0].URL.Query()) != 2 {
 		t.Fatalf("expected 2 query parameters, but got %d", len(logCache.reqs[0].URL.Query()))
@@ -564,7 +570,7 @@ func TestGrpcClientPromQL(t *testing.T) {
 	client := logcache.NewClient(logCache.addr(), logcache.WithViaGRPC(grpc.WithInsecure()))
 
 	result, err := client.PromQL(context.Background(), "some-query",
-		logcache.WithPromQLTime(time.Unix(0, 99)),
+		logcache.WithPromQLTime(time.Unix(99, 0)),
 	)
 
 	if err != nil {
@@ -572,7 +578,7 @@ func TestGrpcClientPromQL(t *testing.T) {
 	}
 
 	scalar := result.GetScalar()
-	if scalar.Time != 99 || scalar.Value != 101 {
+	if scalar.Time != "99.000" || scalar.Value != 101 {
 		t.Fatalf("wrong scalar")
 	}
 
@@ -584,8 +590,8 @@ func TestGrpcClientPromQL(t *testing.T) {
 		t.Fatalf("expected Query (%s) to equal %s", logCache.promInstantReqs[0].Query, "some-query")
 	}
 
-	if logCache.promInstantReqs[0].Time != 99 {
-		t.Fatalf("expected Time (%d) to equal %d", logCache.promInstantReqs[0].Time, 99)
+	if logCache.promInstantReqs[0].Time != "99.000" {
+		t.Fatalf("expected Time (%s) to equal %s", logCache.promInstantReqs[0].Time, "99.000")
 	}
 }
 
@@ -806,7 +812,7 @@ func (s *stubGrpcLogCache) InstantQuery(c context.Context, r *rpc.PromQL_Instant
 	return &rpc.PromQL_InstantQueryResult{
 		Result: &rpc.PromQL_InstantQueryResult_Scalar{
 			Scalar: &rpc.PromQL_Scalar{
-				Time:  99,
+				Time:  "99.000",
 				Value: 101,
 			},
 		},
@@ -833,7 +839,7 @@ func (s *stubGrpcLogCache) RangeQuery(c context.Context, r *rpc.PromQL_RangeQuer
 						},
 						Points: []*rpc.PromQL_Point{
 							&rpc.PromQL_Point{
-								Time:  99,
+								Time:  "99.000",
 								Value: 101,
 							},
 						},
