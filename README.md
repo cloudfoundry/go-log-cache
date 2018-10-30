@@ -1,4 +1,10 @@
-# Go Log Cache
+# Golang Log Cache Client
+
+> **NOTE**: This client library is compatible with `log-cache` versions 1.4.x and
+below. `log-cache` 2.0.0 and above will expect the [`client` package found within
+`log-cache` itself][new-client].
+
+
 
 [![GoDoc][go-doc-badge]][go-doc] [![travis][travis-badge]][travis] [![slack.cloudfoundry.org][slack-badge]][log-cache-slack]
 
@@ -9,10 +15,6 @@ This is a golang client library for [Log-Cache][log-cache].
 This repository should be imported as:
 
 `import logcache "code.cloudfoundry.org/go-log-cache"`
-
-**NOTE**: This client library is compatible with `log-cache` versions 1.4.x and
-below. `log-cache` 1.5.x and above will expect the [`client` package found within
-`log-cache` itself.][new-client].
 
 [slack-badge]:              https://slack.cloudfoundry.org/badge.svg
 [log-cache-slack]:          https://cloudfoundry.slack.com/archives/log-cache
