@@ -19,4 +19,4 @@ This repository should be imported as:
 [go-doc]:                   https://godoc.org/code.cloudfoundry.org/go-log-cache
 [travis-badge]:             https://travis-ci.org/cloudfoundry/go-log-cache.svg?branch=master
 [travis]:                   https://travis-ci.org/cloudfoundry/go-log-cache?branch=master
-[new-client]:               https://github.com/cloudfoundry/log-cache/tree/master/client
+[new-client]:               https://github.com/cloudfoundry/log-cache/tree/master/pkg/client
