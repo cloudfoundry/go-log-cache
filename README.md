@@ -1,10 +1,6 @@
 # Golang Log Cache Client
 
-> **NOTE**: This client library is compatible with `log-cache` versions 1.4.x and
-below. `log-cache` 2.0.0 and above will expect the [`client` package found within
-`log-cache` itself][new-client].
-
-
+> **NOTE**: This client library is only compatible with Log Cache versions prior to `2.0.0` and will no longer receive new features. Log Cache `2.0.0` and above will be supported by the [`client` package found within `log-cache` itself][new-client]. That client is also backwards compatible with the `1.4.x` releases of Log Cache.
 
 [![GoDoc][go-doc-badge]][go-doc] [![travis][travis-badge]][travis] [![slack.cloudfoundry.org][slack-badge]][log-cache-slack]
 
