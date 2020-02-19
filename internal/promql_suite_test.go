@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestInternal(t *testing.T) {
+func TestPromql(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Internal Suite")
+	RunSpecs(t, "Marshaler Suite")
 }

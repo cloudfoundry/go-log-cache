@@ -1,6 +1,7 @@
 package main
 
 import (
+	client "code.cloudfoundry.org/go-log-cache"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
@@ -11,7 +12,6 @@ import (
 	"os"
 
 	envstruct "code.cloudfoundry.org/go-envstruct"
-	logcache "code.cloudfoundry.org/go-log-cache"
 	"github.com/golang/protobuf/jsonpb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -27,9 +27,9 @@ func main() {
 		log.Fatalf("invalid configuration: %s", err)
 	}
 
-	client := logcache.NewClient(
+	client := client.NewClient(
 		cfg.LogCacheAddr,
-		logcache.WithViaGRPC(
+		client.WithViaGRPC(
 			grpc.WithTransportCredentials(cfg.TLS.Credentials("log-cache")),
 		),
 	)

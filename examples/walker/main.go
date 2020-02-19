@@ -1,6 +1,7 @@
 package main
 
 import (
+	client "code.cloudfoundry.org/go-log-cache"
 	"context"
 	"fmt"
 	"log"
@@ -9,7 +10,6 @@ import (
 	"time"
 
 	envstruct "code.cloudfoundry.org/go-envstruct"
-	logcache "code.cloudfoundry.org/go-log-cache"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 )
 
@@ -19,7 +19,7 @@ func main() {
 
 	httpClient := newHTTPClient(cfg)
 
-	client := logcache.NewClient(cfg.Addr, logcache.WithHTTPClient(httpClient))
+	logcache_client := client.NewClient(cfg.Addr, client.WithHTTPClient(httpClient))
 
 	visitor := func(es []*loggregator_v2.Envelope) bool {
 		for _, e := range es {
@@ -30,24 +30,24 @@ func main() {
 
 	now := time.Now()
 
-	opts := []logcache.WalkOption{
-		logcache.WithWalkBackoff(logcache.NewAlwaysRetryBackoff(time.Second)),
-		logcache.WithWalkLogger(log),
+	opts := []client.WalkOption{
+		client.WithWalkBackoff(client.NewAlwaysRetryBackoff(time.Second)),
+		client.WithWalkLogger(log),
 	}
 
 	if cfg.Duration != 0 {
 		log.Printf("Have duration (%v). Walking finite window...", cfg.Duration)
 		opts = append(opts,
-			logcache.WithWalkStartTime(now.Add(-cfg.Duration)),
-			logcache.WithWalkEndTime(now),
+			client.WithWalkStartTime(now.Add(-cfg.Duration)),
+			client.WithWalkEndTime(now),
 		)
 	}
 
-	logcache.Walk(
+	client.Walk(
 		context.Background(),
 		cfg.SourceID,
 		visitor,
-		client.Read,
+		logcache_client.Read,
 		opts...,
 	)
 }

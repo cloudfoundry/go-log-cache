@@ -1,4 +1,4 @@
-package logcache
+package client
 
 import (
 	"context"
@@ -47,6 +47,10 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 
 	if c.envelopeTypes != nil {
 		readOpts = append(readOpts, WithEnvelopeTypes(c.envelopeTypes...))
+	}
+
+	if c.nameFilter != "" {
+		readOpts = append(readOpts, WithNameFilter(c.nameFilter))
 	}
 
 	var receivedEmpty bool
@@ -150,6 +154,12 @@ func WithWalkLimit(limit int) WalkOption {
 func WithWalkEnvelopeTypes(t ...logcache_v1.EnvelopeType) WalkOption {
 	return walkOptionFunc(func(c *walkConfig) {
 		c.envelopeTypes = t
+	})
+}
+
+func WithWalkNameFilter(nameFilter string) WalkOption {
+	return walkOptionFunc(func(c *walkConfig) {
+		c.nameFilter = nameFilter
 	})
 }
 
@@ -299,4 +309,5 @@ type walkConfig struct {
 	limit         *int
 	envelopeTypes []logcache_v1.EnvelopeType
 	delay         time.Duration
+	nameFilter    string
 }

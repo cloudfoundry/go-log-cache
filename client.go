@@ -1,17 +1,20 @@
-package logcache
+package client
 
 import (
+	marshaler "code.cloudfoundry.org/go-log-cache/internal"
+	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
 
-	"code.cloudfoundry.org/go-log-cache/internal"
-
-	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
+	"github.com/blang/semver"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
@@ -19,7 +22,8 @@ import (
 
 // Client reads from LogCache via the RESTful or gRPC API.
 type Client struct {
-	addr string
+	addr        string
+	baseApiPath string
 
 	httpClient       HTTPClient
 	grpcClient       logcache_v1.EgressClient
@@ -107,7 +111,13 @@ func (c *Client) Read(
 	if err != nil {
 		return nil, err
 	}
-	u.Path = "v1/read/" + sourceID
+
+	baseApiPath, err := c.getBaseApiPath(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	u.Path = fmt.Sprintf("%s/read/%s", baseApiPath, sourceID)
 	q := u.Query()
 	q.Set("start_time", strconv.FormatInt(start.UnixNano(), 10))
 
@@ -180,6 +190,12 @@ func WithDescending() ReadOption {
 	}
 }
 
+func WithNameFilter(nameFilter string) ReadOption {
+	return func(u *url.URL, q url.Values) {
+		q.Set("name_filter", nameFilter)
+	}
+}
+
 func (c *Client) grpcRead(ctx context.Context, sourceID string, start time.Time, opts []ReadOption) ([]*loggregator_v2.Envelope, error) {
 	u := &url.URL{}
 	q := u.Query()
@@ -207,6 +223,10 @@ func (c *Client) grpcRead(ctx context.Context, sourceID string, start time.Time,
 		)
 	}
 
+	if v, ok := q["name_filter"]; ok {
+		req.NameFilter = v[0]
+	}
+
 	if _, ok := q["descending"]; ok {
 		req.Descending = true
 	}
@@ -229,8 +249,12 @@ func (c *Client) Meta(ctx context.Context) (map[string]*logcache_v1.MetaInfo, er
 		return nil, err
 	}
 
-	u.Path = "/v1/meta"
+	baseApiPath, err := c.getBaseApiPath(ctx)
+	if err != nil {
+		return nil, err
+	}
 
+	u.Path = fmt.Sprintf("%s/meta", baseApiPath)
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err
@@ -262,6 +286,108 @@ func (c *Client) grpcMeta(ctx context.Context) (map[string]*logcache_v1.MetaInfo
 	}
 
 	return resp.Meta, nil
+}
+
+func (c *Client) getBaseApiPath(ctx context.Context) (string, error) {
+	if c.baseApiPath != "" {
+		return c.baseApiPath, nil
+	}
+
+	logCacheVersion, err := c.LogCacheVersion(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	if logCacheVersion.GTE(FIRST_LOG_CACHE_VERSION_AFTER_API_MOVE) {
+		return "/api/v1", nil
+	}
+
+	return "/v1", nil
+}
+
+func (c *Client) LogCacheVersion(ctx context.Context) (semver.Version, error) {
+	u, err := url.Parse(c.addr)
+	if err != nil {
+		return semver.Version{}, err
+	}
+
+	u.Path = "/api/v1/info"
+
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return semver.Version{}, err
+	}
+	req = req.WithContext(ctx)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return semver.Version{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		return LAST_LOG_CACHE_VERSION_WITHOUT_INFO, nil
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return semver.Version{}, fmt.Errorf("unexpected status code %d", resp.StatusCode)
+	}
+
+	var info struct {
+		Version string `json:"version"`
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&info)
+	if err != nil {
+		return semver.Version{}, err
+	}
+
+	return semver.Parse(info.Version)
+}
+
+func (c *Client) LogCacheVMUptime(ctx context.Context) (int64, error) {
+	u, err := url.Parse(c.addr)
+	if err != nil {
+		return -1, err
+	}
+
+	u.Path = "/api/v1/info"
+
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return -1, err
+	}
+	req = req.WithContext(ctx)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return -1, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return -1, fmt.Errorf("unexpected status code %d", resp.StatusCode)
+	}
+
+	var info struct {
+		VMUptime string `json:"vm_uptime"`
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&info)
+	if err != nil {
+		return -1, err
+	}
+
+	if info.VMUptime == "" {
+		return -1, errors.New("This version of log cache does not support vm_uptime info")
+	}
+
+	uptime, err := strconv.ParseInt(info.VMUptime, 10, 64)
+	if err != nil {
+		return -1, err
+	}
+
+	return uptime, nil
 }
 
 // PromQLOption configures the URL that is used to submit the query. The
@@ -299,7 +425,7 @@ func WithPromQLStep(step string) PromQLOption {
 	}
 }
 
-// PromQL issues a PromQL query against Log Cache data.
+// PromQL issues a PromQL range query against Log Cache data.
 func (c *Client) PromQLRange(
 	ctx context.Context,
 	query string,
@@ -340,7 +466,7 @@ func (c *Client) PromQLRange(
 	}
 
 	var promQLResponse logcache_v1.PromQL_RangeQueryResult
-	marshaler := internal.NewPromqlMarshaler(&runtime.JSONPb{})
+	marshaler := marshaler.NewPromqlMarshaler(&runtime.JSONPb{})
 	if err := marshaler.NewDecoder(resp.Body).Decode(&promQLResponse); err != nil {
 		return nil, err
 	}
@@ -379,7 +505,67 @@ func (c *Client) grpcPromQLRange(ctx context.Context, query string, opts []PromQ
 	return resp, nil
 }
 
-// PromQL issues a PromQL query against Log Cache data.
+func (c *Client) PromQLRangeRaw(
+	ctx context.Context,
+	query string,
+	opts ...PromQLOption,
+) (*PromQLQueryResult, error) {
+	u, err := url.Parse(c.addr)
+	if err != nil {
+		return nil, err
+	}
+	u.Path = "/api/v1/query_range"
+	q := u.Query()
+	q.Set("query", query)
+
+	// allow the given options to configure the URL.
+	for _, o := range opts {
+		o(u, q)
+	}
+	u.RawQuery = q.Encode()
+
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var result PromQLQueryResult
+
+	// If we got a 404, it's probably due to lack of authorization. Let's try
+	// to be nice to users and give them a hint.
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("unexpected status code %d (check authorization?)", resp.StatusCode)
+	}
+
+	// The PromQL API will return nicely-formatted JSON errors with a
+	// status code of either 400 (Bad Request) or 500 (Internal Server Error),
+	// but we can return a generic message for every other status code.
+	if resp.StatusCode != http.StatusOK &&
+		resp.StatusCode != http.StatusBadRequest &&
+		resp.StatusCode != http.StatusInternalServerError {
+		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("%s (status code %d)", err.Error(), resp.StatusCode)
+	}
+
+	return &result, nil
+}
+
+// PromQL issues a PromQL instant query against Log Cache data.
 func (c *Client) PromQL(
 	ctx context.Context,
 	query string,
@@ -413,6 +599,7 @@ func (c *Client) PromQL(
 	if err != nil {
 		return nil, err
 	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
@@ -420,7 +607,7 @@ func (c *Client) PromQL(
 	}
 
 	var promQLResponse logcache_v1.PromQL_InstantQueryResult
-	marshaler := internal.NewPromqlMarshaler(&runtime.JSONPb{})
+	marshaler := marshaler.NewPromqlMarshaler(&runtime.JSONPb{})
 	if err := marshaler.NewDecoder(resp.Body).Decode(&promQLResponse); err != nil {
 		return nil, err
 	}
@@ -450,3 +637,88 @@ func (c *Client) grpcPromQL(ctx context.Context, query string, opts []PromQLOpti
 	}
 	return resp, nil
 }
+
+func (c *Client) PromQLRaw(
+	ctx context.Context,
+	query string,
+	opts ...PromQLOption,
+) (*PromQLQueryResult, error) {
+	u, err := url.Parse(c.addr)
+	if err != nil {
+		return nil, err
+	}
+	u.Path = "/api/v1/query"
+	q := u.Query()
+	q.Set("query", query)
+
+	// allow the given options to configure the URL.
+	for _, o := range opts {
+		o(u, q)
+	}
+	u.RawQuery = q.Encode()
+
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var result PromQLQueryResult
+
+	// If we got a 404, it's probably due to lack of authorization. Let's try
+	// to be nice to users and give them a hint.
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("unexpected status code %d (check authorization?)", resp.StatusCode)
+	}
+
+	// The PromQL API will return nicely-formatted JSON errors with a
+	// status code of either 400 (Bad Request) or 500 (Internal Server Error),
+	// but we can return a generic message for every other status code.
+	if resp.StatusCode != http.StatusOK &&
+		resp.StatusCode != http.StatusBadRequest &&
+		resp.StatusCode != http.StatusInternalServerError {
+		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("%s (status code %d)", err.Error(), resp.StatusCode)
+	}
+
+	return &result, nil
+}
+
+type PromQLQueryResult struct {
+	Status    string           `json:"status"`
+	Data      PromQLResultData `json:"data"`
+	ErrorType string           `json:"errorType,omitempty"`
+	Error     string           `json:"error,omitempty"`
+}
+
+type PromQLResultData struct {
+	ResultType string          `json:"resultType"`
+	Result     json.RawMessage `json:"result,omitempty"`
+}
+
+var (
+	LAST_LOG_CACHE_VERSION_WITHOUT_INFO = semver.Version{
+		Major: 1,
+		Minor: 4,
+		Patch: 7,
+	}
+	FIRST_LOG_CACHE_VERSION_AFTER_API_MOVE = semver.Version{
+		Major: 2,
+		Minor: 0,
+		Patch: 0,
+	}
+)

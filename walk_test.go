@@ -1,6 +1,7 @@
-package logcache_test
+package client_test
 
 import (
+	client "code.cloudfoundry.org/go-log-cache"
 	"context"
 	"errors"
 	"net/url"
@@ -8,19 +9,18 @@ import (
 	"testing"
 	"time"
 
-	"code.cloudfoundry.org/go-log-cache"
 	rpc "code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 )
 
-// Ensure logcache.Reader is fulfilled by Client.Read
-var _ logcache.Reader = logcache.NewClient("").Read
+// Ensure client.Reader is fulfilled by Client.Read
+var _ client.Reader = client.NewClient("").Read
 
 func TestWalk(t *testing.T) {
 	t.Parallel()
 
 	r := &stubReader{}
-	logcache.Walk(context.Background(), "some-id", func([]*loggregator_v2.Envelope) bool { return false }, r.read)
+	client.Walk(context.Background(), "some-id", func([]*loggregator_v2.Envelope) bool { return false }, r.read)
 
 	if len(r.sourceIDs) != 1 {
 		t.Fatal("expected read to be invoked once")
@@ -53,12 +53,12 @@ func TestWalkRejectsTooNewData(t *testing.T) {
 	}
 
 	var called, es int
-	logcache.Walk(context.Background(), "some-id", func(e []*loggregator_v2.Envelope) bool {
+	client.Walk(context.Background(), "some-id", func(e []*loggregator_v2.Envelope) bool {
 		defer func() { called++ }()
 		es += len(e)
 		return called == 0
 	}, r.read,
-		logcache.WithWalkDelay(6*time.Second),
+		client.WithWalkDelay(6*time.Second),
 	)
 
 	if len(r.starts) != 2 {
@@ -98,14 +98,14 @@ func TestWalkRejectsTooNewDataWithEndTime(t *testing.T) {
 	}
 
 	var called, es int
-	logcache.Walk(context.Background(), "some-id", func(e []*loggregator_v2.Envelope) bool {
+	client.Walk(context.Background(), "some-id", func(e []*loggregator_v2.Envelope) bool {
 		defer func() { called++ }()
 		es += len(e)
 		return called == 0
 	}, r.read,
-		logcache.WithWalkDelay(6*time.Second),
-		logcache.WithWalkEndTime(time.Unix(0, 4)),
-		logcache.WithWalkBackoff(logcache.NewRetryBackoff(time.Nanosecond, 2)),
+		client.WithWalkDelay(6*time.Second),
+		client.WithWalkEndTime(time.Unix(0, 4)),
+		client.WithWalkBackoff(client.NewRetryBackoff(time.Nanosecond, 2)),
 	)
 
 	if len(r.starts) != 3 {
@@ -142,7 +142,7 @@ func TestWalkUsesEndTime(t *testing.T) {
 	copy(expected, r.envelopes)
 
 	var es [][]*loggregator_v2.Envelope
-	logcache.Walk(context.Background(), "some-id", func(b []*loggregator_v2.Envelope) bool {
+	client.Walk(context.Background(), "some-id", func(b []*loggregator_v2.Envelope) bool {
 		es = append(es, b)
 		return true
 	},
@@ -193,14 +193,14 @@ func TestWalkWithinWindow(t *testing.T) {
 	}
 
 	var es []*loggregator_v2.Envelope
-	logcache.Walk(context.Background(), "some-id", func(b []*loggregator_v2.Envelope) bool {
+	client.Walk(context.Background(), "some-id", func(b []*loggregator_v2.Envelope) bool {
 		es = append(es, b...)
 		return true
 	},
 		r.read,
-		logcache.WithWalkStartTime(time.Unix(0, times[0])),
-		logcache.WithWalkEndTime(time.Unix(0, times[3])),
-		logcache.WithWalkDelay(0),
+		client.WithWalkStartTime(time.Unix(0, times[0])),
+		client.WithWalkEndTime(time.Unix(0, times[3])),
+		client.WithWalkDelay(0),
 	)
 
 	if len(r.sourceIDs) != 2 {
@@ -238,7 +238,7 @@ func TestWalkRetriesOnError(t *testing.T) {
 	}
 
 	var called int
-	logcache.Walk(
+	client.Walk(
 		context.Background(),
 		"some-id",
 		func(b []*loggregator_v2.Envelope) bool {
@@ -246,7 +246,7 @@ func TestWalkRetriesOnError(t *testing.T) {
 			return false
 		},
 		r.read,
-		logcache.WithWalkBackoff(b),
+		client.WithWalkBackoff(b),
 	)
 
 	if len(r.sourceIDs) != 2 {
@@ -282,7 +282,7 @@ func TestWalkCancels(t *testing.T) {
 	cancel()
 
 	var called int
-	logcache.Walk(
+	client.Walk(
 		ctx,
 		"some-id",
 		func(b []*loggregator_v2.Envelope) bool {
@@ -290,7 +290,7 @@ func TestWalkCancels(t *testing.T) {
 			return false
 		},
 		r.read,
-		logcache.WithWalkBackoff(b),
+		client.WithWalkBackoff(b),
 	)
 
 	// No need to backoff because context is cancelled
@@ -303,15 +303,15 @@ func TestWalkPassesOpts(t *testing.T) {
 	t.Parallel()
 
 	r := &stubReader{}
-	logcache.Walk(
+	client.Walk(
 		context.Background(),
 		"some-id",
 		func(b []*loggregator_v2.Envelope) bool {
 			return false
 		},
 		r.read,
-		logcache.WithWalkLimit(99),
-		logcache.WithWalkEnvelopeTypes(rpc.EnvelopeType_LOG, rpc.EnvelopeType_GAUGE),
+		client.WithWalkLimit(99),
+		client.WithWalkEnvelopeTypes(rpc.EnvelopeType_LOG, rpc.EnvelopeType_GAUGE),
 	)
 
 	u := &url.URL{}
@@ -321,9 +321,121 @@ func TestWalkPassesOpts(t *testing.T) {
 	}
 	u.RawQuery = q.Encode()
 
-	assertQueryParam(t, u, "limit", "99")
-	assertQueryParam(t, u, "envelope_types", "LOG", "GAUGE")
+	assertQueryParam(u, "limit", "99")
+	assertQueryParam(u, "envelope_types", "LOG", "GAUGE")
 }
+
+// func TestWalkFiltersOnName(t *testing.T) {
+// 	t.Parallel()
+
+// 	r := &stubReader{
+// 		envelopes: [][]*loggregator_v2.Envelope{
+// 			{
+// 				{
+// 					Timestamp: 1,
+// 					Message: &loggregator_v2.Envelope_Gauge{
+// 						Gauge: &loggregator_v2.Gauge{
+// 							Metrics: map[string]*loggregator_v2.GaugeValue{
+// 								"matching_metric": {Unit: "some-unit", Value: 1},
+// 							},
+// 						},
+// 					},
+// 				},
+// 				{
+// 					Timestamp: 2,
+// 					Message: &loggregator_v2.Envelope_Gauge{
+// 						Gauge: &loggregator_v2.Gauge{
+// 							Metrics: map[string]*loggregator_v2.GaugeValue{
+// 								"other_metric":    {Unit: "some-unit", Value: 1},
+// 								"matching_metric": {Unit: "some-unit", Value: 1},
+// 							},
+// 						},
+// 					},
+// 				},
+// 				{
+// 					Timestamp: 100,
+// 					Message: &loggregator_v2.Envelope_Gauge{
+// 						Gauge: &loggregator_v2.Gauge{
+// 							Metrics: map[string]*loggregator_v2.GaugeValue{
+// 								"other_metric": {Unit: "some-unit", Value: 1},
+// 							},
+// 						},
+// 					},
+// 				},
+// 			},
+// 			{
+// 				{
+// 					Timestamp: 101,
+// 					Message: &loggregator_v2.Envelope_Counter{
+// 						Counter: &loggregator_v2.Counter{Name: "matching_metric", Total: 0},
+// 					},
+// 				},
+// 				{
+// 					Timestamp: 200,
+// 					Message: &loggregator_v2.Envelope_Counter{
+// 						Counter: &loggregator_v2.Counter{Name: "other_metric", Total: 0},
+// 					},
+// 				},
+// 			},
+// 			{
+// 				{
+// 					Timestamp: 201,
+// 					Message: &loggregator_v2.Envelope_Timer{
+// 						Timer: &loggregator_v2.Timer{Name: "matching_metric", Start: 0, Stop: 1},
+// 					},
+// 				},
+// 				{
+// 					Timestamp: 300,
+// 					Message: &loggregator_v2.Envelope_Timer{
+// 						Timer: &loggregator_v2.Timer{Name: "other_metric", Start: 0, Stop: 1},
+// 					},
+// 				},
+// 			},
+// 			{
+// 				{
+// 					Timestamp: 400,
+// 					Message: &loggregator_v2.Envelope_Timer{
+// 						Timer: &loggregator_v2.Timer{Name: "other_metric", Start: 0, Stop: 1},
+// 					},
+// 				},
+// 			},
+// 		},
+// 		errs: []error{nil, nil, nil, nil},
+// 	}
+
+// 	var called, es int
+// 	client.Walk(context.Background(), "some-id", func(e []*loggregator_v2.Envelope) bool {
+// 		defer func() { called++ }()
+// 		es += len(e)
+// 		return true
+// 	}, r.read,
+// 		client.WithWalkNameFilter("matching.*"),
+// 	)
+
+// 	if len(r.starts) != 4 {
+// 		t.Fatalf("expected Read start times to have 4 entries: %d", len(r.starts))
+// 	}
+
+// 	if r.starts[1] != 3 {
+// 		t.Fatalf("expected to use next start time from matching envelope: %d", r.starts[1])
+// 	}
+
+// 	if r.starts[2] != 102 {
+// 		t.Fatalf("expected to use next start time from matching envelope: %d", r.starts[2])
+// 	}
+
+// 	if r.starts[3] != 202 {
+// 		t.Fatalf("expected to use next start time from matching envelope: %d", r.starts[3])
+// 	}
+
+// 	if called != 3 {
+// 		t.Fatalf("expected to call vistor 3 times: %d", called)
+// 	}
+
+// 	if es != 4 {
+// 		t.Fatalf("expected to filter down to 4 envelopes by name: %d", es)
+// 	}
+// }
 
 type stubBackoff struct {
 	errs          []error
@@ -348,7 +460,7 @@ func (s *stubBackoff) Reset() {
 type stubReader struct {
 	sourceIDs []string
 	starts    []int64
-	opts      [][]logcache.ReadOption
+	opts      [][]client.ReadOption
 
 	envelopes [][]*loggregator_v2.Envelope
 	errs      []error
@@ -358,7 +470,7 @@ func newStubReader() *stubReader {
 	return &stubReader{}
 }
 
-func (s *stubReader) read(ctx context.Context, sourceID string, start time.Time, opts ...logcache.ReadOption) ([]*loggregator_v2.Envelope, error) {
+func (s *stubReader) read(ctx context.Context, sourceID string, start time.Time, opts ...client.ReadOption) ([]*loggregator_v2.Envelope, error) {
 	s.sourceIDs = append(s.sourceIDs, sourceID)
 	s.starts = append(s.starts, start.UnixNano())
 	s.opts = append(s.opts, opts)

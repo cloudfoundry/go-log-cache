@@ -1,6 +1,7 @@
 package main
 
 import (
+	client "code.cloudfoundry.org/go-log-cache"
 	"context"
 	"fmt"
 	"log"
@@ -8,7 +9,6 @@ import (
 	"time"
 
 	envstruct "code.cloudfoundry.org/go-envstruct"
-	logcache "code.cloudfoundry.org/go-log-cache"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 )
 
@@ -17,7 +17,7 @@ func main() {
 
 	httpClient := newHTTPClient(cfg)
 
-	client := logcache.NewClient(cfg.Addr, logcache.WithHTTPClient(httpClient))
+	logcache_client := client.NewClient(cfg.Addr, client.WithHTTPClient(httpClient))
 
 	visitor := func(es []*loggregator_v2.Envelope) bool {
 		fmt.Println("*********************Start Window********************")
@@ -33,14 +33,14 @@ func main() {
 		return true
 	}
 
-	walker := logcache.BuildWalker(cfg.SourceID, client.Read)
-	logcache.Window(
+	walker := client.BuildWalker(cfg.SourceID, logcache_client.Read)
+	client.Window(
 		context.Background(),
 		visitor,
 		walker,
-		logcache.WithWindowWidth(cfg.WindowWidth),
-		logcache.WithWindowInterval(cfg.WindowInterval),
-		logcache.WithWindowStartTime(time.Unix(0, cfg.StartTime)),
+		client.WithWindowWidth(cfg.WindowWidth),
+		client.WithWindowInterval(cfg.WindowInterval),
+		client.WithWindowStartTime(time.Unix(0, cfg.StartTime)),
 	)
 }
 

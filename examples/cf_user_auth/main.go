@@ -1,13 +1,13 @@
 package main
 
 import (
+	client "code.cloudfoundry.org/go-log-cache"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
 
-	logcache "code.cloudfoundry.org/go-log-cache"
 )
 
 func main() {
@@ -41,11 +41,11 @@ func main() {
 		panic(fmt.Sprintf("missing required environment variables: %s", strings.Join(missing, ", ")))
 	}
 
-	c := logcache.NewOauth2HTTPClient(uaaAddr, uaaClient, uaaClientSecret,
-		logcache.WithOauth2HTTPUser(username, password),
+	c := client.NewOauth2HTTPClient(uaaAddr, uaaClient, uaaClientSecret,
+		client.WithOauth2HTTPUser(username, password),
 	)
 
-	req, err := http.NewRequest(http.MethodGet, logCacheAddr+"/v1/meta", nil)
+	req, err := http.NewRequest(http.MethodGet, logCacheAddr+"/api/v1/meta", nil)
 	if err != nil {
 		panic(err)
 	}
