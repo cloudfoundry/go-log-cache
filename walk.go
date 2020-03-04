@@ -26,14 +26,14 @@ type Visitor func([]*loggregator_v2.Envelope) bool
 
 // Walk reads from the LogCache until the Visitor returns false.
 func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...WalkOption) {
-	c := &walkConfig{
+	c := &WalkConfig{
 		log:     log.New(ioutil.Discard, "", 0),
 		backoff: AlwaysDoneBackoff{},
 		delay:   time.Second,
 	}
 
 	for _, o := range opts {
-		o.configure(c)
+		o.Configure(c)
 	}
 
 	var readOpts []ReadOption
@@ -117,20 +117,20 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 
 // WalkOption overrides defaults for Walk.
 type WalkOption interface {
-	configure(*walkConfig)
+	Configure(*WalkConfig)
 }
 
 // WithWalkLogger is used to set the logger for the Walk. It defaults to
 // not logging.
 func WithWalkLogger(l *log.Logger) WalkOption {
-	return walkOptionFunc(func(c *walkConfig) {
+	return walkOptionFunc(func(c *WalkConfig) {
 		c.log = l
 	})
 }
 
 // WithWalkStartTime sets the start time of the query.
 func WithWalkStartTime(t time.Time) WalkOption {
-	return walkOptionFunc(func(c *walkConfig) {
+	return walkOptionFunc(func(c *WalkConfig) {
 		c.start = t.UnixNano()
 	})
 }
@@ -138,27 +138,27 @@ func WithWalkStartTime(t time.Time) WalkOption {
 // WithWalkEndTime sets the end time of the query. Once reached, Walk will
 // exit.
 func WithWalkEndTime(t time.Time) WalkOption {
-	return walkOptionFunc(func(c *walkConfig) {
+	return walkOptionFunc(func(c *WalkConfig) {
 		c.end = t
 	})
 }
 
 // WithWalkLimit sets the limit of the query.
 func WithWalkLimit(limit int) WalkOption {
-	return walkOptionFunc(func(c *walkConfig) {
+	return walkOptionFunc(func(c *WalkConfig) {
 		c.limit = &limit
 	})
 }
 
 // WithWalkEnvelopeType sets the envelope_types of the query.
 func WithWalkEnvelopeTypes(t ...logcache_v1.EnvelopeType) WalkOption {
-	return walkOptionFunc(func(c *walkConfig) {
+	return walkOptionFunc(func(c *WalkConfig) {
 		c.envelopeTypes = t
 	})
 }
 
 func WithWalkNameFilter(nameFilter string) WalkOption {
-	return walkOptionFunc(func(c *walkConfig) {
+	return walkOptionFunc(func(c *WalkConfig) {
 		c.nameFilter = nameFilter
 	})
 }
@@ -166,7 +166,7 @@ func WithWalkNameFilter(nameFilter string) WalkOption {
 // WithWalkBackoff sets the backoff strategy for an empty batch or error. It
 // defaults to stopping on an error or empty batch via AlwaysDoneBackoff.
 func WithWalkBackoff(b Backoff) WalkOption {
-	return walkOptionFunc(func(c *walkConfig) {
+	return walkOptionFunc(func(c *WalkConfig) {
 		c.backoff = b
 	})
 }
@@ -177,7 +177,7 @@ func WithWalkBackoff(b Backoff) WalkOption {
 // included. This protects from distributed clocks causing data to be skipped.
 // Defaults to 1 second.
 func WithWalkDelay(delay time.Duration) WalkOption {
-	return walkOptionFunc(func(c *walkConfig) {
+	return walkOptionFunc(func(c *WalkConfig) {
 		c.delay = delay
 	})
 }
@@ -295,13 +295,13 @@ func (b *RetryBackoff) Reset() {
 	b.count = 0
 }
 
-type walkOptionFunc func(*walkConfig)
+type walkOptionFunc func(*WalkConfig)
 
-func (f walkOptionFunc) configure(c *walkConfig) {
+func (f walkOptionFunc) Configure(c *WalkConfig) {
 	f(c)
 }
 
-type walkConfig struct {
+type WalkConfig struct {
 	log           *log.Logger
 	backoff       Backoff
 	start         int64
