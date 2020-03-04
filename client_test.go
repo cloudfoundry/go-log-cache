@@ -92,6 +92,23 @@ var _ = Describe("Log Cache Client", func() {
 				Expect(logCache.reqs[1].URL.Query()).To(HaveLen(1))
 			})
 
+			It("only checks the version once with multiple calls", func() {
+				logCache := newStubLogCache()
+				logcache_client := client.NewClient(logCache.addr())
+
+				envelopes, err := logcache_client.Read(context.Background(), "some-id", time.Unix(0, 99))
+				Expect(err).ToNot(HaveOccurred())
+				Expect(envelopes).To(HaveLen(2))
+
+				envelopes, err = logcache_client.Read(context.Background(), "some-id", time.Unix(0, 99))
+				Expect(err).ToNot(HaveOccurred())
+				Expect(envelopes).To(HaveLen(2))
+
+				Expect(logCache.reqs[0].URL.Path).To(Equal("/api/v1/info"))
+				Expect(logCache.reqs[1].URL.Path).To(Equal("/api/v1/read/some-id"))
+				Expect(logCache.reqs[2].URL.Path).To(Equal("/api/v1/read/some-id"))
+			})
+
 			It("falls back to pre-1.4.7 endpoint", func() {
 				logCache := newStubOldLogCache()
 				logcache_client := client.NewClient(logCache.addr())

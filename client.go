@@ -298,11 +298,13 @@ func (c *Client) getBaseApiPath(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	apiPath := "/v1"
 	if logCacheVersion.GTE(FIRST_LOG_CACHE_VERSION_AFTER_API_MOVE) {
-		return "/api/v1", nil
+		apiPath = "/api/v1"
 	}
 
-	return "/v1", nil
+	c.baseApiPath = apiPath
+	return apiPath, nil
 }
 
 func (c *Client) LogCacheVersion(ctx context.Context) (semver.Version, error) {
