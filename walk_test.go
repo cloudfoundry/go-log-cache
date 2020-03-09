@@ -1,13 +1,14 @@
 package client_test
 
 import (
-	client "code.cloudfoundry.org/go-log-cache"
 	"context"
 	"errors"
 	"net/url"
 	"reflect"
 	"testing"
 	"time"
+
+	client "code.cloudfoundry.org/go-log-cache"
 
 	rpc "code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
@@ -326,14 +327,18 @@ func TestWalkPassesOpts(t *testing.T) {
 }
 
 type testOption struct {
-	called bool
+	called *bool
 }
-func(t testOption) Configure(w *client.WalkConfig) {
-	t.called = true
+
+func (t testOption) Configure(w *client.WalkConfig) {
+	*t.called = true
 }
 
 func TestExternalWalkConfiguration(t *testing.T) {
-	o := &testOption{}
+	optionCalled := false
+	o := &testOption{
+		called: &optionCalled,
+	}
 	r := &stubReader{}
 	client.Walk(
 		context.Background(),
@@ -345,7 +350,7 @@ func TestExternalWalkConfiguration(t *testing.T) {
 		o,
 	)
 
-	if !o.called {
+	if !optionCalled {
 		t.Fatal("Failed to call custom option")
 	}
 }
