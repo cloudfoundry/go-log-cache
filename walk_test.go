@@ -326,32 +326,31 @@ func TestWalkPassesOpts(t *testing.T) {
 	assertQueryParam(u, "envelope_types", "LOG", "GAUGE")
 }
 
-type testOption struct {
-	called *bool
+type spyWalker struct {
+	wc client.WalkConfig
 }
 
-func (t testOption) Configure(w *client.WalkConfig) {
-	*t.called = true
+func (s *spyWalker) Walk(ctx context.Context, sourceID string, v client.Visitor, r client.Reader, opts ...client.WalkOption) {
+	for _, o := range opts{
+		o(&s.wc)
+	}
 }
 
 func TestExternalWalkConfiguration(t *testing.T) {
-	optionCalled := false
-	o := &testOption{
-		called: &optionCalled,
-	}
+	var sw spyWalker
 	r := &stubReader{}
-	client.Walk(
+	sw.Walk(
 		context.Background(),
 		"some-id",
 		func(b []*loggregator_v2.Envelope) bool {
 			return false
 		},
 		r.read,
-		o,
+		client.WithWalkLimit(10),
 	)
 
-	if !optionCalled {
-		t.Fatal("Failed to call custom option")
+	if *sw.wc.Limit != 10 {
+		t.Fatal("Expected limit to be 10")
 	}
 }
 

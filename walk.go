@@ -27,52 +27,52 @@ type Visitor func([]*loggregator_v2.Envelope) bool
 // Walk reads from the LogCache until the Visitor returns false.
 func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...WalkOption) {
 	c := &WalkConfig{
-		log:     log.New(ioutil.Discard, "", 0),
-		backoff: AlwaysDoneBackoff{},
-		delay:   time.Second,
+		Log:     log.New(ioutil.Discard, "", 0),
+		Backoff: AlwaysDoneBackoff{},
+		Delay:   time.Second,
 	}
 
 	for _, o := range opts {
-		o.Configure(c)
+		o(c)
 	}
 
 	var readOpts []ReadOption
-	if !c.end.IsZero() {
-		readOpts = append(readOpts, WithEndTime(c.end))
+	if !c.End.IsZero() {
+		readOpts = append(readOpts, WithEndTime(c.End))
 	}
 
-	if c.limit != nil {
-		readOpts = append(readOpts, WithLimit(*c.limit))
+	if c.Limit != nil {
+		readOpts = append(readOpts, WithLimit(*c.Limit))
 	}
 
-	if c.envelopeTypes != nil {
-		readOpts = append(readOpts, WithEnvelopeTypes(c.envelopeTypes...))
+	if c.EnvelopeTypes != nil {
+		readOpts = append(readOpts, WithEnvelopeTypes(c.EnvelopeTypes...))
 	}
 
-	if c.nameFilter != "" {
-		readOpts = append(readOpts, WithNameFilter(c.nameFilter))
+	if c.NameFilter != "" {
+		readOpts = append(readOpts, WithNameFilter(c.NameFilter))
 	}
 
 	var receivedEmpty bool
 
 	for {
-		es, err := r(ctx, sourceID, time.Unix(0, c.start), readOpts...)
+		es, err := r(ctx, sourceID, time.Unix(0, c.Start), readOpts...)
 		if err != nil && ctx.Err() != nil {
 			// Context cancelled
 			return
 		}
 
 		if err != nil {
-			c.log.Print(err)
-			if !c.backoff.OnErr(err) {
+			c.Log.Print(err)
+			if !c.Backoff.OnErr(err) {
 				return
 			}
 			continue
 		}
 
-		if c.end.IsZero() || !receivedEmpty {
+		if c.End.IsZero() || !receivedEmpty {
 			// Prune envelopes for any that are too new or from the future.
-			withDelay := time.Now().Add(-c.delay).UnixNano()
+			withDelay := time.Now().Add(-c.Delay).UnixNano()
 			for i := len(es) - 1; i >= 0; i-- {
 				if es[i].GetTimestamp() <= withDelay {
 					// The rest of the envelopes aren't too new.
@@ -84,9 +84,9 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 			}
 		}
 
-		if !c.end.IsZero() {
+		if !c.End.IsZero() {
 			for i := len(es) - 1; i >= 0; i-- {
-				if es[i].GetTimestamp() < c.end.UnixNano() {
+				if es[i].GetTimestamp() < c.End.UnixNano() {
 					break
 				}
 
@@ -96,90 +96,88 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 
 		if len(es) == 0 {
 			receivedEmpty = true
-			if !c.backoff.OnEmpty() {
+			if !c.Backoff.OnEmpty() {
 				return
 			}
 			continue
 		}
 
-		c.backoff.Reset()
+		c.Backoff.Reset()
 		receivedEmpty = false
 
 		// If visitor is done or the next timestamp would be outside of our
-		// window (only when end is set), then be done.
-		if !v(es) || (!c.end.IsZero() && es[len(es)-1].Timestamp+1 >= c.end.UnixNano()) {
+		// window (only when End is set), then be done.
+		if !v(es) || (!c.End.IsZero() && es[len(es)-1].Timestamp+1 >= c.End.UnixNano()) {
 			return
 		}
 
-		c.start = es[len(es)-1].Timestamp + 1
+		c.Start = es[len(es)-1].Timestamp + 1
 	}
 }
 
 // WalkOption overrides defaults for Walk.
-type WalkOption interface {
-	Configure(*WalkConfig)
-}
+type WalkOption func(config *WalkConfig)
 
 // WithWalkLogger is used to set the logger for the Walk. It defaults to
 // not logging.
 func WithWalkLogger(l *log.Logger) WalkOption {
-	return walkOptionFunc(func(c *WalkConfig) {
-		c.log = l
-	})
+	return func(c *WalkConfig) {
+		c.Log = l
+	}
 }
 
-// WithWalkStartTime sets the start time of the query.
+// WithWalkStartTime sets the Start time of the query.
 func WithWalkStartTime(t time.Time) WalkOption {
-	return walkOptionFunc(func(c *WalkConfig) {
-		c.start = t.UnixNano()
-	})
+	return func(c *WalkConfig) {
+		c.Start = t.UnixNano()
+	}
 }
 
-// WithWalkEndTime sets the end time of the query. Once reached, Walk will
+// WithWalkEndTime sets the End time of the query. Once reached, Walk will
 // exit.
 func WithWalkEndTime(t time.Time) WalkOption {
-	return walkOptionFunc(func(c *WalkConfig) {
-		c.end = t
-	})
+	return func(c *WalkConfig) {
+		c.End = t
+	}
 }
 
-// WithWalkLimit sets the limit of the query.
+// WithWalkLimit sets the Limit of the query.
 func WithWalkLimit(limit int) WalkOption {
-	return walkOptionFunc(func(c *WalkConfig) {
-		c.limit = &limit
-	})
+	return func(c *WalkConfig) {
+		c.Limit = &limit
+	}
 }
 
 // WithWalkEnvelopeType sets the envelope_types of the query.
 func WithWalkEnvelopeTypes(t ...logcache_v1.EnvelopeType) WalkOption {
-	return walkOptionFunc(func(c *WalkConfig) {
-		c.envelopeTypes = t
-	})
+	return func(c *WalkConfig) {
+		c.EnvelopeTypes = t
+	}
 }
 
 func WithWalkNameFilter(nameFilter string) WalkOption {
-	return walkOptionFunc(func(c *WalkConfig) {
-		c.nameFilter = nameFilter
-	})
+	return func(c *WalkConfig) {
+		c.NameFilter = nameFilter
+	}
 }
 
-// WithWalkBackoff sets the backoff strategy for an empty batch or error. It
+// WithWalkBackoff sets the Backoff strategy for an empty batch or error. It
 // defaults to stopping on an error or empty batch via AlwaysDoneBackoff.
 func WithWalkBackoff(b Backoff) WalkOption {
-	return walkOptionFunc(func(c *WalkConfig) {
-		c.backoff = b
-	})
+	return func(c *WalkConfig) {
+		c.Backoff = b
+	}
 }
 
 // WithWalkDelay sets the value that the walk algorithm will consider "old"
 // enough. If an envelope has a timestamp that has a value that is greater
-// than time.Now().Add(-delay), it will be considered too "new", and not
+// than time.Now().Add(-Delay), it will be considered too "new", and not
 // included. This protects from distributed clocks causing data to be skipped.
 // Defaults to 1 second.
 func WithWalkDelay(delay time.Duration) WalkOption {
-	return walkOptionFunc(func(c *WalkConfig) {
-		c.delay = delay
-	})
+	return func(c *WalkConfig) {
+		c.Delay = delay
+	}
 }
 
 // Backoff is used to determine what to do if there is an empty batch or
@@ -295,19 +293,13 @@ func (b *RetryBackoff) Reset() {
 	b.count = 0
 }
 
-type walkOptionFunc func(*WalkConfig)
-
-func (f walkOptionFunc) Configure(c *WalkConfig) {
-	f(c)
-}
-
 type WalkConfig struct {
-	log           *log.Logger
-	backoff       Backoff
-	start         int64
-	end           time.Time
-	limit         *int
-	envelopeTypes []logcache_v1.EnvelopeType
-	delay         time.Duration
-	nameFilter    string
+	Log           *log.Logger
+	Backoff       Backoff
+	Start         int64
+	End           time.Time
+	Limit         *int
+	EnvelopeTypes []logcache_v1.EnvelopeType
+	Delay         time.Duration
+	NameFilter    string
 }
