@@ -75,6 +75,40 @@ func TestWalkRejectsTooNewData(t *testing.T) {
 	}
 }
 
+// If delay function is passed in, the developer determines set of envelopes
+// to discard.
+func TestWalkRejectsEnvelopesAccordingToDelayFunc(t *testing.T) {
+	t.Parallel()
+
+	r := &stubReader{
+		envelopes: [][]*loggregator_v2.Envelope{
+			{
+				{Timestamp: 1},
+				// Give too new of a value.
+				{Timestamp: time.Now().Add(-5 * time.Second).UnixNano()},
+			},
+		},
+		errs: []error{nil},
+	}
+
+	var called, es int
+	client.Walk(context.Background(), "some-id", func(e []*loggregator_v2.Envelope) bool {
+		defer func() { called++ }()
+		es += len(e)
+		return called == 0
+	}, r.read,
+		client.WithWalkDelay(6*time.Second),
+		client.WithWalkDelayFunc(
+			func(e []*loggregator_v2.Envelope) []*loggregator_v2.Envelope {
+				return []*loggregator_v2.Envelope{}
+			}),
+	)
+
+	if es != 0 {
+		t.Fatal("expected delay func to be applied and omit all envelopes")
+	}
+}
+
 func TestWalkRejectsTooNewDataWithEndTime(t *testing.T) {
 	t.Parallel()
 
@@ -331,7 +365,7 @@ type spyWalker struct {
 }
 
 func (s *spyWalker) Walk(ctx context.Context, sourceID string, v client.Visitor, r client.Reader, opts ...client.WalkOption) {
-	for _, o := range opts{
+	for _, o := range opts {
 		o(&s.wc)
 	}
 }

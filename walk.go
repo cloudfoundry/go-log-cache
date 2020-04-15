@@ -29,8 +29,9 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 	c := &WalkConfig{
 		Log:     log.New(ioutil.Discard, "", 0),
 		Backoff: AlwaysDoneBackoff{},
-		Delay:   time.Second,
 	}
+	walkOptionDelay := WithWalkDelay(1)
+	walkOptionDelay(c)
 
 	for _, o := range opts {
 		o(c)
@@ -72,16 +73,7 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 
 		if c.End.IsZero() || !receivedEmpty {
 			// Prune envelopes for any that are too new or from the future.
-			withDelay := time.Now().Add(-c.Delay).UnixNano()
-			for i := len(es) - 1; i >= 0; i-- {
-				if es[i].GetTimestamp() <= withDelay {
-					// The rest of the envelopes aren't too new.
-					break
-				}
-
-				// Envelope is too new. Throw it away.
-				es = es[:i]
-			}
+			es = c.DelayFunc(es)
 		}
 
 		if !c.End.IsZero() {
@@ -176,7 +168,28 @@ func WithWalkBackoff(b Backoff) WalkOption {
 // Defaults to 1 second.
 func WithWalkDelay(delay time.Duration) WalkOption {
 	return func(c *WalkConfig) {
-		c.Delay = delay
+		c.DelayFunc = func(es []*loggregator_v2.Envelope) []*loggregator_v2.Envelope {
+			withDelay := time.Now().Add(-delay).UnixNano()
+			for i := len(es) - 1; i >= 0; i-- {
+				if es[i].GetTimestamp() <= withDelay {
+					// The rest of the envelopes aren't too new.
+					break
+				}
+
+				// Envelope is too new. Throw it away.
+				es = es[:i]
+			}
+			return es
+		}
+	}
+}
+
+// WithWalkDelayFunc allows custom logic to determine which envelopes are too new.
+// Walk will continue to walk from the last envelope not discarded by this
+// function. By default it uses WithWalkDelay(1)
+func WithWalkDelayFunc(delayFunc func([]*loggregator_v2.Envelope) []*loggregator_v2.Envelope) WalkOption {
+	return func(c *WalkConfig) {
+		c.DelayFunc = delayFunc
 	}
 }
 
@@ -300,6 +313,6 @@ type WalkConfig struct {
 	End           time.Time
 	Limit         *int
 	EnvelopeTypes []logcache_v1.EnvelopeType
-	Delay         time.Duration
+	DelayFunc     func([]*loggregator_v2.Envelope) []*loggregator_v2.Envelope
 	NameFilter    string
 }
