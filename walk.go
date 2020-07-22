@@ -30,7 +30,7 @@ func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...Wal
 		Log:     log.New(ioutil.Discard, "", 0),
 		Backoff: AlwaysDoneBackoff{},
 	}
-	walkOptionDelay := WithWalkDelay(1)
+	walkOptionDelay := WithWalkDelay(2)
 	walkOptionDelay(c)
 
 	for _, o := range opts {
