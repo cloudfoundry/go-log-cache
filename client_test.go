@@ -2,7 +2,6 @@ package client_test
 
 import (
 	"bytes"
-	client "code.cloudfoundry.org/go-log-cache"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -14,8 +13,9 @@ import (
 	"sync"
 	"time"
 
-	"code.cloudfoundry.org/go-loggregator/v8/rpc/loggregator_v2"
+	client "code.cloudfoundry.org/go-log-cache"
 
+	"code.cloudfoundry.org/go-loggregator/v8/rpc/loggregator_v2"
 
 	rpc "code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 	"google.golang.org/grpc"
@@ -971,6 +971,8 @@ type stubGrpcLogCache struct {
 	promRangeReqs   []*rpc.PromQL_RangeQueryRequest
 	lis             net.Listener
 	block           bool
+	rpc.UnimplementedEgressServer
+	rpc.UnimplementedPromQLQuerierServer
 }
 
 func newStubGrpcLogCache() *stubGrpcLogCache {

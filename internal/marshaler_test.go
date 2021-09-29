@@ -2,14 +2,14 @@ package internal_test
 
 import (
 	"bytes"
-	marshaler "code.cloudfoundry.org/go-log-cache/internal"
-	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 	"errors"
 	"io"
 	"strings"
 
+	marshaler "code.cloudfoundry.org/go-log-cache/internal"
+	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -525,7 +525,7 @@ var _ = Describe("PromqlMarshaler", func() {
 			}`), &result)
 			Expect(err).ToNot(HaveOccurred())
 
-			Expect(result).To(Equal(logcache_v1.PromQL_InstantQueryResult{
+			Expect(&result).To(Equal(&logcache_v1.PromQL_InstantQueryResult{
 				Result: &logcache_v1.PromQL_InstantQueryResult_Scalar{
 					Scalar: &logcache_v1.PromQL_Scalar{
 						Time:  "1.777",
@@ -563,7 +563,7 @@ var _ = Describe("PromqlMarshaler", func() {
 			}`), &result)
 			Expect(err).ToNot(HaveOccurred())
 
-			Expect(result).To(Equal(logcache_v1.PromQL_InstantQueryResult{
+			Expect(&result).To(Equal(&logcache_v1.PromQL_InstantQueryResult{
 				Result: &logcache_v1.PromQL_InstantQueryResult_Vector{
 					Vector: &logcache_v1.PromQL_Vector{
 						Samples: []*logcache_v1.PromQL_Sample{
@@ -627,7 +627,7 @@ var _ = Describe("PromqlMarshaler", func() {
 			}`), &result)
 			Expect(err).ToNot(HaveOccurred())
 
-			Expect(result).To(Equal(logcache_v1.PromQL_InstantQueryResult{
+			Expect(&result).To(Equal(&logcache_v1.PromQL_InstantQueryResult{
 				Result: &logcache_v1.PromQL_InstantQueryResult_Matrix{
 					Matrix: &logcache_v1.PromQL_Matrix{
 						Series: []*logcache_v1.PromQL_Series{
@@ -703,7 +703,7 @@ var _ = Describe("PromqlMarshaler", func() {
 			}`), &result)
 			Expect(err).ToNot(HaveOccurred())
 
-			Expect(result).To(Equal(logcache_v1.PromQL_RangeQueryResult{
+			Expect(&result).To(Equal(&logcache_v1.PromQL_RangeQueryResult{
 				Result: &logcache_v1.PromQL_RangeQueryResult_Matrix{
 					Matrix: &logcache_v1.PromQL_Matrix{
 						Series: []*logcache_v1.PromQL_Series{
@@ -780,7 +780,7 @@ var _ = Describe("PromqlMarshaler", func() {
 			err := marshaler.NewDecoder(marshaled).Decode(&result)
 
 			Expect(err).ToNot(HaveOccurred())
-			Expect(result).To(Equal(logcache_v1.PromQL_InstantQueryResult{
+			Expect(&result).To(Equal(&logcache_v1.PromQL_InstantQueryResult{
 				Result: &logcache_v1.PromQL_InstantQueryResult_Scalar{
 					Scalar: &logcache_v1.PromQL_Scalar{
 						Time:  "1.123",
@@ -854,6 +854,6 @@ func (m *mockMarshaler) NewDecoder(r io.Reader) runtime.Decoder {
 	})
 }
 
-func (m *mockMarshaler) ContentType() string {
+func (m *mockMarshaler) ContentType(interface{}) string {
 	panic("not implemented")
 }
