@@ -2,7 +2,6 @@ package client_test
 
 import (
 	"bytes"
-	client "code.cloudfoundry.org/go-log-cache"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -10,6 +9,7 @@ import (
 	"sync"
 	"testing"
 
+	client "code.cloudfoundry.org/go-log-cache"
 )
 
 var _ client.HTTPClient = &client.Oauth2HTTPClient{}
@@ -344,13 +344,13 @@ func TestOauth2HTTPClientSurvivesRaceDetector(t *testing.T) {
 
 		req, err := http.NewRequest("GET", "http://some-target.com", nil)
 		if err != nil {
-			t.Fatal(err)
+			t.Error(err)
 		}
 
 		for i := 0; i < 10; i++ {
 			_, err = c.Do(req)
 			if err != nil {
-				t.Fatal(err)
+				t.Error(err)
 			}
 		}
 	}()

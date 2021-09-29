@@ -1,8 +1,6 @@
 package client
 
 import (
-	marshaler "code.cloudfoundry.org/go-log-cache/internal"
-	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 	"context"
 	"encoding/json"
 	"errors"
@@ -13,10 +11,13 @@ import (
 	"strconv"
 	"time"
 
+	marshaler "code.cloudfoundry.org/go-log-cache/internal"
+	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
+
 	"code.cloudfoundry.org/go-loggregator/v8/rpc/loggregator_v2"
 	"github.com/blang/semver"
 	"github.com/golang/protobuf/jsonpb"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 )
 
