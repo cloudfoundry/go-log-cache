@@ -101,5 +101,5 @@ var Ingress_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "logcache_v1/ingress.proto",
+	Metadata: "api/v1/ingress.proto",
 }

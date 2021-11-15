@@ -205,5 +205,5 @@ var Orchestration_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "logcache_v1/orchestration.proto",
+	Metadata: "api/v1/orchestration.proto",
 }
