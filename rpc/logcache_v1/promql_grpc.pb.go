@@ -133,5 +133,5 @@ var PromQLQuerier_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "logcache_v1/promql.proto",
+	Metadata: "api/v1/promql.proto",
 }

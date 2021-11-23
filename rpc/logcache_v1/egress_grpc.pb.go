@@ -133,5 +133,5 @@ var Egress_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "logcache_v1/egress.proto",
+	Metadata: "api/v1/egress.proto",
 }
