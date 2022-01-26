@@ -10,8 +10,6 @@ code.cloudfoundry.org/rfc5424
 ## explicit
 github.com/blang/semver
 # github.com/golang/protobuf v1.5.2
-## explicit
-github.com/golang/protobuf/jsonpb
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
