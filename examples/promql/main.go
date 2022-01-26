@@ -1,7 +1,6 @@
 package main
 
 import (
-	client "code.cloudfoundry.org/go-log-cache"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
@@ -11,10 +10,12 @@ import (
 	"log"
 	"os"
 
+	client "code.cloudfoundry.org/go-log-cache"
+
 	envstruct "code.cloudfoundry.org/go-envstruct"
-	"github.com/golang/protobuf/jsonpb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func main() {
@@ -39,13 +40,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	m := &jsonpb.Marshaler{}
-	str, err := m.MarshalToString(result)
+	str, err := protojson.Marshal(result)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(str)
+	fmt.Println(string(str))
 }
 
 // Config is the configuration for a LogCache Gateway.
