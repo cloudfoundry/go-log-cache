@@ -1073,24 +1073,6 @@ func (s *stubGrpcLogCache) Meta(context.Context, *rpc.MetaRequest) (*rpc.MetaRes
 	}, nil
 }
 
-func (s *stubGrpcLogCache) requests() []*rpc.ReadRequest {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	r := make([]*rpc.ReadRequest, len(s.reqs))
-	copy(r, s.reqs)
-	return r
-}
-
-func (s *stubGrpcLogCache) promQLRequests() []*rpc.PromQL_InstantQueryRequest {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	r := make([]*rpc.PromQL_InstantQueryRequest, len(s.promInstantReqs))
-	copy(r, s.promInstantReqs)
-	return r
-}
-
 type stubBufferCloser struct {
 	*bytes.Buffer
 	closed bool

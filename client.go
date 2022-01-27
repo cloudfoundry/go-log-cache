@@ -382,7 +382,7 @@ func (c *Client) LogCacheVMUptime(ctx context.Context) (int64, error) {
 	}
 
 	if info.VMUptime == "" {
-		return -1, errors.New("This version of log cache does not support vm_uptime info")
+		return -1, errors.New("this version of log cache does not support vm_uptime info")
 	}
 
 	uptime, err := strconv.ParseInt(info.VMUptime, 10, 64)
