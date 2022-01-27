@@ -1,13 +1,13 @@
 package main
 
 import (
-	client "code.cloudfoundry.org/go-log-cache"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
 
+	client "code.cloudfoundry.org/go-log-cache"
 )
 
 func main() {
@@ -61,10 +61,4 @@ func main() {
 	}
 
 	fmt.Println(string(b))
-}
-
-func verifyPresent(name, envVar string) {
-	if envVar == "" {
-		panic(fmt.Errorf(""))
-	}
 }
