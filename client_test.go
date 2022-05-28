@@ -163,7 +163,7 @@ var _ = Describe("Log Cache Client", func() {
 			It("closes the body", func() {
 				spyHTTPClient := newSpyHTTPClient()
 				logcache_client := client.NewClient("", client.WithHTTPClient(spyHTTPClient))
-				logcache_client.Read(context.Background(), "some-name", time.Now())
+				logcache_client.Read(context.Background(), "some-name", time.Now()) //nolint:errcheck
 
 				Expect(spyHTTPClient.body.closed).To(BeTrue())
 			})
@@ -248,7 +248,7 @@ var _ = Describe("Log Cache Client", func() {
 			It("closes the body", func() {
 				spyHTTPClient := newSpyHTTPClient()
 				logcache_client := client.NewClient("", client.WithHTTPClient(spyHTTPClient))
-				logcache_client.Meta(context.Background())
+				logcache_client.Meta(context.Background()) //nolint:errcheck
 
 				Expect(spyHTTPClient.body.closed).To(BeTrue())
 			})
@@ -334,7 +334,7 @@ var _ = Describe("Log Cache Client", func() {
 			It("closes the body", func() {
 				spyHTTPClient := newSpyHTTPClient()
 				logcache_client := client.NewClient("", client.WithHTTPClient(spyHTTPClient))
-				logcache_client.PromQL(context.Background(), "some-query")
+				logcache_client.PromQL(context.Background(), "some-query") //nolint:errcheck
 
 				Expect(spyHTTPClient.body.closed).To(BeTrue())
 			})
@@ -430,7 +430,7 @@ var _ = Describe("Log Cache Client", func() {
 			It("closes the body", func() {
 				spyHTTPClient := newSpyHTTPClient()
 				logcache_client := client.NewClient("", client.WithHTTPClient(spyHTTPClient))
-				logcache_client.PromQLRaw(context.Background(), "some-query")
+				logcache_client.PromQLRaw(context.Background(), "some-query") //nolint:errcheck
 
 				Expect(spyHTTPClient.body.closed).To(BeTrue())
 			})
@@ -519,7 +519,7 @@ var _ = Describe("Log Cache Client", func() {
 			It("closes the body", func() {
 				spyHTTPClient := newSpyHTTPClient()
 				logcache_client := client.NewClient("", client.WithHTTPClient(spyHTTPClient))
-				logcache_client.PromQLRange(context.Background(), "some-query")
+				logcache_client.PromQLRange(context.Background(), "some-query") //nolint:errcheck
 
 				Expect(spyHTTPClient.body.closed).To(BeTrue())
 			})
@@ -610,7 +610,7 @@ var _ = Describe("Log Cache Client", func() {
 			It("closes the body", func() {
 				spyHTTPClient := newSpyHTTPClient()
 				logcache_client := client.NewClient("", client.WithHTTPClient(spyHTTPClient))
-				logcache_client.PromQLRangeRaw(context.Background(), "some-query")
+				logcache_client.PromQLRangeRaw(context.Background(), "some-query") //nolint:errcheck
 
 				Expect(spyHTTPClient.body.closed).To(BeTrue())
 			})
@@ -954,7 +954,7 @@ func (s *stubLogCache) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if _, ok := s.result[r.Method+r.URL.Path]; ok {
 		w.WriteHeader(s.statusCode)
-		w.Write(s.result[r.Method+r.URL.Path])
+		w.Write(s.result[r.Method+r.URL.Path]) //nolint:errcheck
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 	}
@@ -977,14 +977,14 @@ type stubGrpcLogCache struct {
 
 func newStubGrpcLogCache() *stubGrpcLogCache {
 	s := &stubGrpcLogCache{}
-	lis, err := net.Listen("tcp", ":0")
+	lis, err := net.Listen("tcp", ":0") //nolint:gosec
 	Expect(err).ToNot(HaveOccurred())
 
 	s.lis = lis
 	srv := grpc.NewServer()
 	rpc.RegisterEgressServer(srv, s)
 	rpc.RegisterPromQLQuerierServer(srv, s)
-	go srv.Serve(lis)
+	go srv.Serve(lis) //nolint:errcheck
 
 	return s
 }
