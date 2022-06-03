@@ -19,6 +19,7 @@ import (
 
 	rpc "code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -27,6 +28,8 @@ import (
 
 // Assert that client.Reader is fulfilled by Client.Read
 var _ client.Reader = client.Reader(client.NewClient("").Read)
+
+var insecureOpt = grpc.WithTransportCredentials(insecure.NewCredentials())
 
 var _ = Describe("Log Cache Client", func() {
 	Context("HTTP client", func() {
@@ -665,7 +668,7 @@ var _ = Describe("Log Cache Client", func() {
 		Describe("Read", func() {
 			It("reads envelopes", func() {
 				logCache := newStubGrpcLogCache()
-				logcache_client := client.NewClient(logCache.addr(), client.WithViaGRPC(grpc.WithInsecure()))
+				logcache_client := client.NewClient(logCache.addr(), client.WithViaGRPC(insecureOpt))
 
 				endTime := time.Now()
 
@@ -705,7 +708,7 @@ var _ = Describe("Log Cache Client", func() {
 			It("returns an error when the context is cancelled", func() {
 				logCache := newStubGrpcLogCache()
 				logCache.block = true
-				logcache_client := client.NewClient(logCache.addr(), client.WithViaGRPC(grpc.WithInsecure()))
+				logcache_client := client.NewClient(logCache.addr(), client.WithViaGRPC(insecureOpt))
 
 				ctx, cancel := context.WithCancel(context.Background())
 				cancel()
@@ -725,7 +728,7 @@ var _ = Describe("Log Cache Client", func() {
 		Describe("Meta", func() {
 			It("retrieves meta information", func() {
 				logCache := newStubGrpcLogCache()
-				logcache_client := client.NewClient(logCache.addr(), client.WithViaGRPC(grpc.WithInsecure()))
+				logcache_client := client.NewClient(logCache.addr(), client.WithViaGRPC(insecureOpt))
 
 				meta, err := logcache_client.Meta(context.Background())
 				Expect(err).ToNot(HaveOccurred())
@@ -737,7 +740,7 @@ var _ = Describe("Log Cache Client", func() {
 
 			It("returns an error when the context is cancelled", func() {
 				logCache := newStubGrpcLogCache()
-				logcache_client := client.NewClient(logCache.addr(), client.WithViaGRPC(grpc.WithInsecure()))
+				logcache_client := client.NewClient(logCache.addr(), client.WithViaGRPC(insecureOpt))
 
 				ctx, cancel := context.WithCancel(context.Background())
 				cancel()
@@ -750,7 +753,7 @@ var _ = Describe("Log Cache Client", func() {
 		Describe("PromQL", func() {
 			It("retrieves points", func() {
 				logCache := newStubGrpcLogCache()
-				logcache_client := client.NewClient(logCache.addr(), client.WithViaGRPC(grpc.WithInsecure()))
+				logcache_client := client.NewClient(logCache.addr(), client.WithViaGRPC(insecureOpt))
 
 				result, err := logcache_client.PromQL(context.Background(), "some-query",
 					client.WithPromQLTime(time.Unix(99, 0)),
@@ -775,7 +778,7 @@ var _ = Describe("Log Cache Client", func() {
 			It("returns an error when the context is cancelled", func() {
 				logCache := newStubGrpcLogCache()
 				logCache.block = true
-				logcache_client := client.NewClient(logCache.addr(), client.WithViaGRPC(grpc.WithInsecure()))
+				logcache_client := client.NewClient(logCache.addr(), client.WithViaGRPC(insecureOpt))
 
 				ctx, cancel := context.WithCancel(context.Background())
 				cancel()
