@@ -4,7 +4,6 @@ go 1.14
 
 require (
 	code.cloudfoundry.org/go-envstruct v1.5.0
-	code.cloudfoundry.org/go-loggregator/v8 v8.0.2-0.20200722201844-b5130958b65d
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.3
 	github.com/onsi/ginkgo v1.16.5

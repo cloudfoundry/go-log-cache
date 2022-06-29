@@ -15,9 +15,8 @@ import (
 
 	client "code.cloudfoundry.org/go-log-cache"
 
-	"code.cloudfoundry.org/go-loggregator/v8/rpc/loggregator_v2"
-
-	rpc "code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
+	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
+	"code.cloudfoundry.org/go-log-cache/rpc/loggregator_v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -143,7 +142,7 @@ var _ = Describe("Log Cache Client", func() {
 					time.Unix(0, 99),
 					client.WithEndTime(time.Unix(0, 101)),
 					client.WithLimit(103),
-					client.WithEnvelopeTypes(rpc.EnvelopeType_LOG, rpc.EnvelopeType_GAUGE),
+					client.WithEnvelopeTypes(logcache_v1.EnvelopeType_LOG, logcache_v1.EnvelopeType_GAUGE),
 					client.WithDescending(),
 					client.WithNameFilter("name.*"),
 				)
@@ -675,7 +674,7 @@ var _ = Describe("Log Cache Client", func() {
 				envelopes, err := logcache_client.Read(context.Background(), "some-id", time.Unix(0, 99),
 					client.WithLimit(10),
 					client.WithEndTime(endTime),
-					client.WithEnvelopeTypes(rpc.EnvelopeType_LOG, rpc.EnvelopeType_GAUGE),
+					client.WithEnvelopeTypes(logcache_v1.EnvelopeType_LOG, logcache_v1.EnvelopeType_GAUGE),
 					client.WithDescending(),
 					client.WithNameFilter("name.*"),
 				)
@@ -695,8 +694,8 @@ var _ = Describe("Log Cache Client", func() {
 							"EndTime":   BeEquivalentTo(endTime.UnixNano()),
 							"Limit":     BeEquivalentTo(10),
 							"EnvelopeTypes": ConsistOf(
-								Equal(rpc.EnvelopeType_LOG),
-								Equal(rpc.EnvelopeType_GAUGE),
+								Equal(logcache_v1.EnvelopeType_LOG),
+								Equal(logcache_v1.EnvelopeType_GAUGE),
 							),
 							"NameFilter": Equal("name.*"),
 							"Descending": Equal(true),
@@ -719,7 +718,7 @@ var _ = Describe("Log Cache Client", func() {
 					time.Unix(0, 99),
 					client.WithEndTime(time.Unix(0, 101)),
 					client.WithLimit(103),
-					client.WithEnvelopeTypes(rpc.EnvelopeType_LOG),
+					client.WithEnvelopeTypes(logcache_v1.EnvelopeType_LOG),
 				)
 				Expect(err).To(HaveOccurred())
 			})
@@ -969,13 +968,13 @@ func assertQueryParam(u *url.URL, name string, values ...string) {
 
 type stubGrpcLogCache struct {
 	mu              sync.Mutex
-	reqs            []*rpc.ReadRequest
-	promInstantReqs []*rpc.PromQL_InstantQueryRequest
-	promRangeReqs   []*rpc.PromQL_RangeQueryRequest
+	reqs            []*logcache_v1.ReadRequest
+	promInstantReqs []*logcache_v1.PromQL_InstantQueryRequest
+	promRangeReqs   []*logcache_v1.PromQL_RangeQueryRequest
 	lis             net.Listener
 	block           bool
-	rpc.UnimplementedEgressServer
-	rpc.UnimplementedPromQLQuerierServer
+	logcache_v1.UnimplementedEgressServer
+	logcache_v1.UnimplementedPromQLQuerierServer
 }
 
 func newStubGrpcLogCache() *stubGrpcLogCache {
@@ -985,8 +984,8 @@ func newStubGrpcLogCache() *stubGrpcLogCache {
 
 	s.lis = lis
 	srv := grpc.NewServer()
-	rpc.RegisterEgressServer(srv, s)
-	rpc.RegisterPromQLQuerierServer(srv, s)
+	logcache_v1.RegisterEgressServer(srv, s)
+	logcache_v1.RegisterPromQLQuerierServer(srv, s)
 	go srv.Serve(lis) //nolint:errcheck
 
 	return s
@@ -996,7 +995,7 @@ func (s *stubGrpcLogCache) addr() string {
 	return s.lis.Addr().String()
 }
 
-func (s *stubGrpcLogCache) Read(c context.Context, r *rpc.ReadRequest) (*rpc.ReadResponse, error) {
+func (s *stubGrpcLogCache) Read(c context.Context, r *logcache_v1.ReadRequest) (*logcache_v1.ReadResponse, error) {
 	if s.block {
 		var block chan struct{}
 		<-block
@@ -1006,7 +1005,7 @@ func (s *stubGrpcLogCache) Read(c context.Context, r *rpc.ReadRequest) (*rpc.Rea
 	defer s.mu.Unlock()
 	s.reqs = append(s.reqs, r)
 
-	return &rpc.ReadResponse{
+	return &logcache_v1.ReadResponse{
 		Envelopes: &loggregator_v2.EnvelopeBatch{
 			Batch: []*loggregator_v2.Envelope{
 				{Timestamp: 99, SourceId: "some-id"},
@@ -1016,7 +1015,7 @@ func (s *stubGrpcLogCache) Read(c context.Context, r *rpc.ReadRequest) (*rpc.Rea
 	}, nil
 }
 
-func (s *stubGrpcLogCache) InstantQuery(c context.Context, r *rpc.PromQL_InstantQueryRequest) (*rpc.PromQL_InstantQueryResult, error) {
+func (s *stubGrpcLogCache) InstantQuery(c context.Context, r *logcache_v1.PromQL_InstantQueryRequest) (*logcache_v1.PromQL_InstantQueryResult, error) {
 	if s.block {
 		var block chan struct{}
 		<-block
@@ -1026,9 +1025,9 @@ func (s *stubGrpcLogCache) InstantQuery(c context.Context, r *rpc.PromQL_Instant
 	defer s.mu.Unlock()
 	s.promInstantReqs = append(s.promInstantReqs, r)
 
-	return &rpc.PromQL_InstantQueryResult{
-		Result: &rpc.PromQL_InstantQueryResult_Scalar{
-			Scalar: &rpc.PromQL_Scalar{
+	return &logcache_v1.PromQL_InstantQueryResult{
+		Result: &logcache_v1.PromQL_InstantQueryResult_Scalar{
+			Scalar: &logcache_v1.PromQL_Scalar{
 				Time:  "99.000",
 				Value: 101,
 			},
@@ -1036,7 +1035,7 @@ func (s *stubGrpcLogCache) InstantQuery(c context.Context, r *rpc.PromQL_Instant
 	}, nil
 }
 
-func (s *stubGrpcLogCache) RangeQuery(c context.Context, r *rpc.PromQL_RangeQueryRequest) (*rpc.PromQL_RangeQueryResult, error) {
+func (s *stubGrpcLogCache) RangeQuery(c context.Context, r *logcache_v1.PromQL_RangeQueryRequest) (*logcache_v1.PromQL_RangeQueryResult, error) {
 	if s.block {
 		var block chan struct{}
 		<-block
@@ -1046,15 +1045,15 @@ func (s *stubGrpcLogCache) RangeQuery(c context.Context, r *rpc.PromQL_RangeQuer
 	defer s.mu.Unlock()
 	s.promRangeReqs = append(s.promRangeReqs, r)
 
-	return &rpc.PromQL_RangeQueryResult{
-		Result: &rpc.PromQL_RangeQueryResult_Matrix{
-			Matrix: &rpc.PromQL_Matrix{
-				Series: []*rpc.PromQL_Series{
+	return &logcache_v1.PromQL_RangeQueryResult{
+		Result: &logcache_v1.PromQL_RangeQueryResult_Matrix{
+			Matrix: &logcache_v1.PromQL_Matrix{
+				Series: []*logcache_v1.PromQL_Series{
 					{
 						Metric: map[string]string{
 							"__name__": "test",
 						},
-						Points: []*rpc.PromQL_Point{
+						Points: []*logcache_v1.PromQL_Point{
 							{
 								Time:  "99.000",
 								Value: 101,
@@ -1067,9 +1066,9 @@ func (s *stubGrpcLogCache) RangeQuery(c context.Context, r *rpc.PromQL_RangeQuer
 	}, nil
 }
 
-func (s *stubGrpcLogCache) Meta(context.Context, *rpc.MetaRequest) (*rpc.MetaResponse, error) {
-	return &rpc.MetaResponse{
-		Meta: map[string]*rpc.MetaInfo{
+func (s *stubGrpcLogCache) Meta(context.Context, *logcache_v1.MetaRequest) (*logcache_v1.MetaResponse, error) {
+	return &logcache_v1.MetaResponse{
+		Meta: map[string]*logcache_v1.MetaInfo{
 			"source-0": {},
 			"source-1": {},
 		},
