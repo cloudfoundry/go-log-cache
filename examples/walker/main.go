@@ -1,7 +1,6 @@
 package main
 
 import (
-	client "code.cloudfoundry.org/go-log-cache"
 	"context"
 	"fmt"
 	"log"
@@ -9,8 +8,10 @@ import (
 	"os"
 	"time"
 
+	client "code.cloudfoundry.org/go-log-cache"
+
 	envstruct "code.cloudfoundry.org/go-envstruct"
-	"code.cloudfoundry.org/go-loggregator/v8/rpc/loggregator_v2"
+	"code.cloudfoundry.org/go-loggregator/v9/rpc/loggregator_v2"
 )
 
 func main() {

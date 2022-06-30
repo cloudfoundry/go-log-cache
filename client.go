@@ -14,7 +14,7 @@ import (
 	marshaler "code.cloudfoundry.org/go-log-cache/internal"
 	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
 
-	"code.cloudfoundry.org/go-loggregator/v8/rpc/loggregator_v2"
+	"code.cloudfoundry.org/go-loggregator/v9/rpc/loggregator_v2"
 	"github.com/blang/semver"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
