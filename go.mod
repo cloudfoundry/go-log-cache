@@ -4,10 +4,10 @@ go 1.18
 
 require (
 	code.cloudfoundry.org/go-envstruct v1.5.0
-	code.cloudfoundry.org/go-loggregator/v9 v9.0.2
+	code.cloudfoundry.org/go-loggregator/v9 v9.0.3
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.12.0
-	github.com/onsi/ginkgo/v2 v2.3.0
+	github.com/onsi/ginkgo/v2 v2.3.1
 	github.com/onsi/gomega v1.22.1
 	google.golang.org/genproto v0.0.0-20221014213838-99cd37c6964a
 	google.golang.org/grpc v1.50.1
