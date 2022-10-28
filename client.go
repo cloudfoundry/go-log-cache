@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -144,7 +144,7 @@ func (c *Client) Read(
 		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +277,7 @@ func (c *Client) Meta(ctx context.Context) (map[string]*logcache_v1.MetaInfo, er
 		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -566,7 +566,7 @@ func (c *Client) PromQLRangeRaw(
 		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -699,7 +699,7 @@ func (c *Client) PromQLRaw(
 		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
