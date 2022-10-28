@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"log"
 	"time"
 
@@ -15,7 +15,7 @@ import (
 // over time.
 func Window(ctx context.Context, v Visitor, w Walker, opts ...WindowOption) {
 	c := windowConfig{
-		log:      log.New(ioutil.Discard, "", 0),
+		log:      log.New(io.Discard, "", 0),
 		width:    time.Hour,
 		interval: time.Minute,
 	}

@@ -3,7 +3,7 @@ package client_test
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"sync"
@@ -208,7 +208,7 @@ func TestOauth2HTTPReturnsErrorForNon200(t *testing.T) {
 	stubClient := newStubHTTPClient()
 	stubClient.resps = append(stubClient.resps, &http.Response{
 		StatusCode: 500,
-		Body:       ioutil.NopCloser(&bytes.Buffer{}),
+		Body:       io.NopCloser(&bytes.Buffer{}),
 	})
 	stubClient.errs = append(stubClient.errs, nil)
 
@@ -389,7 +389,7 @@ func (s *stubHTTPClient) Do(r *http.Request) (*http.Response, error) {
 	s.reqs = append(s.reqs, r)
 
 	if r.Body != nil {
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			panic(err)
 		}
@@ -424,7 +424,7 @@ func tokenResp() *http.Response {
 
 	return &http.Response{
 		StatusCode: 200,
-		Body:       ioutil.NopCloser(bytes.NewReader(data)),
+		Body:       io.NopCloser(bytes.NewReader(data)),
 	}
 }
 

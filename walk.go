@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"log"
 	"time"
 
@@ -27,7 +27,7 @@ type Visitor func([]*loggregator_v2.Envelope) bool
 // Walk reads from the LogCache until the Visitor returns false.
 func Walk(ctx context.Context, sourceID string, v Visitor, r Reader, opts ...WalkOption) {
 	c := &WalkConfig{
-		Log:     log.New(ioutil.Discard, "", 0),
+		Log:     log.New(io.Discard, "", 0),
 		Backoff: AlwaysDoneBackoff{},
 	}
 	walkOptionDelay := WithWalkDelay(2)

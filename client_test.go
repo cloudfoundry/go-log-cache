@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -949,7 +949,7 @@ func (s *stubLogCache) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		<-block
 	}
 
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	Expect(err).ToNot(HaveOccurred())
 
 	s.bodies = append(s.bodies, body)
