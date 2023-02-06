@@ -1,18 +1,34 @@
-# Log Cache Client
+# Log Cache - Go Client
 
-[![GoDoc][go-doc-badge]][go-doc] 
+[![Go Report Card](https://goreportcard.com/badge/code.cloudfoundry.org/go-log-cache)](https://goreportcard.com/report/code.cloudfoundry.org/go-log-cache)
+[![Go Reference](https://pkg.go.dev/badge/code.cloudfoundry.org/go-log-cache.svg)](https://pkg.go.dev/code.cloudfoundry.org/go-log-cache)
 
-If you have any questions, or want to get attention for a PR or issue please reach out on the [#logging-and-metrics channel in the cloudfoundry slack](https://cloudfoundry.slack.com/archives/CUW93AF3M)
+A Go client for the [Log Cache](https://github.com/cloudfoundry/log-cache-release).
 
-This is a golang client library for [Log-Cache][log-cache].
+## Getting Started
 
-## Usage
+### Installing
 
-This repository should be imported as:
+```bash
+go get code.cloudfoundry.org/go-log-cache
+```
 
-`import logcache "code.cloudfoundry.org/go-log-cache"`
+### Basic Usage
 
-[log-cache]:                https://code.cloudfoundry.org/log-cache-release
-[go-doc-badge]:             https://godoc.org/code.cloudfoundry.org/log-cache/client?status.svg
-[go-doc]:                   https://godoc.org/code.cloudfoundry.org/log-cache/pkg/client
-[go-log-cache]:             https://github.com/cloudfoundry/go-log-cache
+See [examples](examples).
+
+## Contributing
+
+Cloud Foundry uses GitHub to manage reviews of pull requests and issues.
+
+* If you have a trivial fix or improvement, go ahead and create a pull request.
+* If you plan to do something more involved, first discuss your ideas in [Slack](https://cloudfoundry.slack.com/archives/CUW93AF3M). This will help avoid unnecessary work :).
+* Make sure you've signed the CLA!
+
+## Versioning
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/cloudfoundry/go-log-cache/tags).
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
