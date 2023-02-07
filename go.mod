@@ -1,4 +1,4 @@
-module code.cloudfoundry.org/go-log-cache
+module code.cloudfoundry.org/go-log-cache/v2
 
 go 1.18
 

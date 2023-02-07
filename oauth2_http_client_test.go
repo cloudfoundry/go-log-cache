@@ -9,7 +9,7 @@ import (
 	"sync"
 	"testing"
 
-	client "code.cloudfoundry.org/go-log-cache"
+	client "code.cloudfoundry.org/go-log-cache/v2"
 )
 
 var _ client.HTTPClient = &client.Oauth2HTTPClient{}

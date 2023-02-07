@@ -6,8 +6,8 @@ import (
 	"io"
 	"strings"
 
-	marshaler "code.cloudfoundry.org/go-log-cache/internal"
-	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
+	marshaler "code.cloudfoundry.org/go-log-cache/v2/internal"
+	"code.cloudfoundry.org/go-log-cache/v2/rpc/logcache_v1"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 
