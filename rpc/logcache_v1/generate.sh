@@ -1,36 +1,36 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -eu
+# This script re-generates the Go code in this directory from the `.proto` files
+# in the `api`. [protoc](https://github.com/protocolbuffers/protobuf/releases)
+# must be installed beforehand.
+# Usage: `rpc/generate.sh`.
 
-# Before running you need protoc. Install on ubuntu with `sudo apt install -y protobuf-compiler`
+set -euxo pipefail
 
-dir_resolve() {
-  cd "$1" 2>/dev/null || return $? # cd to desired directory; if fail, quell any error messages but return exit status
-  echo "$(pwd -P)"                 # output full, link-resolved path
-}
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 
-# make it so we can run this script from any directory
-TARGET=$(dirname $0)
-TARGET=$(dir_resolve $TARGET)
-cd $TARGET
+TMP_DIR=$(mktemp -d)
+trap "rm -rf $TMP_DIR" EXIT
 
-# clone dependencies to a temp dir
-tmp_dir=$(mktemp -d)
-trap "rm -rf $tmp_dir" EXIT
+git clone --depth 1 "https://github.com/googleapis/googleapis.git" "${TMP_DIR}/google-api"
+mv "${TMP_DIR}/google-api/google" "${TMP_DIR}/google"
+git clone --depth 1 "https://github.com/cloudfoundry/loggregator-api" "${TMP_DIR}/loggregator-api"
 
-git clone --depth 1 https://github.com/googleapis/googleapis.git $tmp_dir/googleapis
-git clone --depth 1 https://github.com/cloudfoundry/loggregator-api $tmp_dir/loggregator-api
+export GOBIN="${TMP_DIR}/hack/bin"
+export PATH="${GOBIN}:${PATH}"
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
-OUT_PATH=Mapi/v1/ingress.proto=/logcache_v1,Mapi/v1/egress.proto=/logcache_v1,Mapi/v1/orchestration.proto=/logcache_v1,Mapi/v1/promql.proto=/logcache_v1,Mv2/envelope.proto=code.cloudfoundry.org/go-loggregator/v9/rpc/loggregator_v2:..
+pushd "${REPO_ROOT}/.." > /dev/null
+  mkdir -p "${TMP_DIR}/go-log-cache/api"
+  cp -R "${REPO_ROOT}/api/v1" "${TMP_DIR}/go-log-cache/api/v1"
 
-protoc \
-  api/v1/ingress.proto \
-  api/v1/egress.proto \
-  api/v1/orchestration.proto \
-  api/v1/promql.proto \
-  --proto_path=../../ \
-  --go_out=$OUT_PATH \
-  --go-grpc_out=$OUT_PATH \
-  --grpc-gateway_out=$OUT_PATH \
-  -I=$tmp_dir/loggregator-api \
-  -I=$tmp_dir/googleapis \
+  protoc \
+    -I="${TMP_DIR}" \
+    --go_out=$TMP_DIR \
+    --go-grpc_out=$TMP_DIR \
+    --grpc-gateway_out=$TMP_DIR \
+    $TMP_DIR/go-log-cache/api/v1/*.proto
+
+  mv $TMP_DIR/code.cloudfoundry.org/go-log-cache/v2/rpc/logcache_v1/* $REPO_ROOT/rpc/logcache_v1
+popd > /dev/null

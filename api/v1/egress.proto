@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package logcache.v1;
 
-import "v2/envelope.proto";
+import "loggregator-api/v2/envelope.proto";
 import "google/api/annotations.proto";
 
 option go_package = "code.cloudfoundry.org/go-log-cache/v2/rpc/logcache_v1";
