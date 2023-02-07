@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"time"
 
-	marshaler "code.cloudfoundry.org/go-log-cache/internal"
-	"code.cloudfoundry.org/go-log-cache/rpc/logcache_v1"
+	marshaler "code.cloudfoundry.org/go-log-cache/v2/internal"
+	"code.cloudfoundry.org/go-log-cache/v2/rpc/logcache_v1"
 
 	"code.cloudfoundry.org/go-loggregator/v9/rpc/loggregator_v2"
 	"github.com/blang/semver"
