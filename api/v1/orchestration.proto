@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package logcache.v1;
 
+option go_package = "code.cloudfoundry.org/go-log-cache/v2/rpc/logcache_v1";
+
 service Orchestration {
     rpc AddRange(AddRangeRequest) returns (AddRangeResponse) {}
     rpc RemoveRange(RemoveRangeRequest) returns (RemoveRangeResponse) {}

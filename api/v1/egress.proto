@@ -5,6 +5,8 @@ package logcache.v1;
 import "v2/envelope.proto";
 import "google/api/annotations.proto";
 
+option go_package = "code.cloudfoundry.org/go-log-cache/v2/rpc/logcache_v1";
+
 // The egress service is used to read data from the LogCache system.
 service Egress {
     rpc Read(ReadRequest) returns (ReadResponse) {

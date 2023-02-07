@@ -4,6 +4,8 @@ package logcache.v1;
 
 import "google/api/annotations.proto";
 
+option go_package = "code.cloudfoundry.org/go-log-cache/v2/rpc/logcache_v1";
+
 service PromQLQuerier {
     rpc InstantQuery(PromQL.InstantQueryRequest) returns (PromQL.InstantQueryResult){
         option (google.api.http) = {
