@@ -3,7 +3,7 @@
 # This script re-generates the Go code in this directory from the `.proto` files
 # in the `api`. [protoc](https://github.com/protocolbuffers/protobuf/releases)
 # must be installed beforehand.
-# Usage: `rpc/generate.sh`.
+# Usage: `rpc/logcache_v1/generate.sh`.
 
 set -euxo pipefail
 
