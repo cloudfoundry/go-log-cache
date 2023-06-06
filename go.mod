@@ -7,7 +7,7 @@ require (
 	code.cloudfoundry.org/go-loggregator/v9 v9.0.5
 	github.com/blang/semver/v4 v4.0.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2
-	github.com/onsi/ginkgo/v2 v2.9.5
+	github.com/onsi/ginkgo/v2 v2.9.7
 	github.com/onsi/gomega v1.27.7
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4
 	google.golang.org/grpc v1.55.0
