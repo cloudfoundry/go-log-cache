@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	code.cloudfoundry.org/go-envstruct v1.6.0
-	code.cloudfoundry.org/go-loggregator/v9 v9.0.5
+	code.cloudfoundry.org/go-loggregator/v9 v9.0.6
 	github.com/blang/semver/v4 v4.0.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0
 	github.com/onsi/ginkgo/v2 v2.11.0
