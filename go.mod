@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	code.cloudfoundry.org/go-envstruct v1.6.0
-	code.cloudfoundry.org/go-loggregator/v9 v9.0.8
+	code.cloudfoundry.org/go-loggregator/v9 v9.1.0
 	github.com/blang/semver/v4 v4.0.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1
 	github.com/onsi/ginkgo/v2 v2.13.2
@@ -21,8 +21,8 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.14.0 // indirect
 	google.golang.org/genproto v0.0.0-20231030173426-d783a09b4405 // indirect
