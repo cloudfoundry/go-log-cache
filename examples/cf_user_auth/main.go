@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	client "code.cloudfoundry.org/go-log-cache/v2"
+	client "code.cloudfoundry.org/go-log-cache/v3"
 )
 
 func main() {
