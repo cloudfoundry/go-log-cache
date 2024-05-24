@@ -10,7 +10,7 @@ import (
 	"log"
 	"os"
 
-	client "code.cloudfoundry.org/go-log-cache/v2"
+	client "code.cloudfoundry.org/go-log-cache/v3"
 
 	envstruct "code.cloudfoundry.org/go-envstruct"
 	"google.golang.org/grpc"

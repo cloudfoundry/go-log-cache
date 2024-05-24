@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	client "code.cloudfoundry.org/go-log-cache/v2"
+	client "code.cloudfoundry.org/go-log-cache/v3"
 
 	"code.cloudfoundry.org/go-loggregator/v9/rpc/loggregator_v2"
 )
