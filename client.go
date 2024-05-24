@@ -83,7 +83,7 @@ func WithViaGRPC(opts ...grpc.DialOption) ClientOption {
 	return clientOptionFunc(func(c interface{}) {
 		switch c := c.(type) {
 		case *Client:
-			conn, err := grpc.Dial(c.addr, opts...)
+			conn, err := grpc.NewClient(c.addr, opts...)
 			if err != nil {
 				panic(fmt.Sprintf("failed to dial via gRPC: %s", err))
 			}
