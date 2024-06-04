@@ -6,11 +6,11 @@ require (
 	code.cloudfoundry.org/go-envstruct v1.7.0
 	code.cloudfoundry.org/go-loggregator/v9 v9.2.1
 	github.com/blang/semver/v4 v4.0.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0
 	github.com/onsi/ginkgo/v2 v2.19.0
 	github.com/onsi/gomega v1.33.1
-	google.golang.org/genproto/googleapis/api v0.0.0-20240227224415-6ceb2ff114de
-	google.golang.org/grpc v1.63.2
+	google.golang.org/genproto/googleapis/api v0.0.0-20240513163218-0867130af1f8
+	google.golang.org/grpc v1.64.0
 	google.golang.org/protobuf v1.34.1
 )
 
@@ -24,7 +24,6 @@ require (
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/tools v0.21.0 // indirect
-	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240227224415-6ceb2ff114de // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240513163218-0867130af1f8 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
