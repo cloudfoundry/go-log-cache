@@ -33,5 +33,5 @@ pushd "${REPO_ROOT}/.." > /dev/null
     --grpc-gateway_out=$TMP_DIR \
     $TMP_DIR/go-log-cache/api/v1/*.proto
 
-  mv $TMP_DIR/code.cloudfoundry.org/go-log-cache/v2/rpc/logcache_v1/* $REPO_ROOT/rpc/logcache_v1
+  mv $TMP_DIR/code.cloudfoundry.org/go-log-cache/v3/rpc/logcache_v1/* $REPO_ROOT/rpc/logcache_v1/
 popd > /dev/null
