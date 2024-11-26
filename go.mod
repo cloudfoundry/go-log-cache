@@ -1,7 +1,6 @@
 module code.cloudfoundry.org/go-log-cache/v3
 
 go 1.22.0
-
 toolchain go1.22.8
 
 require (
@@ -12,7 +11,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.22.0
 	github.com/onsi/gomega v1.36.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38
-	google.golang.org/grpc v1.67.1
+	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.35.2
 )
 
