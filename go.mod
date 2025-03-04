@@ -1,8 +1,8 @@
 module code.cloudfoundry.org/go-log-cache/v3
 
-go 1.22.0
+go 1.23.0
 
-toolchain go1.22.8
+toolchain go1.23.5
 
 require (
 	code.cloudfoundry.org/go-envstruct v1.7.0
