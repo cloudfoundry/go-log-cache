@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -93,9 +92,10 @@ func NewTLSConfig(caPath, certPath, keyPath, cn string) (*tls.Config, error) {
 		ServerName:         cn,
 		Certificates:       []tls.Certificate{cert},
 		InsecureSkipVerify: false,
+		MinVersion:         tls.VersionTLS12,
 	}
 
-	caCertBytes, err := ioutil.ReadFile(caPath)
+	caCertBytes, err := os.ReadFile(caPath)
 	if err != nil {
 		return nil, err
 	}
