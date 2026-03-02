@@ -55,7 +55,7 @@ func main() {
 
 type config struct {
 	Addr      string        `env:"ADDR, required"`
-	AuthToken string        `env:"AUTH_TOKEN, required"`
+	AuthToken string        `env:"AUTH_TOKEN, required"` //nolint:gosec
 	SourceID  string        `env:"SOURCE_ID, required"`
 	Duration  time.Duration `env:"DURATION"`
 }
@@ -81,5 +81,5 @@ func newHTTPClient(c config) *HTTPClient {
 
 func (h *HTTPClient) Do(req *http.Request) (*http.Response, error) {
 	req.Header.Set("Authorization", h.cfg.AuthToken)
-	return h.client.Do(req)
+	return h.client.Do(req) //nolint:gosec
 }

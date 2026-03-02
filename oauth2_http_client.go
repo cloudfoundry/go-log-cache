@@ -188,7 +188,7 @@ func (c *Oauth2HTTPClient) doTokenRequest(req *http.Request) (string, error) {
 
 	token := struct {
 		TokenType   string `json:"token_type"`
-		AccessToken string `json:"access_token"`
+		AccessToken string `json:"access_token"` //nolint:gosec
 	}{}
 
 	if err := json.NewDecoder(resp.Body).Decode(&token); err != nil {
