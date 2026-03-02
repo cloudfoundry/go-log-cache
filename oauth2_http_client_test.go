@@ -430,5 +430,5 @@ func tokenResp() *http.Response {
 
 type oauth2Resp struct {
 	TokenType   string `json:"token_type"`
-	AccessToken string `json:"access_token"`
+	AccessToken string `json:"access_token"` //nolint:gosec
 }

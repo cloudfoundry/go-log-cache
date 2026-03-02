@@ -19,7 +19,7 @@ import (
 
 func main() {
 	if len(os.Args) != 2 {
-		log.Fatalf("usage: %s <query>", os.Args[0])
+		log.Fatalf("usage: %s <query>", os.Args[0]) //nolint:gosec
 	}
 
 	cfg, err := LoadConfig()

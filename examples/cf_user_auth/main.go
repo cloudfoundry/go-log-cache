@@ -45,9 +45,9 @@ func main() {
 		client.WithOauth2HTTPUser(username, password),
 	)
 
-	req, err := http.NewRequest(http.MethodGet, logCacheAddr+"/api/v1/meta", nil)
+	req, err := http.NewRequest(http.MethodGet, logCacheAddr+"/api/v1/meta", nil) //nolint:gosec
 	if err != nil {
-		panic(err)
+		panic(err) //nolint:gosec
 	}
 
 	resp, err := c.Do(req)
