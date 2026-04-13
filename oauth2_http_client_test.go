@@ -414,7 +414,7 @@ func (s *stubHTTPClient) Do(r *http.Request) (*http.Response, error) {
 }
 
 func tokenResp() *http.Response {
-	data, err := json.Marshal(oauth2Resp{
+	data, err := json.Marshal(oauth2Resp{ //nolint:gosec
 		TokenType:   "bearer",
 		AccessToken: "some-token",
 	})
