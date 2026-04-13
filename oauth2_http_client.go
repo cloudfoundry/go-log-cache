@@ -127,7 +127,7 @@ func (c *Oauth2HTTPClient) getClientToken() (string, error) {
 	v.Set("client_id", c.client)
 	v.Set("grant_type", "client_credentials")
 
-	req, err := http.NewRequest(
+	req, err := http.NewRequest( //nolint:gosec
 		"POST",
 		c.oauth2Addr,
 		strings.NewReader(v.Encode()),
@@ -159,7 +159,7 @@ func (c *Oauth2HTTPClient) getUserToken() (string, error) {
 	v.Set("username", c.username)
 	v.Set("password", c.userPassword)
 
-	req, err := http.NewRequest(
+	req, err := http.NewRequest( //nolint:gosec
 		"POST",
 		c.oauth2Addr,
 		strings.NewReader(v.Encode()),

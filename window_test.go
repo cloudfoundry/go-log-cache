@@ -259,7 +259,7 @@ type windowT struct {
 
 func windowSetup(t *testing.T) *windowT {
 	t.Parallel()
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background()) //nolint:gosec
 	return &windowT{
 		ctx:    ctx,
 		cancel: cancel,
