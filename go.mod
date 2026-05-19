@@ -10,7 +10,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.28.3
 	github.com/onsi/gomega v1.40.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260414002931-afd174a4e478
-	google.golang.org/grpc v1.81.0
+	google.golang.org/grpc v1.81.1
 	google.golang.org/protobuf v1.36.11
 )
 
